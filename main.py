@@ -66,7 +66,7 @@ def gacha_roll():
 
 
 def lucky_dice_roll():
-    """행운의 주사위: 전설 70%, 비밀 30%"""
+    """행운의 주사위 사용 시: 전설 70%, 비밀 30%"""
     rand_val = random.random()
     if rand_val <= 0.30:
         return "비밀", "#FF1493"
@@ -87,6 +87,7 @@ if "stats" not in st.session_state:
         "희귀": 0,
         "일반": 0,
     }
+# 획득한 아이템 인벤토리
 if "inventory" not in st.session_state:
     st.session_state.inventory = {
         "비밀": 0,
@@ -94,6 +95,12 @@ if "inventory" not in st.session_state:
         "영웅": 0,
         "희귀": 0,
         "일반": 0,
+    }
+# 상점에서 산 특수 아이템 인벤토리 (배낭)
+if "special_inventory" not in st.session_state:
+    st.session_state.special_inventory = {
+        "행운의 주사위": 0,
+        "비밀 등급 확정 구슬": 0,
     }
 if "trigger_secret_effect" not in st.session_state:
     st.session_state.trigger_secret_effect = False
@@ -111,9 +118,9 @@ st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코�
 
 st.divider()
 
-# 탭 구성
-tab1, tab2, tab3 = st.tabs(
-    ["🎰 아이템 뽑기", "🏪 상점 & 판매소", "📊 통계 & 기록"]
+# 탭 구성 (배낭 탭 추가)
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["🎰 아이템 뽑기", "🏪 상점 & 판매소", "🎒 배낭 (인벤토리)", "📊 통계 & 기록"]
 )
 
 # ================= TAB 1: 아이템 뽑기 =================
@@ -193,42 +200,71 @@ with tab2:
     with s_col1:
         st.markdown("### 🎲 행운의 주사위")
         st.write("가격: **300 코인**")
-        st.write("확률: **전설 70% | 비밀 30%**")
+        st.write("효과: **구매 후 배낭으로 지급**")
         if st.button("🎲 행운의 주사위 구매"):
             if st.session_state.coins >= 300:
                 st.session_state.coins -= 300
-                name, color = lucky_dice_roll()
-                st.session_state.history.append(f"주사위:{name}")
-                st.session_state.stats[name] += 1
-                st.session_state.inventory[name] += 1
-
-                if name == "비밀":
-                    st.session_state.trigger_secret_effect = True
-                    st.rerun()
-
-                st.success(f"🎲 주사위 결과: **:{color}[{name}]** 당첨!")
-                st.rerun()
+                st.session_state.special_inventory["행운의 주사위"] += 1
+                st.success("✨ '행운의 주사위'를 구매하여 배낭에 넣었습니다!")
             else:
                 st.error("코인이 부족합니다! (300 코인 필요)")
 
     with s_col2:
         st.markdown("### 💖 비밀 등급 확정 구슬")
         st.write("가격: **2000 코인**")
-        st.write("효과: **비밀 등급 100% 획득**")
+        st.write("효과: **구매 후 배낭으로 지급**")
         if st.button("🔮 비밀 구슬 구매"):
             if st.session_state.coins >= 2000:
                 st.session_state.coins -= 2000
-                name = "비밀"
-                st.session_state.history.append("상점구매:비밀")
-                st.session_state.stats[name] += 1
-                st.session_state.inventory[name] += 1
-                st.session_state.trigger_secret_effect = True
-                st.rerun()
+                st.session_state.special_inventory["비밀 등급 확정 구슬"] += 1
+                st.success("✨ '비밀 등급 확정 구슬'을 구매하여 배낭에 넣었습니다!")
             else:
                 st.error("코인이 부족합니다! (2000 코인 필요)")
 
-# ================= TAB 3: 통계 & 기록 =================
+# ================= TAB 3: 배낭 (인벤토리) =================
 with tab3:
+    st.subheader("🎒 특수 아이템 배낭")
+    st.caption("상점에서 구매한 아이템을 사용하세요.")
+
+    b_col1, b_col2 = st.columns(2)
+
+    with b_col1:
+        st.markdown("### 🎲 행운의 주사위")
+        dice_count = st.session_state.special_inventory["행운의 주사위"]
+        st.write(f"보유 개수: **{dice_count}개**")
+        st.write("확률: **전설 70% | 비밀 30%**")
+        if st.button("주사위 사용하기", disabled=(dice_count == 0)):
+            st.session_state.special_inventory["행운의 주사위"] -= 1
+            name, color = lucky_dice_roll()
+            st.session_state.history.append(f"주사위사용:{name}")
+            st.session_state.stats[name] += 1
+            st.session_state.inventory[name] += 1
+
+            if name == "비밀":
+                st.session_state.trigger_secret_effect = True
+                st.rerun()
+
+            st.success(f"🎲 주사위 결과: **:{color}[{name}]** 당첨!")
+            st.rerun()
+
+    with b_col2:
+        st.markdown("### 🔮 비밀 등급 확정 구슬")
+        marble_count = st.session_state.special_inventory[
+            "비밀 등급 확정 구슬"
+        ]
+        st.write(f"보유 개수: **{marble_count}개**")
+        st.write("효과: **비밀 등급 100% 획득**")
+        if st.button("구슬 사용하기", disabled=(marble_count == 0)):
+            st.session_state.special_inventory["비밀 등급 확정 구슬"] -= 1
+            name = "비밀"
+            st.session_state.history.append("구슬사용:비밀")
+            st.session_state.stats[name] += 1
+            st.session_state.inventory[name] += 1
+            st.session_state.trigger_secret_effect = True
+            st.rerun()
+
+# ================= TAB 4: 통계 & 기록 =================
+with tab4:
     st.subheader("📊 누적 뽑기 통계")
     total_count = len(st.session_state.history)
 
@@ -266,6 +302,10 @@ with tab3:
                 "영웅": 0,
                 "희귀": 0,
                 "일반": 0,
+            }
+            st.session_state.special_inventory = {
+                "행운의 주사위": 0,
+                "비밀 등급 확정 구슬": 0,
             }
             st.rerun()
     else:
