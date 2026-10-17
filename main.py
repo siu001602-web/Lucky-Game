@@ -142,7 +142,7 @@ if "special_inventory" not in st.session_state:
     st.session_state.special_inventory = {
         "행운의 주사위": 0,
         "비밀 등급 확정 구슬": 0,
-        "100연차 티켓": 0,
+        "100연차 기능권": 0,
     }
 if "unlocked" not in st.session_state:
     st.session_state.unlocked = {
@@ -150,6 +150,9 @@ if "unlocked" not in st.session_state:
         "도깨비": False,
         "비밀": False,
     }
+# 100연차 기능 영구 해금 여부
+if "has_100_roll" not in st.session_state:
+    st.session_state.has_100_roll = False
 
 if "effect_type" not in st.session_state:
     st.session_state.effect_type = None
@@ -216,7 +219,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
 # ================= TAB 1: 아이템 뽑기 =================
 with tab1:
     st.subheader("아이템 뽑기")
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         if st.button("🎰 1회 뽑기", use_container_width=True):
@@ -275,6 +278,43 @@ with tab1:
             st.info("✨ **[10연차 결과]** ✨")
             st.write(" | ".join(results[:5]))
             st.write(" | ".join(results[5:]))
+
+    with col3:
+        if st.session_state.has_100_roll:
+            if st.button("💥 100연차!", use_container_width=True, type="primary"):
+                special_hit = None
+                for _ in range(100):
+                    name, color = gacha_roll()
+                    st.session_state.history.append(name)
+                    st.session_state.stats[name] += 1
+                    st.session_state.inventory[name] += 1
+
+                    if name == "신성한":
+                        st.session_state.unlocked["신성한"] = True
+                        special_hit = "holy"
+                    elif name == "도깨비" and special_hit != "holy":
+                        st.session_state.unlocked["도깨비"] = True
+                        special_hit = "dokebi"
+                    elif (
+                        name == "비밀"
+                        and special_hit != "holy"
+                        and special_hit != "dokebi"
+                    ):
+                        st.session_state.unlocked["비밀"] = True
+                        special_hit = "secret"
+
+                if special_hit:
+                    st.session_state.effect_type = special_hit
+                    st.rerun()
+
+                st.success("💥 100연차 완료! 통계 및 인벤토리를 확인해보세요.")
+                st.rerun()
+        else:
+            st.button(
+                "🔒 100연차 (상점 해금)",
+                use_container_width=True,
+                disabled=True,
+            )
 
 # ================= TAB 2: 상점 & 판매소 =================
 with tab2:
@@ -364,16 +404,26 @@ with tab2:
                 st.error("코인이 부족합니다! (1500 코인 필요)")
 
     with s_col3:
-        st.markdown("### 🎫 100연차 티켓")
+        st.markdown("### 💥 100연차 기능")
         st.write("가격: **500 코인**")
-        st.write("효과: **한 번에 100회 연차 실행**")
-        if st.button("🎫 티켓 구매"):
-            if st.session_state.coins >= 500:
-                st.session_state.coins -= 500
-                st.session_state.special_inventory["100연차 티켓"] += 1
-                st.success("✨ '100연차 티켓'을 배낭에 넣었습니다!")
-            else:
-                st.error("코인이 부족합니다! (500 코인 필요)")
+        st.write("효과: **100연차 기능 영구 해금**")
+
+        # 이미 해금되었거나 배낭에 사둔 경우 품절 처리
+        is_sold_out = st.session_state.has_100_roll or (
+            st.session_state.special_inventory.get("100연차 기능권", 0) > 0
+        )
+
+        if is_sold_out:
+            st.button("🚫 [품절]", disabled=True, key="btn_soldout_100")
+        else:
+            if st.button("💥 100연차 구매"):
+                if st.session_state.coins >= 500:
+                    st.session_state.coins -= 500
+                    st.session_state.special_inventory["100연차 기능권"] += 1
+                    st.success("✨ '100연차 기능권'을 배낭에 넣었습니다!")
+                    st.rerun()
+                else:
+                    st.error("코인이 부족합니다! (500 코인 필요)")
 
 # ================= TAB 3: 배낭 =================
 with tab3:
@@ -422,38 +472,20 @@ with tab3:
             st.rerun()
 
     with b_col3:
-        st.markdown("### 🎫 100연차 티켓")
-        ticket_count = st.session_state.special_inventory["100연차 티켓"]
-        st.write(f"보유: **{ticket_count}개**")
-        if st.button("티켓 사용", disabled=(ticket_count == 0)):
-            st.session_state.special_inventory["100연차 티켓"] -= 1
-            special_hit = None
-            for _ in range(100):
-                name, color = gacha_roll()
-                st.session_state.history.append(name)
-                st.session_state.stats[name] += 1
-                st.session_state.inventory[name] += 1
-
-                if name == "신성한":
-                    st.session_state.unlocked["신성한"] = True
-                    special_hit = "holy"
-                elif name == "도깨비" and special_hit != "holy":
-                    st.session_state.unlocked["도깨비"] = True
-                    special_hit = "dokebi"
-                elif (
-                    name == "비밀"
-                    and special_hit != "holy"
-                    and special_hit != "dokebi"
-                ):
-                    st.session_state.unlocked["비밀"] = True
-                    special_hit = "secret"
-
-            if special_hit:
-                st.session_state.effect_type = special_hit
+        st.markdown("### 💥 100연차 기능권")
+        ticket_count = st.session_state.special_inventory.get(
+            "100연차 기능권", 0
+        )
+        if st.session_state.has_100_roll:
+            st.write("상태: **영구 해금 완료**")
+            st.button("사용 완료", disabled=True, key="btn_already_unlocked")
+        else:
+            st.write(f"보유: **{ticket_count}개**")
+            if st.button("기능권 사용", disabled=(ticket_count == 0)):
+                st.session_state.special_inventory["100연차 기능권"] -= 1
+                st.session_state.has_100_roll = True
+                st.success("🎉 '100연차' 기능이 영구 해금되었습니다! 뽑기 탭에서 이용하세요.")
                 st.rerun()
-
-            st.success("🎟️ 100연차 완료! 결과를 통계 및 인벤토리에서 확인하세요.")
-            st.rerun()
 
 # ================= TAB 4: 통계 & 기록 =================
 with tab4:
@@ -511,13 +543,14 @@ with tab4:
             st.session_state.special_inventory = {
                 "행운의 주사위": 0,
                 "비밀 등급 확정 구슬": 0,
-                "100연차 티켓": 0,
+                "100연차 기능권": 0,
             }
             st.session_state.unlocked = {
                 "신성한": False,
                 "도깨비": False,
                 "비밀": False,
             }
+            st.session_state.has_100_roll = False
             st.rerun()
     else:
         st.write("아직 기록이 없습니다.")
@@ -533,6 +566,7 @@ with tab5:
         "inventory": st.session_state.inventory,
         "special_inventory": st.session_state.special_inventory,
         "unlocked": st.session_state.unlocked,
+        "has_100_roll": st.session_state.has_100_roll,
     }
     json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
 
@@ -558,7 +592,6 @@ with tab5:
                 st.session_state.coins = loaded_data.get("coins", 0.0)
                 st.session_state.history = loaded_data.get("history", [])
 
-                # 기존 세이브에 없는 등급/키가 있어도 안전하게 기본값으로 채우기
                 default_stats = {
                     "신성한": 0,
                     "도깨비": 0,
@@ -569,10 +602,7 @@ with tab5:
                     "일반": 0,
                 }
                 loaded_stats = loaded_data.get("stats", {})
-                st.session_state.stats = {
-                    **default_stats,
-                    **loaded_stats,
-                }  # 병합
+                st.session_state.stats = {**default_stats, **loaded_stats}
 
                 default_inventory = {
                     "신성한": 0,
@@ -592,7 +622,7 @@ with tab5:
                 default_special = {
                     "행운의 주사위": 0,
                     "비밀 등급 확정 구슬": 0,
-                    "100연차 티켓": 0,
+                    "100연차 기능권": 0,
                 }
                 loaded_special = loaded_data.get("special_inventory", {})
                 st.session_state.special_inventory = {
@@ -610,6 +640,10 @@ with tab5:
                     **default_unlocked,
                     **loaded_unlocked,
                 }
+
+                st.session_state.has_100_roll = loaded_data.get(
+                    "has_100_roll", False
+                )
 
                 st.success("🎉 세이브 파일을 성공적으로 불러왔습니다!")
                 st.rerun()
