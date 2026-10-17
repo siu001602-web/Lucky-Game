@@ -1038,6 +1038,11 @@ with tab6:
         mime="application/json",
     )
 
+    st.markdown("---")
+    st.markdown("### 📱 폰에서 다운로드가 안 될 때 (텍스트 백업)")
+    st.caption("아래 상자의 내용을 전체 복사하여 메모장에 붙여넣고 `gacha_save.json`으로 저장하세요.")
+    st.text_area("세이브 백업용 텍스트", json_data, height=150)
+
     st.divider()
 
     st.markdown("### 📤 세이브 파일 불러오기")
