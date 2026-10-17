@@ -90,15 +90,9 @@ st.markdown(
 
     .effect-overlay {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 9999999;
-        pointer-events: auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: 9999999; pointer-events: auto;
+        display: flex; justify-content: center; align-items: center;
     }
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
     .holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
@@ -136,9 +130,7 @@ st.markdown(
     .gravity-popup {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .falling-apple {
-        font-size: 100px; animation: appleFall 3.0s ease-in forwards;
-    }
+    .falling-apple { font-size: 100px; animation: appleFall 3.0s ease-in forwards; }
     .gravity-text {
         font-size: 50px; font-weight: bold; color: #ffffff;
         text-shadow: 0px 0px 20px #ff4500; margin-top: 30px; text-align: center;
@@ -240,7 +232,12 @@ if "special_inventory" not in st.session_state:
         "10000연차 기능권": 0,
     }
 if "unlocked" not in st.session_state:
+    # 기본적으로 모든 등급 False로 시작하되 일반, 영웅, 희귀, 전설은 편의상 미리 열어두거나 모두 잠금(요청에 따라 전체 잠금 가능)
     st.session_state.unlocked = {t[0]: False for t in TIERS}
+    # 시작 시 일반, 희귀, 영웅, 전설은 바로 해금되도록 설정
+    for default_open in ["일반", "희귀", "영웅", "전설"]:
+        st.session_state.unlocked[default_open] = True
+
 if "has_100_roll" not in st.session_state:
     st.session_state.has_100_roll = False
 if "has_500_roll" not in st.session_state:
@@ -356,20 +353,37 @@ def get_display_name(tier_name):
     return names.get(tier_name, tier_name)
 
 
-def execute_rolls(count):
-    special_hit = None
-    priority = [
-        "중력",
-        "블랙홀",
-        "시간의 지배자",
-        "균열자",
-        "혜성",
-        "어비스",
-        "신성한",
-        "도깨비",
-        "비밀",
-    ]
+# 등급별 연출 매핑 우선순위 (가장 희귀한 것 우선)
+CUTSCENE_PRIORITY = [
+    "중력",
+    "블랙홀",
+    "시간의 지배자",
+    "균열자",
+    "혜성",
+    "어비스",
+    "신성한",
+    "도깨비",
+    "비밀",
+]
 
+
+def get_cutscene_type(name):
+    mapping = {
+        "중력": "gravity",
+        "블랙홀": "blackhole",
+        "시간의 지배자": "rift",  # 임시 매칭 혹은 개별 추가 가능
+        "균열자": "rift",
+        "혜성": "comet",
+        "어비스": "abyss",
+        "신성한": "holy",
+        "도깨비": "dokebi",
+        "비밀": "secret",
+    }
+    return mapping.get(name, None)
+
+
+def execute_rolls(count):
+    highest_special = None
     use_buff = st.session_state.use_filter_buff
 
     for _ in range(count):
@@ -378,37 +392,26 @@ def execute_rolls(count):
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
 
-        if name in priority:
-            was_unlocked = st.session_state.unlocked.get(name, False)
-            st.session_state.unlocked[name] = True
+        # 핵심: 뽑힌 순간 무조건 도감 해금 처리
+        was_unlocked = st.session_state.unlocked.get(name, False)
+        st.session_state.unlocked[name] = True
 
+        # 컷씬 대상인지 확인
+        if name in CUTSCENE_PRIORITY:
             if not (
                 st.session_state.skip_unlocked_cutscenes and was_unlocked
             ):
                 if (
-                    special_hit is None
-                    or priority.index(name) < priority.index(special_hit)
+                    highest_special is None
+                    or CUTSCENE_PRIORITY.index(name)
+                    < CUTSCENE_PRIORITY.index(highest_special)
                 ):
-                    special_hit = name
+                    highest_special = name
 
     if use_buff:
         st.session_state.use_filter_buff = False
 
-    return special_hit
-
-
-def trigger_effect_by_name(name):
-    effect_map = {
-        "중력": "gravity",
-        "블랙홀": "blackhole",
-        "균열자": "rift",
-        "혜성": "comet",
-        "어비스": "abyss",
-        "신성한": "holy",
-        "도깨비": "dokebi",
-        "비밀": "secret",
-    }
-    return effect_map.get(name, None)
+    return highest_special
 
 
 def check_all_unlocked():
@@ -419,14 +422,27 @@ def check_all_unlocked():
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코인")
 
+# 디버그/전체 해금 버튼 (도감 해금 확인용)
+if st.button("🔓 [디버그] 도감 전체 강제 해금하기"):
+    for t in TIERS:
+        st.session_state.unlocked[t[0]] = True
+    st.success("모든 도감이 강제 해금되었습니다!")
+    st.rerun()
+
 if check_all_unlocked():
     st.balloons()
-    if st.button("🏆 [엔딩 보기] 플레이해주셔서 감사합니다", type="primary", use_container_width=True):
+    if st.button(
+        "🏆 [엔딩 보기] 플레이해주셔서 감사합니다",
+        type="primary",
+        use_container_width=True,
+    ):
         st.session_state.effect_type = "ending"
         st.rerun()
 
 if st.session_state.use_filter_buff:
-    st.info("🚫 **[일반&희귀 제외권] 버프 활성화 중!** 이번 뽑기 시도에서 일반/희귀 등급이 등장하지 않습니다.")
+    st.info(
+        "🚫 **[일반&희귀 제외권] 버프 활성화 중!** 이번 뽑기 시도에서 일반/희귀 등급이 등장하지 않습니다."
+    )
 
 with st.expander("⚙️ 게임 설정"):
     st.session_state.skip_unlocked_cutscenes = st.checkbox(
@@ -464,9 +480,9 @@ with tab1:
             st.session_state.inventory[name] += 1
 
             was_unlocked = st.session_state.unlocked.get(name, False)
-            st.session_state.unlocked[name] = True
+            st.session_state.unlocked[name] = True  # 확실한 해금 반영
 
-            eff = trigger_effect_by_name(name)
+            eff = get_cutscene_type(name)
             if eff and not (
                 st.session_state.skip_unlocked_cutscenes and was_unlocked
             ):
@@ -480,7 +496,7 @@ with tab1:
         if st.button("🚀 10연차!", use_container_width=True):
             special_hit = execute_rolls(10)
             if special_hit:
-                eff = trigger_effect_by_name(special_hit)
+                eff = get_cutscene_type(special_hit)
                 if eff:
                     st.session_state.effect_type = eff
                     st.rerun()
@@ -503,10 +519,12 @@ with tab1:
         cols = st.columns(len(roll_buttons))
         for idx, (btn_label, count) in enumerate(roll_buttons):
             with cols[idx]:
-                if st.button(btn_label, use_container_width=True, type="primary"):
+                if st.button(
+                    btn_label, use_container_width=True, type="primary"
+                ):
                     special_hit = execute_rolls(count)
                     if special_hit:
-                        eff = trigger_effect_by_name(special_hit)
+                        eff = get_cutscene_type(special_hit)
                         if eff:
                             st.session_state.effect_type = eff
                             st.rerun()
@@ -741,8 +759,9 @@ with tab3:
             st.session_state.inventory[name] += 1
 
             was_unlocked = st.session_state.unlocked.get(name, False)
+            st.session_state.unlocked[name] = True  # 해금 처리 보장
+
             if name in ["도깨비", "비밀"]:
-                st.session_state.unlocked[name] = True
                 if not (
                     st.session_state.skip_unlocked_cutscenes and was_unlocked
                 ):
@@ -764,7 +783,9 @@ with tab3:
         if st.button("제외권 사용", disabled=(filter_count == 0)):
             st.session_state.special_inventory["일반&희귀 제외권"] -= 1
             st.session_state.use_filter_buff = True
-            st.success("🎉 제외권 적용 완료! 다음 뽑기 시도에서 일반/희귀 등급이 등장하지 않습니다.")
+            st.success(
+                "🎉 제외권 적용 완료! 다음 뽑기 시도에서 일반/희귀 등급이 등장하지 않습니다."
+            )
             st.rerun()
 
     st.markdown("---")
@@ -825,7 +846,9 @@ with tab3:
 
     with t_b5:
         st.markdown("#### 🌌 10000연차권")
-        c_10000 = st.session_state.special_inventory.get("10000연차 기능권", 0)
+        c_10000 = st.session_state.special_inventory.get(
+            "10000연차 기능권", 0
+        )
         if st.session_state.has_10000_roll:
             st.write("상태: **해금 완료**")
         else:
@@ -913,6 +936,8 @@ with tab5:
                 "10000연차 기능권": 0,
             }
             st.session_state.unlocked = {t[0]: False for t in TIERS}
+            for default_open in ["일반", "희귀", "영웅", "전설"]:
+                st.session_state.unlocked[default_open] = True
             st.session_state.has_100_roll = False
             st.session_state.has_500_roll = False
             st.session_state.has_1000_roll = False
@@ -992,6 +1017,8 @@ with tab6:
                 }
 
                 default_unlocked = {t[0]: False for t in TIERS}
+                for default_open in ["일반", "희귀", "영웅", "전설"]:
+                    default_unlocked[default_open] = True
                 st.session_state.unlocked = {
                     **default_unlocked,
                     **loaded_data.get("unlocked", {}),
