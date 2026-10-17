@@ -232,9 +232,7 @@ if "special_inventory" not in st.session_state:
         "10000연차 기능권": 0,
     }
 if "unlocked" not in st.session_state:
-    # 기본적으로 모든 등급 False로 시작하되 일반, 영웅, 희귀, 전설은 편의상 미리 열어두거나 모두 잠금(요청에 따라 전체 잠금 가능)
     st.session_state.unlocked = {t[0]: False for t in TIERS}
-    # 시작 시 일반, 희귀, 영웅, 전설은 바로 해금되도록 설정
     for default_open in ["일반", "희귀", "영웅", "전설"]:
         st.session_state.unlocked[default_open] = True
 
@@ -353,7 +351,6 @@ def get_display_name(tier_name):
     return names.get(tier_name, tier_name)
 
 
-# 등급별 연출 매핑 우선순위 (가장 희귀한 것 우선)
 CUTSCENE_PRIORITY = [
     "중력",
     "블랙홀",
@@ -371,7 +368,7 @@ def get_cutscene_type(name):
     mapping = {
         "중력": "gravity",
         "블랙홀": "blackhole",
-        "시간의 지배자": "rift",  # 임시 매칭 혹은 개별 추가 가능
+        "시간의 지배자": "rift",
         "균열자": "rift",
         "혜성": "comet",
         "어비스": "abyss",
@@ -392,11 +389,9 @@ def execute_rolls(count):
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
 
-        # 핵심: 뽑힌 순간 무조건 도감 해금 처리
         was_unlocked = st.session_state.unlocked.get(name, False)
         st.session_state.unlocked[name] = True
 
-        # 컷씬 대상인지 확인
         if name in CUTSCENE_PRIORITY:
             if not (
                 st.session_state.skip_unlocked_cutscenes and was_unlocked
@@ -421,13 +416,6 @@ def check_all_unlocked():
 # 4. 앱 상단 레이아웃
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코인")
-
-# 디버그/전체 해금 버튼 (도감 해금 확인용)
-if st.button("🔓 [디버그] 도감 전체 강제 해금하기"):
-    for t in TIERS:
-        st.session_state.unlocked[t[0]] = True
-    st.success("모든 도감이 강제 해금되었습니다!")
-    st.rerun()
 
 if check_all_unlocked():
     st.balloons()
@@ -480,7 +468,7 @@ with tab1:
             st.session_state.inventory[name] += 1
 
             was_unlocked = st.session_state.unlocked.get(name, False)
-            st.session_state.unlocked[name] = True  # 확실한 해금 반영
+            st.session_state.unlocked[name] = True
 
             eff = get_cutscene_type(name)
             if eff and not (
@@ -759,7 +747,7 @@ with tab3:
             st.session_state.inventory[name] += 1
 
             was_unlocked = st.session_state.unlocked.get(name, False)
-            st.session_state.unlocked[name] = True  # 해금 처리 보장
+            st.session_state.unlocked[name] = True
 
             if name in ["도깨비", "비밀"]:
                 if not (
