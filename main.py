@@ -52,7 +52,6 @@ st.markdown(
 )
 
 # 2. 확률 설정 (총합 100%)
-# 도깨비: 0.001%, 비밀: 0.009%, 전설: 0.09%, 영웅: 2.9%, 희귀: 7.0%, 일반: 90.0%
 TIERS = [
     ("도깨비", 0.00001, "#FF4500"),  # 오렌지레드
     ("비밀", 0.00009, "#FF1493"),  # 핫핑크
@@ -122,7 +121,6 @@ if "special_inventory" not in st.session_state:
         "행운의 주사위": 0,
         "비밀 등급 확정 구슬": 0,
     }
-# 최초 획득 여부 체크용 (도깨비, 비밀)
 if "unlocked" not in st.session_state:
     st.session_state.unlocked = {"도깨비": False, "비밀": False}
 
@@ -144,7 +142,6 @@ elif st.session_state.effect_type == "dokebi":
     st.session_state.effect_type = None
 
 
-# 이름 포맷 함수 (도깨비/비밀을 얻기 전이면 ?로 표시)
 def get_display_name(tier_name):
     if tier_name == "도깨비" and not st.session_state.unlocked["도깨비"]:
         return "❓ ??"
@@ -240,26 +237,29 @@ with tab2:
     c1, c2, c3 = st.columns(3)
     with c1:
         sell_selection["일반"] = st.checkbox(
-            f"⚪ 일반 ({st.session_state.inventory['일반']}개)"
+            f"⚪ 일반 ({st.session_state.inventory['일반']}개)",
+            key="chk_normal",
         )
         sell_selection["희귀"] = st.checkbox(
-            f"🔵 희귀 ({st.session_state.inventory['희귀']}개)"
+            f"🔵 희귀 ({st.session_state.inventory['희귀']}개)", key="chk_rare"
         )
     with c2:
         sell_selection["영웅"] = st.checkbox(
-            f"🟣 영웅 ({st.session_state.inventory['영웅']}개)"
+            f"🟣 영웅 ({st.session_state.inventory['영웅']}개)", key="chk_epic"
         )
         sell_selection["전설"] = st.checkbox(
-            f"🟡 전설 ({st.session_state.inventory['전설']}개)"
+            f"🟡 전설 ({st.session_state.inventory['전설']}개)",
+            key="chk_legend",
         )
     with c3:
         b_name = get_display_name("비밀")
         d_name = get_display_name("도깨비")
         sell_selection["비밀"] = st.checkbox(
-            f"{b_name} ({st.session_state.inventory['비밀']}개)"
+            f"{b_name} ({st.session_state.inventory['비밀']}개)", key="chk_secret"
         )
         sell_selection["도깨비"] = st.checkbox(
-            f"{d_name} ({st.session_state.inventory['도깨비']}개)"
+            f"{d_name} ({st.session_state.inventory['도깨비']}개)",
+            key="chk_dokebi",
         )
 
     if st.button("💰 선택한 아이템 판매하기", type="primary"):
