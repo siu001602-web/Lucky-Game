@@ -10,7 +10,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 비밀, 도깨비, 신성한 연출용 커스텀 CSS (암전, 도깨비 등장, 빛 연출)
+# 비밀, 도깨비, 신성한 연출용 커스텀 CSS
 st.markdown(
     """
     <style>
@@ -71,25 +71,17 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2. 확률 설정 (총합 100%)
-# 신성한: 0.0001% (0.000001)
-# 도깨비: 0.001% (0.000010)
-# 비밀: 0.009% (0.000090)
-# 전설: 0.09% (0.000900)
-# 영웅: 2.9% (0.029000)
-# 희귀: 7.0% (0.070000)
-# 일반: 89.9999% (0.899999)
+# 2. 확률 설정
 TIERS = [
-    ("신성한", 0.000001, "#00BFFF"),  # 딥 스카이 블루
-    ("도깨비", 0.000010, "#FF4500"),  # 오렌지레드
-    ("비밀", 0.000090, "#FF1493"),  # 핫핑크
-    ("전설", 0.000900, "#FFD700"),  # 골드
-    ("영웅", 0.029000, "#9400D3"),  # 퍼플
-    ("희귀", 0.070000, "#1E90FF"),  # 블루
-    ("일반", 0.899999, "#A9A9A9"),  # 그레이
+    ("신성한", 0.000009, "#00BFFF"),
+    ("도깨비", 0.000010, "#FF4500"),
+    ("비밀", 0.000090, "#FF1493"),
+    ("전설", 0.000900, "#FFD700"),
+    ("영웅", 0.029000, "#9400D3"),
+    ("희귀", 0.070000, "#1E90FF"),
+    ("일반", 0.899991, "#A9A9A9"),
 ]
 
-# 아이템 판매 가격 (코인)
 SELL_PRICES = {
     "일반": 0.01,
     "희귀": 0.05,
@@ -112,7 +104,6 @@ def gacha_roll():
 
 
 def lucky_dice_roll():
-    """행운의 주사위: 전설 70%, 비밀 20%, 도깨비 10%"""
     rand_val = random.random()
     if rand_val <= 0.10:
         return "도깨비", "#FF4500"
@@ -566,44 +557,61 @@ with tab5:
             if st.button("🔄 이 데이터로 게임 시작하기"):
                 st.session_state.coins = loaded_data.get("coins", 0.0)
                 st.session_state.history = loaded_data.get("history", [])
-                st.session_state.stats = loaded_data.get(
-                    "stats",
-                    {
-                        "신성한": 0,
-                        "도깨비": 0,
-                        "비밀": 0,
-                        "전설": 0,
-                        "영웅": 0,
-                        "희귀": 0,
-                        "일반": 0,
-                    },
-                )
-                st.session_state.inventory = loaded_data.get(
-                    "inventory",
-                    {
-                        "신성한": 0,
-                        "도깨비": 0,
-                        "비밀": 0,
-                        "전설": 0,
-                        "영웅": 0,
-                        "희귀": 0,
-                        "일반": 0,
-                    },
-                )
-                st.session_state.special_inventory = loaded_data.get(
-                    "special_inventory",
-                    {
-                        "행운의 주사위": 0,
-                        "비밀 등급 확정 구슬": 0,
-                        "100연차 티켓": 0,
-                    },
-                )
-                st.session_state.unlocked = loaded_data.get(
-                    "unlocked",
-                    {"신성한": False, "도깨비": False, "비밀": False},
-                )
+
+                # 기존 세이브에 없는 등급/키가 있어도 안전하게 기본값으로 채우기
+                default_stats = {
+                    "신성한": 0,
+                    "도깨비": 0,
+                    "비밀": 0,
+                    "전설": 0,
+                    "영웅": 0,
+                    "희귀": 0,
+                    "일반": 0,
+                }
+                loaded_stats = loaded_data.get("stats", {})
+                st.session_state.stats = {
+                    **default_stats,
+                    **loaded_stats,
+                }  # 병합
+
+                default_inventory = {
+                    "신성한": 0,
+                    "도깨비": 0,
+                    "비밀": 0,
+                    "전설": 0,
+                    "영웅": 0,
+                    "희귀": 0,
+                    "일반": 0,
+                }
+                loaded_inv = loaded_data.get("inventory", {})
+                st.session_state.inventory = {
+                    **default_inventory,
+                    **loaded_inv,
+                }
+
+                default_special = {
+                    "행운의 주사위": 0,
+                    "비밀 등급 확정 구슬": 0,
+                    "100연차 티켓": 0,
+                }
+                loaded_special = loaded_data.get("special_inventory", {})
+                st.session_state.special_inventory = {
+                    **default_special,
+                    **loaded_special,
+                }
+
+                default_unlocked = {
+                    "신성한": False,
+                    "도깨비": False,
+                    "비밀": False,
+                }
+                loaded_unlocked = loaded_data.get("unlocked", {})
+                st.session_state.unlocked = {
+                    **default_unlocked,
+                    **loaded_unlocked,
+                }
+
                 st.success("🎉 세이브 파일을 성공적으로 불러왔습니다!")
                 st.rerun()
         except Exception as e:
-            st.error(f"세이브 파일 형식이 잘못되었습니다: {e}")
-```I'm just a language model and can't help with that.
+            st.error(f"세이브 파일 형식이 잘못되었거나 손상되었습니다: {e}")
