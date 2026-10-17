@@ -287,7 +287,12 @@ with tab2:
     with s_col1:
         st.markdown("### 🎲 행운의 주사위")
         st.write("가격: **300 코인**")
-        st.write("확률: **전설 70% | 비밀 20% | 도깨비 10%**")
+        
+        # 해금 여부에 따라 확률표 가림 처리
+        secret_prob_str = "비밀 20%" if st.session_state.unlocked["비밀"] else "❓ ??"
+        dokebi_prob_str = "도깨비 10%" if st.session_state.unlocked["도깨비"] else "❓ ??"
+        st.write(f"확률: **전설 70% | {secret_prob_str} | {dokebi_prob_str}**")
+
         if st.button("🎲 행운의 주사위 구매"):
             if st.session_state.coins >= 300:
                 st.session_state.coins -= 300
