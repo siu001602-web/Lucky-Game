@@ -247,8 +247,10 @@ if "has_3000_roll" not in st.session_state:
 if "has_10000_roll" not in st.session_state:
     st.session_state.has_10000_roll = False
 
-if "use_filter_buff" not in st.session_state:
-    st.session_state.use_filter_buff = False
+# 남은 제외권 횟수 (스택형태)
+if "filter_buff_count" not in st.session_state:
+    st.session_state.filter_buff_count = 0
+
 if "skip_unlocked_cutscenes" not in st.session_state:
     st.session_state.skip_unlocked_cutscenes = False
 
@@ -381,9 +383,13 @@ def get_cutscene_type(name):
 
 def execute_rolls(count):
     highest_special = None
-    use_buff = st.session_state.use_filter_buff
 
     for _ in range(count):
+        # 제외권 스택이 남아있으면 일반/희귀 제외 적용 및 스택 차감
+        use_buff = st.session_state.filter_buff_count > 0
+        if use_buff:
+            st.session_state.filter_buff_count -= 1
+
         name, color = gacha_roll(exclude_common_rare=use_buff)
         st.session_state.history.append(name)
         st.session_state.stats[name] += 1
@@ -402,9 +408,6 @@ def execute_rolls(count):
                     < CUTSCENE_PRIORITY.index(highest_special)
                 ):
                     highest_special = name
-
-    if use_buff:
-        st.session_state.use_filter_buff = False
 
     return highest_special
 
@@ -427,9 +430,10 @@ if check_all_unlocked():
         st.session_state.effect_type = "ending"
         st.rerun()
 
-if st.session_state.use_filter_buff:
+# 남은 제외권 버프 횟수 표시
+if st.session_state.filter_buff_count > 0:
     st.info(
-        "🚫 **[일반&희귀 제외권] 버프 활성화 중!** 이번 뽑기 시도에서 일반/희귀 등급이 등장하지 않습니다."
+        f"🚫 **[일반&희귀 제외권] 버프 활성화 중!** (남은 적용 횟수: **{st.session_state.filter_buff_count}회**)"
     )
 
 with st.expander("⚙️ 게임 설정"):
@@ -458,10 +462,11 @@ with tab1:
 
     with col1:
         if st.button("🎰 1회 뽑기", use_container_width=True):
-            use_buff = st.session_state.use_filter_buff
-            name, color = gacha_roll(exclude_common_rare=use_buff)
+            use_buff = st.session_state.filter_buff_count > 0
             if use_buff:
-                st.session_state.use_filter_buff = False
+                st.session_state.filter_buff_count -= 1
+
+            name, color = gacha_roll(exclude_common_rare=use_buff)
 
             st.session_state.history.append(name)
             st.session_state.stats[name] += 1
@@ -626,15 +631,27 @@ with tab2:
 
     with s_col2:
         st.markdown("### 🚫 일반&희귀 제외권")
-        st.write("가격: **100 코인**")
-        st.write("효과: **1회 뽑기 시도 동안 일반 및 희귀 등급 등장 제외**")
-        if st.button("🚫 제외권 구매"):
-            if st.session_state.coins >= 100:
-                st.session_state.coins -= 100
-                st.session_state.special_inventory["일반&희귀 제외권"] += 1
-                st.success("✨ '일반&희귀 제외권'을 배낭에 넣었습니다!")
+        st.write("개당 가격: **100 코인**")
+        st.write(
+            "효과: **1장당 1회의 뽑기 시도에서 일반 및 희귀 등급 등장 제외 (대량 구매 가능)**"
+        )
+
+        buy_count = st.number_input(
+            "구매 수량", min_value=1, max_value=1000, value=1, key="buy_filter_cnt"
+        )
+        total_cost = buy_count * 100
+
+        if st.button(f"🚫 제외권 {buy_count}개 구매 ({total_cost} 코인)"):
+            if st.session_state.coins >= total_cost:
+                st.session_state.coins -= total_cost
+                st.session_state.special_inventory["일반&희귀 제외권"] += (
+                    buy_count
+                )
+                st.success(
+                    f"✨ '일반&희귀 제외권' {buy_count}개를 배낭에 넣었습니다!"
+                )
             else:
-                st.error("코인이 부족합니다! (100 코인 필요)")
+                st.error(f"코인이 부족합니다! ({total_cost} 코인 필요)")
 
     st.markdown("### 🎫 연차 기능 해금 상점")
     t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
@@ -768,13 +785,27 @@ with tab3:
             "일반&희귀 제외권", 0
         )
         st.write(f"보유: **{filter_count}개**")
-        if st.button("제외권 사용", disabled=(filter_count == 0)):
-            st.session_state.special_inventory["일반&희귀 제외권"] -= 1
-            st.session_state.use_filter_buff = True
-            st.success(
-                "🎉 제외권 적용 완료! 다음 뽑기 시도에서 일반/희귀 등급이 등장하지 않습니다."
-            )
-            st.rerun()
+
+        use_filter_cnt = st.number_input(
+            "사용할 수량",
+            min_value=1,
+            max_value=max(1, filter_count),
+            value=1,
+            key="use_filter_cnt",
+        )
+
+        if st.button(
+            f"제외권 {use_filter_cnt}개 사용", disabled=(filter_count == 0)
+        ):
+            if filter_count >= use_filter_cnt:
+                st.session_state.special_inventory["일반&희귀 제외권"] -= (
+                    use_filter_cnt
+                )
+                st.session_state.filter_buff_count += use_filter_cnt
+                st.success(
+                    f"🎉 제외권 {use_filter_cnt}개 적용 완료! (총 누적 횟수: {st.session_state.filter_buff_count}회)"
+                )
+                st.rerun()
 
     st.markdown("---")
     st.markdown("### 🎫 연차 기능권 사용")
@@ -931,7 +962,7 @@ with tab5:
             st.session_state.has_1000_roll = False
             st.session_state.has_3000_roll = False
             st.session_state.has_10000_roll = False
-            st.session_state.use_filter_buff = False
+            st.session_state.filter_buff_count = 0
             st.rerun()
     else:
         st.write("아직 기록이 없습니다.")
@@ -952,6 +983,7 @@ with tab6:
         "has_1000_roll": st.session_state.has_1000_roll,
         "has_3000_roll": st.session_state.has_3000_roll,
         "has_10000_roll": st.session_state.has_10000_roll,
+        "filter_buff_count": st.session_state.filter_buff_count,
         "skip_unlocked_cutscenes": st.session_state.skip_unlocked_cutscenes,
     }
     json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
@@ -1026,6 +1058,9 @@ with tab6:
                 )
                 st.session_state.has_10000_roll = loaded_data.get(
                     "has_10000_roll", False
+                )
+                st.session_state.filter_buff_count = loaded_data.get(
+                    "filter_buff_count", 0
                 )
                 st.session_state.skip_unlocked_cutscenes = loaded_data.get(
                     "skip_unlocked_cutscenes", False
