@@ -188,19 +188,21 @@ def gacha_roll(exclude_common_rare=False):
         )
 
         epic_legend_pool = ["영웅", "전설"]
-        pool_34 = excluded_prob_sum * 0.75
-        bonus_epic_legend = pool_34 / len(epic_legend_pool)
+        pool_78 = excluded_prob_sum * (7 / 8)
+        bonus_epic_legend = pool_78 / len(epic_legend_pool)
 
-        other_pool = [t[0] for t in filtered_tiers if t[0] not in epic_legend_pool]
-        pool_14 = excluded_prob_sum * 0.25
-        bonus_others = pool_14 / len(other_pool) if other_pool else 0
+        target_sub_pool = ["신성한", "도깨비", "비밀"]
+        pool_18 = excluded_prob_sum * (1 / 8)
+        bonus_sub = pool_18 / len(target_sub_pool)
 
         adjusted_tiers = []
         for name, prob, color in filtered_tiers:
             if name in epic_legend_pool:
                 adjusted_tiers.append((name, prob + bonus_epic_legend, color))
+            elif name in target_sub_pool:
+                adjusted_tiers.append((name, prob + bonus_sub, color))
             else:
-                adjusted_tiers.append((name, prob + bonus_others, color))
+                adjusted_tiers.append((name, prob, color))
 
         total_prob = sum(t[1] for t in adjusted_tiers)
         rand_val = random.random() * total_prob
@@ -267,6 +269,12 @@ if "has_10000_roll" not in st.session_state:
 
 if "filter_buff_count" not in st.session_state:
     st.session_state.filter_buff_count = 0
+
+# 엔딩 도달 여부 및 풍선 출력 제어 변수 추가
+if "has_reached_ending" not in st.session_state:
+    st.session_state.has_reached_ending = False
+if "balloons_shown" not in st.session_state:
+    st.session_state.balloons_shown = False
 
 CUTSCENE_TIERS = [
     "중력",
@@ -445,7 +453,11 @@ st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코인")
 
 if check_all_unlocked():
-    st.balloons()
+    st.session_state.has_reached_ending = True
+    if not st.session_state.balloons_shown:
+        st.balloons()
+        st.session_state.balloons_shown = True
+
     if st.button(
         "🏆 [엔딩 보기] 플레이해주셔서 감사합니다",
         type="primary",
@@ -660,17 +672,19 @@ with tab2:
 
     with s_col2:
         st.markdown("### 🚫 일반&희귀 제외권")
-        st.write("개당 가격: **100 코인**")
+        st.write("개당 가격: **1,000 코인**")
         st.write(
-            "효과: **제외된 확률의 75%는 영웅/전설에, 25%는 나머지 등급에 분배 (대량 구매 가능)**"
+            "효과: **제외된 확률의 7/8은 영웅/전설에, 1/8은 신성한 등급까지만 분배 (대량 구매 가능)**"
         )
 
         buy_count = st.number_input(
             "구매 수량", min_value=1, max_value=1000, value=1, key="buy_filter_cnt"
         )
-        total_cost = buy_count * 100
+        total_cost = buy_count * 1000
 
-        if st.button(f"🚫 제외권 {buy_count}개 구매 ({total_cost} 코인)"):
+        if st.button(
+            f"🚫 제외권 {buy_count}개 구매 ({total_cost:,} 코인)"
+        ):
             if st.session_state.coins >= total_cost:
                 st.session_state.coins -= total_cost
                 st.session_state.special_inventory["일반&희귀 제외권"] += (
@@ -680,7 +694,9 @@ with tab2:
                     f"✨ '일반&희귀 제외권' {buy_count}개를 배낭에 넣었습니다!"
                 )
             else:
-                st.error(f"코인이 부족합니다! ({total_cost} 코인 필요)")
+                st.error(
+                    f"코인이 부족합니다! ({total_cost:,} 코인 필요)"
+                )
 
     st.markdown("### 🎫 연차 기능 해금 상점")
     t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
@@ -989,6 +1005,8 @@ with tab5:
             st.session_state.has_3000_roll = False
             st.session_state.has_10000_roll = False
             st.session_state.filter_buff_count = 0
+            st.session_state.has_reached_ending = False
+            st.session_state.balloons_shown = False
             st.session_state.skip_cutscenes_map = {
                 t: False for t in CUTSCENE_TIERS
             }
@@ -1000,31 +1018,42 @@ with tab5:
 with tab6:
     st.subheader("💾 세이브 파일 관리")
 
-    game_data = {
-        "coins": st.session_state.coins,
-        "history": st.session_state.history,
-        "stats": st.session_state.stats,
-        "inventory": st.session_state.inventory,
-        "special_inventory": st.session_state.special_inventory,
-        "unlocked": st.session_state.unlocked,
-        "has_100_roll": st.session_state.has_100_roll,
-        "has_500_roll": st.session_state.has_500_roll,
-        "has_1000_roll": st.session_state.has_1000_roll,
-        "has_3000_roll": st.session_state.has_3000_roll,
-        "has_10000_roll": st.session_state.has_10000_roll,
-        "filter_buff_count": st.session_state.filter_buff_count,
-        "skip_cutscenes_map": st.session_state.skip_cutscenes_map,
-    }
-    json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
+    if not st.session_state.has_reached_ending:
+        st.warning(
+            "🔒 **세이브 파일 다운로드 기능은 엔딩을 본 이후에 해금됩니다!** (모든 등급을 해금해 보세요)"
+        )
+    else:
+        st.success(
+            "🔓 **엔딩 달성 완료!** 이제 세이브 파일을 다운로드하고 불러올 수 있습니다."
+        )
 
-    st.download_button(
-        label="📥 세이브 파일 다운로드",
-        data=json_data,
-        file_name="gacha_save.json",
-        mime="application/json",
-    )
+        game_data = {
+            "coins": st.session_state.coins,
+            "history": st.session_state.history,
+            "stats": st.session_state.stats,
+            "inventory": st.session_state.inventory,
+            "special_inventory": st.session_state.special_inventory,
+            "unlocked": st.session_state.unlocked,
+            "has_100_roll": st.session_state.has_100_roll,
+            "has_500_roll": st.session_state.has_500_roll,
+            "has_1000_roll": st.session_state.has_1000_roll,
+            "has_3000_roll": st.session_state.has_3000_roll,
+            "has_10000_roll": st.session_state.has_10000_roll,
+            "filter_buff_count": st.session_state.filter_buff_count,
+            "has_reached_ending": st.session_state.has_reached_ending,
+            "balloons_shown": st.session_state.balloons_shown,
+            "skip_cutscenes_map": st.session_state.skip_cutscenes_map,
+        }
+        json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
 
-    st.divider()
+        st.download_button(
+            label="📥 세이브 파일 다운로드",
+            data=json_data,
+            file_name="gacha_save.json",
+            mime="application/json",
+        )
+
+        st.divider()
 
     st.markdown("### 📤 세이브 파일 불러오기")
     uploaded_file = st.file_uploader(
@@ -1090,6 +1119,12 @@ with tab6:
                 )
                 st.session_state.filter_buff_count = loaded_data.get(
                     "filter_buff_count", 0
+                )
+                st.session_state.has_reached_ending = loaded_data.get(
+                    "has_reached_ending", False
+                )
+                st.session_state.balloons_shown = loaded_data.get(
+                    "balloons_shown", False
                 )
 
                 default_skip_map = {t: False for t in CUTSCENE_TIERS}
