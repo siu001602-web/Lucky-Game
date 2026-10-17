@@ -7,11 +7,13 @@ st.set_page_config(
 )
 
 # 2. 확률 설정 (총합 100%)
+# 비밀: 0.001% (0.00001), 전설: 0.09% (0.0009), 영웅: 2.9% (0.029), 희귀: 7% (0.07), 일반: 90%
 TIERS = [
-    ("전설", 0.001, "#FFD700"),  # (이름, 확률, 색상)
-    ("영웅", 0.029, "#9400D3"),
-    ("희귀", 0.070, "#1E90FF"),
-    ("일반", 0.900, "#A9A9A9"),
+    ("비밀", 0.00001, "#FF1493"),  # (이름, 확률, 색상 - 핫핑크)
+    ("전설", 0.00090, "#FFD700"),  # 골드
+    ("영웅", 0.02900, "#9400D3"),  # 퍼플
+    ("희귀", 0.07000, "#1E90FF"),  # 블루
+    ("일반", 0.90009, "#A9A9A9"),  # 그레이
 ]
 
 
@@ -30,7 +32,13 @@ def gacha_roll():
 if "history" not in st.session_state:
     st.session_state.history = []
 if "stats" not in st.session_state:
-    st.session_state.stats = {"전설": 0, "영웅": 0, "희귀": 0, "일반": 0}
+    st.session_state.stats = {
+        "비밀": 0,
+        "전설": 0,
+        "영웅": 0,
+        "희귀": 0,
+        "일반": 0,
+    }
 
 # 4. 앱 타이틀
 st.title("🎲 아이템 뽑기 시뮬레이터")
@@ -68,12 +76,13 @@ st.subheader("📊 누적 뽑기 통계")
 total_count = len(st.session_state.history)
 
 if total_count > 0:
-    # 4개 칼럼으로 지표 출력
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("🟡 전설", f"{st.session_state.stats['전설']}회")
-    m2.metric("🟣 영웅", f"{st.session_state.stats['영웅']}회")
-    m3.metric("🔵 희귀", f"{st.session_state.stats['희귀']}회")
-    m4.metric("⚪ 일반", f"{st.session_state.stats['일반']}회")
+    # 5개 칼럼으로 지표 출력
+    m1, m2, m3, m4, m5 = st.columns(5)
+    m1.metric("💖 비밀", f"{st.session_state.stats['비밀']}회")
+    m2.metric("🟡 전설", f"{st.session_state.stats['전설']}회")
+    m3.metric("🟣 영웅", f"{st.session_state.stats['영웅']}회")
+    m4.metric("🔵 희귀", f"{st.session_state.stats['희귀']}회")
+    m5.metric("⚪ 일반", f"{st.session_state.stats['일반']}회")
 
     st.caption(f"총 뽑기 횟수: {total_count}회")
 
@@ -83,5 +92,17 @@ if total_count > 0:
             reversed(st.session_state.history[-20:]), 1
         ):
             st.write(f"{idx}. {item}")
+
+    # 7. 기록 초기화 버튼
+    if st.button("🗑️ 기록 초기화", type="secondary"):
+        st.session_state.history = []
+        st.session_state.stats = {
+            "비밀": 0,
+            "전설": 0,
+            "영웅": 0,
+            "희귀": 0,
+            "일반": 0,
+        }
+        st.rerun()
 else:
     st.write("아직 뽑기 기록이 없습니다.")
