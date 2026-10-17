@@ -1,3 +1,4 @@
+import json
 import random
 import time
 import streamlit as st
@@ -35,7 +36,6 @@ st.markdown(
 )
 
 # 2. 확률 설정 (총합 100%)
-# 비밀: 0.01% (0.0001), 전설: 0.09% (0.0009), 영웅: 2.9% (0.029), 희귀: 7.0% (0.070), 일반: 90.0% (0.900)
 TIERS = [
     ("비밀", 0.0001, "#FF1493"),  # 핫핑크
     ("전설", 0.0009, "#FFD700"),  # 골드
@@ -44,7 +44,6 @@ TIERS = [
     ("일반", 0.9000, "#A9A9A9"),  # 그레이
 ]
 
-# 아이템 판매 가격 (코인)
 SELL_PRICES = {
     "일반": 0.01,
     "희귀": 0.05,
@@ -55,7 +54,6 @@ SELL_PRICES = {
 
 
 def gacha_roll():
-    """가중치 확률에 따라 등급 하나 추첨"""
     rand_val = random.random()
     cumulative = 0.0
     for name, prob, color in TIERS:
@@ -66,7 +64,6 @@ def gacha_roll():
 
 
 def lucky_dice_roll():
-    """행운의 주사위 사용 시: 전설 70%, 비밀 30%"""
     rand_val = random.random()
     if rand_val <= 0.30:
         return "비밀", "#FF1493"
@@ -87,7 +84,6 @@ if "stats" not in st.session_state:
         "희귀": 0,
         "일반": 0,
     }
-# 획득한 아이템 인벤토리
 if "inventory" not in st.session_state:
     st.session_state.inventory = {
         "비밀": 0,
@@ -96,7 +92,6 @@ if "inventory" not in st.session_state:
         "희귀": 0,
         "일반": 0,
     }
-# 상점에서 산 특수 아이템 인벤토리 (배낭)
 if "special_inventory" not in st.session_state:
     st.session_state.special_inventory = {
         "행운의 주사위": 0,
@@ -118,9 +113,15 @@ st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코�
 
 st.divider()
 
-# 탭 구성 (배낭 탭 추가)
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["🎰 아이템 뽑기", "🏪 상점 & 판매소", "🎒 배낭 (인벤토리)", "📊 통계 & 기록"]
+# 탭 구성 (세이브/로드 탭 추가)
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    [
+        "🎰 아이템 뽑기",
+        "🏪 상점 & 판매소",
+        "🎒 배낭",
+        "📊 통계 & 기록",
+        "💾 세이브/로드",
+    ]
 )
 
 # ================= TAB 1: 아이템 뽑기 =================
@@ -200,7 +201,6 @@ with tab2:
     with s_col1:
         st.markdown("### 🎲 행운의 주사위")
         st.write("가격: **300 코인**")
-        st.write("효과: **구매 후 배낭으로 지급**")
         if st.button("🎲 행운의 주사위 구매"):
             if st.session_state.coins >= 300:
                 st.session_state.coins -= 300
@@ -212,7 +212,6 @@ with tab2:
     with s_col2:
         st.markdown("### 💖 비밀 등급 확정 구슬")
         st.write("가격: **2000 코인**")
-        st.write("효과: **구매 후 배낭으로 지급**")
         if st.button("🔮 비밀 구슬 구매"):
             if st.session_state.coins >= 2000:
                 st.session_state.coins -= 2000
@@ -221,10 +220,9 @@ with tab2:
             else:
                 st.error("코인이 부족합니다! (2000 코인 필요)")
 
-# ================= TAB 3: 배낭 (인벤토리) =================
+# ================= TAB 3: 배낭 =================
 with tab3:
     st.subheader("🎒 특수 아이템 배낭")
-    st.caption("상점에서 구매한 아이템을 사용하세요.")
 
     b_col1, b_col2 = st.columns(2)
 
@@ -232,7 +230,6 @@ with tab3:
         st.markdown("### 🎲 행운의 주사위")
         dice_count = st.session_state.special_inventory["행운의 주사위"]
         st.write(f"보유 개수: **{dice_count}개**")
-        st.write("확률: **전설 70% | 비밀 30%**")
         if st.button("주사위 사용하기", disabled=(dice_count == 0)):
             st.session_state.special_inventory["행운의 주사위"] -= 1
             name, color = lucky_dice_roll()
@@ -253,7 +250,6 @@ with tab3:
             "비밀 등급 확정 구슬"
         ]
         st.write(f"보유 개수: **{marble_count}개**")
-        st.write("효과: **비밀 등급 100% 획득**")
         if st.button("구슬 사용하기", disabled=(marble_count == 0)):
             st.session_state.special_inventory["비밀 등급 확정 구슬"] -= 1
             name = "비밀"
@@ -310,3 +306,69 @@ with tab4:
             st.rerun()
     else:
         st.write("아직 기록이 없습니다.")
+
+# ================= TAB 5: 세이브 / 로드 =================
+with tab5:
+    st.subheader("💾 세이브 파일 관리")
+    st.caption("게임 데이터를 파일로 저장하거나 불러올 수 있습니다.")
+
+    # 1. 데이터 내보내기 (다운로드)
+    game_data = {
+        "coins": st.session_state.coins,
+        "history": st.session_state.history,
+        "stats": st.session_state.stats,
+        "inventory": st.session_state.inventory,
+        "special_inventory": st.session_state.special_inventory,
+    }
+    json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
+
+    st.download_button(
+        label="📥 세이브 파일 다운로드",
+        data=json_data,
+        file_name="gacha_save.json",
+        mime="application/json",
+    )
+
+    st.divider()
+
+    # 2. 데이터 불러오기 (업로드)
+    st.markdown("### 📤 세이브 파일 불러오기")
+    uploaded_file = st.file_uploader(
+        "저장해 둔 세이브 파일(gacha_save.json)을 업로드하세요.",
+        type=["json"],
+    )
+
+    if uploaded_file is not None:
+        try:
+            loaded_data = json.load(uploaded_file)
+            if st.button("🔄 이 데이터로 게임 시작하기"):
+                st.session_state.coins = loaded_data.get("coins", 0.0)
+                st.session_state.history = loaded_data.get("history", [])
+                st.session_state.stats = loaded_data.get(
+                    "stats",
+                    {
+                        "비밀": 0,
+                        "전설": 0,
+                        "영웅": 0,
+                        "희귀": 0,
+                        "일반": 0,
+                    },
+                )
+                st.session_state.inventory = loaded_data.get(
+                    "inventory",
+                    {
+                        "비밀": 0,
+                        "전설": 0,
+                        "영웅": 0,
+                        "희귀": 0,
+                        "일반": 0,
+                    },
+                )
+                st.session_state.special_inventory = loaded_data.get(
+                    "special_inventory",
+                    {"행운의 주사위": 0, "비밀 등급 확정 구슬": 0},
+                )
+                st.success("🎉 세이브 파일을 성공적으로 불러왔습니다!")
+                st.rerun()
+        except Exception as e:
+            st.error(f"세이브 파일 형식이 잘못되었습니다: {e}")
