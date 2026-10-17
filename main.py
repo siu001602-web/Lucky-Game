@@ -180,18 +180,28 @@ SELL_PRICES = {
 
 def gacha_roll(exclude_common_rare=False):
     if exclude_common_rare:
+        # 일반, 희귀를 제외한 나머지 등급 추출
         filtered_tiers = [
             t for t in TIERS if t[0] not in ["일반", "희귀"]
         ]
-        total_prob = sum(t[1] for t in filtered_tiers)
+        excluded_prob_sum = sum(
+            t[1] for t in TIERS if t[0] in ["일반", "희귀"]
+        )
+        bonus_per_tier = excluded_prob_sum / len(filtered_tiers)
 
+        # 나머지 등급들에게 균등하게 확률을 배분하여 새로운 확률 목록 생성
+        adjusted_tiers = []
+        for name, prob, color in filtered_tiers:
+            adjusted_tiers.append((name, prob + bonus_per_tier, color))
+
+        total_prob = sum(t[1] for t in adjusted_tiers)
         rand_val = random.random() * total_prob
         cumulative = 0.0
-        for name, prob, color in filtered_tiers:
+        for name, prob, color in adjusted_tiers:
             cumulative += prob
             if rand_val <= cumulative:
                 return name, color
-        return filtered_tiers[-1][0], filtered_tiers[-1][2]
+        return adjusted_tiers[-1][0], adjusted_tiers[-1][2]
     else:
         rand_val = random.random()
         cumulative = 0.0
@@ -250,7 +260,6 @@ if "has_10000_roll" not in st.session_state:
 if "filter_buff_count" not in st.session_state:
     st.session_state.filter_buff_count = 0
 
-# 등급별 컷씬 스킵 설정 딕셔너리 초기화
 CUTSCENE_TIERS = [
     "중력",
     "블랙홀",
@@ -408,7 +417,6 @@ def execute_rolls(count):
         st.session_state.unlocked[name] = True
 
         if name in CUTSCENE_PRIORITY:
-            # 해당 등급의 컷씬 스킵이 꺼져있을 때만 컷씬 트리거 후보로 선정
             if not st.session_state.skip_cutscenes_map.get(name, False):
                 if (
                     highest_special is None
@@ -487,7 +495,6 @@ with tab1:
             st.session_state.unlocked[name] = True
 
             eff = get_cutscene_type(name)
-            # 해당 등급의 스킵 설정이 꺼져있을 때만 컷씬 실행
             if (
                 eff
                 and name in CUTSCENE_PRIORITY
@@ -647,7 +654,7 @@ with tab2:
         st.markdown("### 🚫 일반&희귀 제외권")
         st.write("개당 가격: **100 코인**")
         st.write(
-            "효과: **1장당 1회의 뽑기 시도에서 일반 및 희귀 등급 등장 제외 (대량 구매 가능)**"
+            "효과: **1장당 1회의 뽑기 시도에서 일반 및 희귀 등급 등장 제외 (나머지 등급에 확률 균등 분배)**"
         )
 
         buy_count = st.number_input(
