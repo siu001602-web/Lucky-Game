@@ -247,12 +247,23 @@ if "has_3000_roll" not in st.session_state:
 if "has_10000_roll" not in st.session_state:
     st.session_state.has_10000_roll = False
 
-# 남은 제외권 횟수 (스택형태)
 if "filter_buff_count" not in st.session_state:
     st.session_state.filter_buff_count = 0
 
-if "skip_unlocked_cutscenes" not in st.session_state:
-    st.session_state.skip_unlocked_cutscenes = False
+# 등급별 컷씬 스킵 설정 딕셔너리 초기화
+CUTSCENE_TIERS = [
+    "중력",
+    "블랙홀",
+    "시간의 지배자",
+    "균열자",
+    "혜성",
+    "어비스",
+    "신성한",
+    "도깨비",
+    "비밀",
+]
+if "skip_cutscenes_map" not in st.session_state:
+    st.session_state.skip_cutscenes_map = {t: False for t in CUTSCENE_TIERS}
 
 if "effect_type" not in st.session_state:
     st.session_state.effect_type = None
@@ -385,7 +396,6 @@ def execute_rolls(count):
     highest_special = None
 
     for _ in range(count):
-        # 제외권 스택이 남아있으면 일반/희귀 제외 적용 및 스택 차감
         use_buff = st.session_state.filter_buff_count > 0
         if use_buff:
             st.session_state.filter_buff_count -= 1
@@ -395,13 +405,11 @@ def execute_rolls(count):
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
 
-        was_unlocked = st.session_state.unlocked.get(name, False)
         st.session_state.unlocked[name] = True
 
         if name in CUTSCENE_PRIORITY:
-            if not (
-                st.session_state.skip_unlocked_cutscenes and was_unlocked
-            ):
+            # 해당 등급의 컷씬 스킵이 꺼져있을 때만 컷씬 트리거 후보로 선정
+            if not st.session_state.skip_cutscenes_map.get(name, False):
                 if (
                     highest_special is None
                     or CUTSCENE_PRIORITY.index(name)
@@ -430,17 +438,21 @@ if check_all_unlocked():
         st.session_state.effect_type = "ending"
         st.rerun()
 
-# 남은 제외권 버프 횟수 표시
 if st.session_state.filter_buff_count > 0:
     st.info(
         f"🚫 **[일반&희귀 제외권] 버프 활성화 중!** (남은 적용 횟수: **{st.session_state.filter_buff_count}회**)"
     )
 
-with st.expander("⚙️ 게임 설정"):
-    st.session_state.skip_unlocked_cutscenes = st.checkbox(
-        "🎬 이미 획득했던 등급의 컷씬 스킵하기 (빠른 진행)",
-        value=st.session_state.skip_unlocked_cutscenes,
-    )
+with st.expander("⚙️ 게임 설정 (등급별 컷씬 스킵)"):
+    st.markdown("### 🎬 등급별 컷씬 스킵 설정")
+    st.caption("스킵하고 싶은 등급의 컷씬에 체크하세요.")
+
+    for tier in CUTSCENE_PRIORITY:
+        st.session_state.skip_cutscenes_map[tier] = st.checkbox(
+            f"{get_display_name(tier)} 컷씬 스킵하기",
+            value=st.session_state.skip_cutscenes_map.get(tier, False),
+            key=f"skip_{tier}",
+        )
 
 st.divider()
 
@@ -472,12 +484,14 @@ with tab1:
             st.session_state.stats[name] += 1
             st.session_state.inventory[name] += 1
 
-            was_unlocked = st.session_state.unlocked.get(name, False)
             st.session_state.unlocked[name] = True
 
             eff = get_cutscene_type(name)
-            if eff and not (
-                st.session_state.skip_unlocked_cutscenes and was_unlocked
+            # 해당 등급의 스킵 설정이 꺼져있을 때만 컷씬 실행
+            if (
+                eff
+                and name in CUTSCENE_PRIORITY
+                and not st.session_state.skip_cutscenes_map.get(name, False)
             ):
                 st.session_state.effect_type = eff
                 st.rerun()
@@ -763,13 +777,10 @@ with tab3:
             st.session_state.stats[name] += 1
             st.session_state.inventory[name] += 1
 
-            was_unlocked = st.session_state.unlocked.get(name, False)
             st.session_state.unlocked[name] = True
 
             if name in ["도깨비", "비밀"]:
-                if not (
-                    st.session_state.skip_unlocked_cutscenes and was_unlocked
-                ):
+                if not st.session_state.skip_cutscenes_map.get(name, False):
                     st.session_state.effect_type = (
                         "dokebi" if name == "도깨비" else "secret"
                     )
@@ -963,6 +974,9 @@ with tab5:
             st.session_state.has_3000_roll = False
             st.session_state.has_10000_roll = False
             st.session_state.filter_buff_count = 0
+            st.session_state.skip_cutscenes_map = {
+                t: False for t in CUTSCENE_TIERS
+            }
             st.rerun()
     else:
         st.write("아직 기록이 없습니다.")
@@ -984,7 +998,7 @@ with tab6:
         "has_3000_roll": st.session_state.has_3000_roll,
         "has_10000_roll": st.session_state.has_10000_roll,
         "filter_buff_count": st.session_state.filter_buff_count,
-        "skip_unlocked_cutscenes": st.session_state.skip_unlocked_cutscenes,
+        "skip_cutscenes_map": st.session_state.skip_cutscenes_map,
     }
     json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
 
@@ -1062,9 +1076,12 @@ with tab6:
                 st.session_state.filter_buff_count = loaded_data.get(
                     "filter_buff_count", 0
                 )
-                st.session_state.skip_unlocked_cutscenes = loaded_data.get(
-                    "skip_unlocked_cutscenes", False
-                )
+
+                default_skip_map = {t: False for t in CUTSCENE_TIERS}
+                st.session_state.skip_cutscenes_map = {
+                    **default_skip_map,
+                    **loaded_data.get("skip_cutscenes_map", {}),
+                }
 
                 st.success("🎉 세이브 파일을 성공적으로 불러왔습니다!")
                 st.rerun()
