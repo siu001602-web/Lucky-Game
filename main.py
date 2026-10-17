@@ -31,7 +31,6 @@ st.markdown(
     }
     </style>
 """,
-    unsafe_allow_dict_empty_value=True if False else None,
     unsafe_allow_html=True,
 )
 
@@ -51,7 +50,7 @@ SELL_PRICES = {
     "희귀": 0.05,
     "영웅": 0.1,
     "전설": 100.0,
-    "비밀": 0.0,  # 판매 불가 또는 0원
+    "비밀": 0.0,
 }
 
 
@@ -178,7 +177,6 @@ with tab2:
         )
         if earned > 0:
             st.session_state.coins += earned
-            # 판매한 아이템 개수 초기화 (비밀 등급 제외)
             for tier in ["일반", "희귀", "영웅", "전설"]:
                 st.session_state.inventory[tier] = 0
             st.success(f"🎉 아이템을 모두 판매하여 {earned:.2f} 코인을 얻었습니다!")
