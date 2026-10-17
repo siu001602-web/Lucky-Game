@@ -270,9 +270,6 @@ if "has_10000_roll" not in st.session_state:
 if "filter_buff_count" not in st.session_state:
     st.session_state.filter_buff_count = 0
 
-# 엔딩 도달 여부 및 풍선 출력 제어 변수 추가
-if "has_reached_ending" not in st.session_state:
-    st.session_state.has_reached_ending = False
 if "balloons_shown" not in st.session_state:
     st.session_state.balloons_shown = False
 
@@ -453,7 +450,6 @@ st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코인")
 
 if check_all_unlocked():
-    st.session_state.has_reached_ending = True
     if not st.session_state.balloons_shown:
         st.balloons()
         st.session_state.balloons_shown = True
@@ -1005,7 +1001,6 @@ with tab5:
             st.session_state.has_3000_roll = False
             st.session_state.has_10000_roll = False
             st.session_state.filter_buff_count = 0
-            st.session_state.has_reached_ending = False
             st.session_state.balloons_shown = False
             st.session_state.skip_cutscenes_map = {
                 t: False for t in CUTSCENE_TIERS
@@ -1018,42 +1013,32 @@ with tab5:
 with tab6:
     st.subheader("💾 세이브 파일 관리")
 
-    if not st.session_state.has_reached_ending:
-        st.warning(
-            "🔒 **세이브 파일 다운로드 기능은 엔딩을 본 이후에 해금됩니다!** (모든 등급을 해금해 보세요)"
-        )
-    else:
-        st.success(
-            "🔓 **엔딩 달성 완료!** 이제 세이브 파일을 다운로드하고 불러올 수 있습니다."
-        )
+    game_data = {
+        "coins": st.session_state.coins,
+        "history": st.session_state.history,
+        "stats": st.session_state.stats,
+        "inventory": st.session_state.inventory,
+        "special_inventory": st.session_state.special_inventory,
+        "unlocked": st.session_state.unlocked,
+        "has_100_roll": st.session_state.has_100_roll,
+        "has_500_roll": st.session_state.has_500_roll,
+        "has_1000_roll": st.session_state.has_1000_roll,
+        "has_3000_roll": st.session_state.has_3000_roll,
+        "has_10000_roll": st.session_state.has_10000_roll,
+        "filter_buff_count": st.session_state.filter_buff_count,
+        "balloons_shown": st.session_state.balloons_shown,
+        "skip_cutscenes_map": st.session_state.skip_cutscenes_map,
+    }
+    json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
 
-        game_data = {
-            "coins": st.session_state.coins,
-            "history": st.session_state.history,
-            "stats": st.session_state.stats,
-            "inventory": st.session_state.inventory,
-            "special_inventory": st.session_state.special_inventory,
-            "unlocked": st.session_state.unlocked,
-            "has_100_roll": st.session_state.has_100_roll,
-            "has_500_roll": st.session_state.has_500_roll,
-            "has_1000_roll": st.session_state.has_1000_roll,
-            "has_3000_roll": st.session_state.has_3000_roll,
-            "has_10000_roll": st.session_state.has_10000_roll,
-            "filter_buff_count": st.session_state.filter_buff_count,
-            "has_reached_ending": st.session_state.has_reached_ending,
-            "balloons_shown": st.session_state.balloons_shown,
-            "skip_cutscenes_map": st.session_state.skip_cutscenes_map,
-        }
-        json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
+    st.download_button(
+        label="📥 세이브 파일 다운로드",
+        data=json_data,
+        file_name="gacha_save.json",
+        mime="application/json",
+    )
 
-        st.download_button(
-            label="📥 세이브 파일 다운로드",
-            data=json_data,
-            file_name="gacha_save.json",
-            mime="application/json",
-        )
-
-        st.divider()
+    st.divider()
 
     st.markdown("### 📤 세이브 파일 불러오기")
     uploaded_file = st.file_uploader(
@@ -1119,9 +1104,6 @@ with tab6:
                 )
                 st.session_state.filter_buff_count = loaded_data.get(
                     "filter_buff_count", 0
-                )
-                st.session_state.has_reached_ending = loaded_data.get(
-                    "has_reached_ending", False
                 )
                 st.session_state.balloons_shown = loaded_data.get(
                     "balloons_shown", False
