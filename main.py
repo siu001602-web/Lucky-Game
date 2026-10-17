@@ -81,6 +81,12 @@ st.markdown(
         90% { transform: translateY(150px) rotate(400deg); }
         100% { transform: translateY(150px) rotate(400deg); opacity: 1; }
     }
+    @keyframes endingFade {
+        0% { background-color: rgba(0, 0, 0, 0); opacity: 0; }
+        20% { background-color: rgba(0, 0, 0, 1); opacity: 1; }
+        80% { background-color: rgba(0, 0, 0, 1); opacity: 1; }
+        100% { background-color: rgba(0, 0, 0, 0); opacity: 0; }
+    }
 
     .effect-overlay {
         position: fixed;
@@ -101,6 +107,7 @@ st.markdown(
     .rift-fade { animation: earthquake 10.0s ease-in-out forwards; }
     .blackhole-fade { animation: blackholeSuck 10.0s ease-in-out forwards; }
     .gravity-fade { animation: sunsetGravity 10.0s ease-in-out forwards; }
+    .ending-fade { animation: endingFade 10.0s ease-in-out forwards; background-color: #000000; }
 
     .monster-popup {
         font-size: 50px; font-weight: bold; color: #FF4500;
@@ -135,6 +142,10 @@ st.markdown(
     .gravity-text {
         font-size: 50px; font-weight: bold; color: #ffffff;
         text-shadow: 0px 0px 20px #ff4500; margin-top: 30px; text-align: center;
+    }
+    .ending-text {
+        font-size: 50px; font-weight: bold; color: #ffffff;
+        text-shadow: 0px 0px 30px #FFD700; text-align: center;
     }
     </style>
 """,
@@ -177,7 +188,6 @@ SELL_PRICES = {
 
 def gacha_roll(exclude_common_rare=False):
     if exclude_common_rare:
-        # 일반, 희귀 등급을 제외한 티어들만 추출 및 확률 재계산
         filtered_tiers = [
             t for t in TIERS if t[0] not in ["일반", "희귀"]
         ]
@@ -227,23 +237,10 @@ if "special_inventory" not in st.session_state:
         "500연차 기능권": 0,
         "1000연차 기능권": 0,
         "3000연차 기능권": 0,
+        "10000연차 기능권": 0,
     }
 if "unlocked" not in st.session_state:
-    st.session_state.unlocked = {
-        "중력": False,
-        "블랙홀": False,
-        "시간의 지배자": False,
-        "균열자": False,
-        "혜성": False,
-        "어비스": False,
-        "신성한": False,
-        "도깨비": False,
-        "비밀": False,
-        "전설": True,
-        "영웅": True,
-        "희귀": True,
-        "일반": True,
-    }
+    st.session_state.unlocked = {t[0]: False for t in TIERS}
 if "has_100_roll" not in st.session_state:
     st.session_state.has_100_roll = False
 if "has_500_roll" not in st.session_state:
@@ -252,12 +249,11 @@ if "has_1000_roll" not in st.session_state:
     st.session_state.has_1000_roll = False
 if "has_3000_roll" not in st.session_state:
     st.session_state.has_3000_roll = False
+if "has_10000_roll" not in st.session_state:
+    st.session_state.has_10000_roll = False
 
-# 필터링 버프 상태
 if "use_filter_buff" not in st.session_state:
     st.session_state.use_filter_buff = False
-
-# 컷씬 스킵 설정
 if "skip_unlocked_cutscenes" not in st.session_state:
     st.session_state.skip_unlocked_cutscenes = False
 
@@ -265,7 +261,15 @@ if "effect_type" not in st.session_state:
     st.session_state.effect_type = None
 
 # 컷씬 재생 처리
-if st.session_state.effect_type == "gravity":
+if st.session_state.effect_type == "ending":
+    st.markdown(
+        '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨<br><span style="font-size: 25px; color: #888888;">모든 등급을 해금하셨습니다.</span></div></div>',
+        unsafe_allow_html=True,
+    )
+    time.sleep(10.0)
+    st.session_state.effect_type = None
+    st.rerun()
+elif st.session_state.effect_type == "gravity":
     st.markdown(
         '<div class="effect-overlay gravity-fade"><div class="gravity-popup"><div class="falling-apple">🍎</div><div class="gravity-text">🍎 [중력] 등급 발견!! 🍎<br>만유인력의 법칙이 만물을 끌어당깁니다.</div></div></div>',
         unsafe_allow_html=True,
@@ -352,7 +356,6 @@ def get_display_name(tier_name):
     return names.get(tier_name, tier_name)
 
 
-# 연차 뽑기 로직
 def execute_rolls(count):
     special_hit = None
     priority = [
@@ -388,7 +391,6 @@ def execute_rolls(count):
                 ):
                     special_hit = name
 
-    # 연차 사용 시 버프 소모
     if use_buff:
         st.session_state.use_filter_buff = False
 
@@ -409,9 +411,19 @@ def trigger_effect_by_name(name):
     return effect_map.get(name, None)
 
 
+def check_all_unlocked():
+    return all(st.session_state.unlocked.get(t[0], False) for t in TIERS)
+
+
 # 4. 앱 상단 레이아웃
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코인")
+
+if check_all_unlocked():
+    st.balloons()
+    if st.button("🏆 [엔딩 보기] 플레이해주셔서 감사합니다", type="primary", use_container_width=True):
+        st.session_state.effect_type = "ending"
+        st.rerun()
 
 if st.session_state.use_filter_buff:
     st.info("🚫 **[일반&희귀 제외권] 버프 활성화 중!** 이번 뽑기 시도에서 일반/희귀 등급이 등장하지 않습니다.")
@@ -483,6 +495,8 @@ with tab1:
         roll_buttons.append(("⚡ 1000연차", 1000))
     if st.session_state.has_3000_roll:
         roll_buttons.append(("🌟 3000연차", 3000))
+    if st.session_state.has_10000_roll:
+        roll_buttons.append(("🌌 10000연차", 10000))
 
     if roll_buttons:
         st.write("---")
@@ -606,18 +620,18 @@ with tab2:
 
     with s_col2:
         st.markdown("### 🚫 일반&희귀 제외권")
-        st.write("가격: **10,000 코인**")
+        st.write("가격: **100 코인**")
         st.write("효과: **1회 뽑기 시도 동안 일반 및 희귀 등급 등장 제외**")
         if st.button("🚫 제외권 구매"):
-            if st.session_state.coins >= 10000:
-                st.session_state.coins -= 10000
+            if st.session_state.coins >= 100:
+                st.session_state.coins -= 100
                 st.session_state.special_inventory["일반&희귀 제외권"] += 1
                 st.success("✨ '일반&희귀 제외권'을 배낭에 넣었습니다!")
             else:
-                st.error("코인이 부족합니다! (10,000 코인 필요)")
+                st.error("코인이 부족합니다! (100 코인 필요)")
 
     st.markdown("### 🎫 연차 기능 해금 상점")
-    t_col1, t_col2, t_col3, t_col4 = st.columns(4)
+    t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
 
     with t_col1:
         st.markdown("#### 💥 100연차")
@@ -691,6 +705,24 @@ with tab2:
                 else:
                     st.error("코인 부족 (30만)")
 
+    with t_col5:
+        st.markdown("#### 🌌 10000연차")
+        st.write("가격: **2백만 코인**")
+        sold_10000 = st.session_state.has_10000_roll or (
+            st.session_state.special_inventory.get("10000연차 기능권", 0) > 0
+        )
+        if sold_10000:
+            st.button("🚫 [품절]", disabled=True, key="shop_10000")
+        else:
+            if st.button("구매하기", key="buy_10000"):
+                if st.session_state.coins >= 2000000:
+                    st.session_state.coins -= 2000000
+                    st.session_state.special_inventory["10000연차 기능권"] += 1
+                    st.success("✨ 10000연차 기능권 획득!")
+                    st.rerun()
+                else:
+                    st.error("코인 부족 (2백만)")
+
 # ================= TAB 3: 배낭 =================
 with tab3:
     st.subheader("🎒 특수 아이템 배낭")
@@ -737,7 +769,7 @@ with tab3:
 
     st.markdown("---")
     st.markdown("### 🎫 연차 기능권 사용")
-    t_b1, t_b2, t_b3, t_b4 = st.columns(4)
+    t_b1, t_b2, t_b3, t_b4, t_b5 = st.columns(5)
 
     with t_b1:
         st.markdown("#### 💥 100연차권")
@@ -789,6 +821,19 @@ with tab3:
                 st.session_state.special_inventory["3000연차 기능권"] -= 1
                 st.session_state.has_3000_roll = True
                 st.success("🎉 3000연차 영구 해금!")
+                st.rerun()
+
+    with t_b5:
+        st.markdown("#### 🌌 10000연차권")
+        c_10000 = st.session_state.special_inventory.get("10000연차 기능권", 0)
+        if st.session_state.has_10000_roll:
+            st.write("상태: **해금 완료**")
+        else:
+            st.write(f"보유: {c_10000}개")
+            if st.button("사용하기", disabled=(c_10000 == 0), key="use_10000"):
+                st.session_state.special_inventory["10000연차 기능권"] -= 1
+                st.session_state.has_10000_roll = True
+                st.success("🎉 10000연차 영구 해금!")
                 st.rerun()
 
 # ================= TAB 4: 아이템 도감 =================
@@ -865,26 +910,14 @@ with tab5:
                 "500연차 기능권": 0,
                 "1000연차 기능권": 0,
                 "3000연차 기능권": 0,
+                "10000연차 기능권": 0,
             }
-            st.session_state.unlocked = {
-                "중력": False,
-                "블랙홀": False,
-                "시간의 지배자": False,
-                "균열자": False,
-                "혜성": False,
-                "어비스": False,
-                "신성한": False,
-                "도깨비": False,
-                "비밀": False,
-                "전설": True,
-                "영웅": True,
-                "희귀": True,
-                "일반": True,
-            }
+            st.session_state.unlocked = {t[0]: False for t in TIERS}
             st.session_state.has_100_roll = False
             st.session_state.has_500_roll = False
             st.session_state.has_1000_roll = False
             st.session_state.has_3000_roll = False
+            st.session_state.has_10000_roll = False
             st.session_state.use_filter_buff = False
             st.rerun()
     else:
@@ -905,6 +938,7 @@ with tab6:
         "has_500_roll": st.session_state.has_500_roll,
         "has_1000_roll": st.session_state.has_1000_roll,
         "has_3000_roll": st.session_state.has_3000_roll,
+        "has_10000_roll": st.session_state.has_10000_roll,
         "skip_unlocked_cutscenes": st.session_state.skip_unlocked_cutscenes,
     }
     json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
@@ -950,27 +984,14 @@ with tab6:
                     "500연차 기능권": 0,
                     "1000연차 기능권": 0,
                     "3000연차 기능권": 0,
+                    "10000연차 기능권": 0,
                 }
                 st.session_state.special_inventory = {
                     **default_special,
                     **loaded_data.get("special_inventory", {}),
                 }
 
-                default_unlocked = {
-                    "중력": False,
-                    "블랙홀": False,
-                    "시간의 지배자": False,
-                    "균열자": False,
-                    "혜성": False,
-                    "어비스": False,
-                    "신성한": False,
-                    "도깨비": False,
-                    "비밀": False,
-                    "전설": True,
-                    "영웅": True,
-                    "희귀": True,
-                    "일반": True,
-                }
+                default_unlocked = {t[0]: False for t in TIERS}
                 st.session_state.unlocked = {
                     **default_unlocked,
                     **loaded_data.get("unlocked", {}),
@@ -987,6 +1008,9 @@ with tab6:
                 )
                 st.session_state.has_3000_roll = loaded_data.get(
                     "has_3000_roll", False
+                )
+                st.session_state.has_10000_roll = loaded_data.get(
+                    "has_10000_roll", False
                 )
                 st.session_state.skip_unlocked_cutscenes = loaded_data.get(
                     "skip_unlocked_cutscenes", False
