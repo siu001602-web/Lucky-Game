@@ -83,6 +83,17 @@ HALLOWEEN_BOX_DATA = [
 ALL_TIERS = TIERS_DATA + HALLOWEEN_DATA + HALLOWEEN_BOX_DATA
 SELL_PRICES = {t[0]: t[3] for t in ALL_TIERS}
 HIGH_TIERS = ["은하", "대천사", "수호천사", "헤파이스토스", "중력", "블랙홀", "시간의 지배자", "균열자", "혜성", "어비스", "신성한", "도깨비", "비밀", "호박왕", "유령", "프랑켄슈타인", "강시", "뱀파이어", "마녀", "잭오랜턴", "스켈레톤", "좀비"]
+TICKET_DEFS = [
+    ("만배 행운권", 10000.0, 100),
+    ("십만배 행운권", 100000.0, 1000),
+    ("백만배 행운권", 1000000.0, 10000),
+    ("천만배 행운권", 10000000.0, 30000),
+]
+
+TIER_CAPS = {
+    "비밀": 0.20, "도깨비": 0.18, "신성한": 0.15, "어비스": 0.12, "혜성": 0.08,
+    "균열자": 0.05, "시간의 지배자": 0.02, "블랙홀": 0.005, "중력": 0.001, "은하": 0.00001
+}
 
 def format_currency(val):
     if val >= 100000000:
@@ -173,7 +184,10 @@ def gacha_roll(multiplier=1.0):
     if multiplier > 1.0:
         for name in HIGH_TIERS:
             if name in ["헤파이스토스", "수호천사", "대천사", "호박왕", "유령"]: continue
-            if name in b_dict: b_dict[name] = min(b_dict[name]*multiplier, 0.2)
+            orig = b_dict.get(name, 0.0)
+            boosted = orig * multiplier
+            cap = TIER_CAPS.get(name, 1.0)
+            b_dict[name] = min(boosted, cap)
     total_p = sum(b_dict.values())
     rand_v = random.random() * total_p
     cum = 0.0
@@ -246,7 +260,11 @@ with tabs[0]:
         if st.button("🚀 10연차!", use_container_width=True):
             highest, mut_hit = None, None
             for _ in range(10):
-                name, _, mut = gacha_roll(1.0)
+                mult = st.session_state.active_multiplier if st.session_state.active_multiplier_count > 0 else 1.0
+                if mult > 1.0:
+                    st.session_state.active_multiplier_count -= 1
+                    if st.session_state.active_multiplier_count == 0: st.session_state.active_multiplier = 1.0
+                name, _, mut = gacha_roll(mult)
                 st.session_state.history.append((name, mut))
                 st.session_state.stats[name] += 1; st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
                 if mut: st.session_state.mutation_stats[mut] += 1; st.session_state.mutation_unlocked[name][mut] = True; mut_hit = mut
@@ -320,7 +338,7 @@ with tabs[1]:
         else:
             st.success(f"📦 할로윈 상자 개봉 결과: **[{get_base_name(box_name)}]** 획득!")
 
-# 3. 상점 탭
+# 3. 상점 탭 (확률업 아이템 구매 추가)
 with tabs[2]:
     st.subheader("💵 판매소 및 Special 상점")
     sellable_items = [t for t in ALL_TIERS if t[0] not in [hb[0] for hb in HALLOWEEN_BOX_DATA]]
@@ -333,6 +351,7 @@ with tabs[2]:
             st.session_state.coins += earned; st.success(f"🎉 {format_currency(earned)} 코인 획득!"); st.rerun()
     
     st.divider()
+    st.markdown("### 🛒 Special 상점 (확률업 행운권 구매)")
     h_buy_qty = st.number_input("할로윈 뽑기권 구매 (장당 100코인, 최대 1백만)", 1, 1000000, 1)
     if st.button("🎟️ 할로윈 뽑기권 구매", type="primary"):
         cost = h_buy_qty * 100.0
@@ -340,6 +359,19 @@ with tabs[2]:
             st.session_state.coins -= cost; st.session_state.special_inventory["할로윈 뽑기권"] += h_buy_qty
             st.success("구매 완료!"); st.rerun()
         else: st.error("코인 부족!")
+
+    st.markdown("---")
+    buy_qty = st.number_input("행운권 일괄 구매 수량", 1, 100000, 1, key="buy_ticket_qty")
+    for name, _, price in TICKET_DEFS:
+        cost = price * buy_qty
+        if st.button(f"🎟️ {name} {format_currency(buy_qty)}장 ({format_currency(cost)}코인)", key=f"buy_{name}"):
+            if st.session_state.coins >= cost:
+                st.session_state.coins -= cost
+                st.session_state.special_inventory[name] += buy_qty
+                st.success("구매 완료!")
+                st.rerun()
+            else:
+                st.error("코인 부족!")
 
 # 4. 대장간 탭
 with tabs[3]:
@@ -365,7 +397,7 @@ with tabs[3]:
         else:
             st.warning("재련 실패 또는 무효화되었습니다.")
 
-# 5. 기부 탭 (최대 100회 일괄 기부 적용)
+# 5. 기부 탭
 with tabs[4]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
@@ -438,15 +470,33 @@ with tabs[4]:
                 else:
                     st.error("❌ 보유 코인이 부족합니다!")
 
-# 6. 배낭 탭
+# 6. 배낭 탭 (행운권 사용 기능 추가)
 with tabs[5]:
-    st.subheader("🎒 배낭")
+    st.subheader("🎒 배낭 (확률업 행운권 사용)")
     dice = st.session_state.special_inventory.get("행운의 주사위", 0)
     if st.button(f"🎲 주사위 사용 (보유: {dice}개)", disabled=(dice == 0)):
         st.session_state.special_inventory["행운의 주사위"] -= 1
         name, color, mut = gacha_roll(1.0)
         st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
         st.success(f"당첨: {get_display_name(name, mut)}"); st.rerun()
+
+    st.markdown("---")
+    use_qty = st.number_input("행운권 일괄 사용 수량", 1, 100000, 1, key="u_qty")
+    for name, mult, _ in TICKET_DEFS:
+        cnt = st.session_state.special_inventory.get(name, 0)
+        if st.button(
+            f"🎟️ {name} {format_currency(use_qty)}장 사용 (보유: {format_currency(cnt)}개)",
+            disabled=(cnt < use_qty),
+            key=f"use_{name}",
+        ):
+            st.session_state.special_inventory[name] -= use_qty
+            if st.session_state.active_multiplier == mult:
+                st.session_state.active_multiplier_count += use_qty
+            else:
+                st.session_state.active_multiplier = mult
+                st.session_state.active_multiplier_count = use_qty
+            st.success(f"{name} {format_currency(use_qty)}장 적용!")
+            st.rerun()
 
 # 7. 도감 탭
 with tabs[6]:
