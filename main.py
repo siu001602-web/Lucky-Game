@@ -19,7 +19,6 @@ st.markdown("""
 @keyframes moonDrop { 0% { transform: translateY(-150px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 @keyframes pumpkinPop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes ghostPop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-@keyframes appleRain { 0% { transform: translateY(-400px); opacity: 0; } 100% { transform: translateY(300px); opacity: 0.9; } }
 @keyframes endingFade { 0%, 100% { opacity: 0; background-color: rgba(0,0,0,0); } 50% { opacity: 1; background-color: #000; } }
 
 .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; user-select: none; }
@@ -294,15 +293,6 @@ with tabs[0]:
             st.session_state.history.append((name, mut))
             st.session_state.stats[name] += 1; st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
             
-            mut_map = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}
-            if mut:
-                st.session_state.mutation_stats[mut] += 1
-                st.session_state.mutation_unlocked[name][mut] = True
-                if name in HIGH_TIERS and mut in mut_map:
-                    st.session_state.pending_mutation_info = f"당첨 아이템: {get_base_name(name)}"
-                    st.session_state.effect_type = mut_map[mut]
-                    st.rerun()
-
             mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
             if name in mapping and not st.session_state.skip_cutscenes_map.get(name, False):
                 st.session_state.effect_type = mapping[name]; st.rerun()
@@ -383,7 +373,7 @@ with tabs[1]:
         else:
             st.success(f"📦 할로윈 상자 개봉 결과: **[{get_base_name(box_name)}]** 획득!")
 
-# 3. 상점 탭 (연차 기능권 및 행운권 상점 복구)
+# 3. 상점 탭
 with tabs[2]:
     st.subheader("💵 판매소 및 Special 상점")
     sellable_items = [t for t in ALL_TIERS if t[0] not in [hb[0] for hb in HALLOWEEN_BOX_DATA]]
@@ -431,7 +421,7 @@ with tabs[2]:
             else:
                 st.error("코인 부족!")
 
-# 4. 대장간 탭 (대장간 시스템 복구)
+# 4. 대장간 탭
 with tabs[3]:
     st.subheader("🛠️ 불꽃의 대장간")
     st.info("비밀 등급 이상 3개를 소모하여 상위 등급이나 헤파이스토스를 영접하세요! (승급 19.9%, 소멸 50%, 무효 30%, 신 0.1%)")
@@ -528,7 +518,7 @@ with tabs[4]:
                 else:
                     st.error("❌ 보유 코인이 부족합니다!")
 
-# 6. 배낭 탭 (연차 기능권 및 행운권 사용 복구)
+# 6. 배낭 탭
 with tabs[5]:
     st.subheader("🎒 배낭 (아이템 사용)")
     dice = st.session_state.special_inventory.get("행운의 주사위", 0)
