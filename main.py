@@ -35,7 +35,6 @@ st.markdown(
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes appleRain { 0% { transform: translateY(-400px) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(300px) scale(1.2); opacity: 0.9; } }
 
-    /* 할로윈 상자 전용 3초 컷씬 애니메이션 */
     @keyframes hwBaseIntro { 0% { background-color: rgba(75,0,130,0); } 100% { background-color: rgba(75,0,130,0.95); } }
     @keyframes zombieAnim { 0% { transform: translate(0,0) scale(0.5); } 20% { transform: translate(-15px, 10px) rotate(-5deg); } 40% { transform: translate(15px, -10px) rotate(5deg); } 60% { transform: translate(-10px, -10px) scale(1.2); } 100% { transform: translate(0,0) scale(1.0); } }
     @keyframes skeletonAnim { 0% { background-color: rgba(75,0,130,0.95); } 30% { background-color: rgba(255,255,255,0.9); transform: scale(1.1); } 60% { transform: translate(10px, 10px) rotate(-10deg); } 100% { transform: scale(1.0) rotate(0deg); } }
@@ -528,8 +527,18 @@ def execute_halloween_rolls(count):
     return hit_cutscene
 
 
+# 업적 달성 여부 체크 함수 (모든 할로윈 테마 등급 수집 확인)
+def check_halloween_achievement():
+    all_halloween_items = [t[0] for t in HALLOWEEN_TIERS + HALLOWEEN_BOX_TIERS]
+    return all(st.session_state.unlocked.get(item, False) for item in all_halloween_items)
+
+
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{format_currency(st.session_state.coins)} 코인")
+
+# 칭호 시스템 표시 영역
+if check_halloween_achievement():
+    st.markdown("🏆 **[칭호 장착 중]** 🎃 **해피 할로윈** 🎃")
 
 if st.session_state.active_multiplier_count > 0:
     m_val = st.session_state.active_multiplier
@@ -725,7 +734,7 @@ with tabs[1]:
 
     st.write("---")
     st.markdown("### 📦 할로윈 전용 상자 합성 시스템")
-    st.info("재료 소모: **유령 1개 + 사탕 1개 + 박쥐 1개**를 소모하여 **'할로윈 상자'**를 개봉하고 특수 몬스터를 획득하세요! (획득 등급은 상점에서 판매 불가)")
+    st.info("재료 소모: **유령 1개 + 사탕 1개 + 박쥐 1개**를 소모하여 **'할로윈 상자'**를 개봉하고 특수 몬스터를 획득하세요! (할로윈 상자에서 나오는 등급들은 판매 불가)")
 
     ghost_cnt = st.session_state.inventory.get("유령", 0)
     candy_cnt = st.session_state.inventory.get("사탕", 0)
@@ -778,7 +787,7 @@ with tabs[1]:
 
 with tabs[2]:
     st.subheader("💵 등급별 판매소")
-    st.warning("⚠️ 할로윈 상자 전용 등급(프랑켄슈타인, 강시, 뱀파이어, 마녀, 잭오랜턴, 스켈레톤, 좀비)은 상점에서 판매할 수 없습니다!")
+    st.warning("⚠️ 할로윈 상자에서 나오는 등급들은 판매 불가입니다!")
     
     sell_sel = {}
     cols = st.columns(3)
@@ -1142,7 +1151,17 @@ with tabs[6]:
         st.markdown("<hr style='margin: 4px 0px; border-color: rgba(255,255,255,0.08);'>", unsafe_allow_html=True)
 
 with tabs[7]:
-    st.subheader("📊 통계")
+    st.subheader("📊 통계 & 업적")
+    
+    # 업적 현황 표시
+    st.markdown("### 🏆 업적 목록")
+    achieved = check_halloween_achievement()
+    if achieved:
+        st.success("🎃 **해피 할로윈** (달성 완료! - 모든 할로윈 테마 등급 수집 완료)")
+    else:
+        st.info("🔒 **해피 할로윈** (미달성 - 모든 할로윈 테마 등급을 수집하면 '해피 할로윈' 칭호를 획득합니다!)")
+
+    st.markdown("---")
     if st.session_state.history:
         cols = st.columns(4)
         stat_targets = HIGH_TIERS + ["전설", "영웅", "희귀", "일반", "사탕", "박쥐", "프랑켄슈타인", "강시", "뱀파이어", "마녀", "잭오랜턴", "스켈레톤", "좀비"]
@@ -1226,4 +1245,3 @@ with tabs[9]:
         st.error("❌ 비밀번호가 틀렸습니다!")
     else:
         st.info("🔒 접근하려면 올바른 비밀번호를 입력하세요.")
-
