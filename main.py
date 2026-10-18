@@ -20,6 +20,7 @@ st.markdown(
     @keyframes diamondFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(30,144,255,0.95); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes smithSpark { 0% { background-color: rgba(255,69,0,0); transform: scale(0.9); } 20% { background-color: rgba(255,140,0,0.9); transform: scale(1.1); } 40% { background-color: rgba(255,215,0,1); transform: scale(1.0); } 70% { background-color: rgba(255,69,0,0.8); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
     @keyframes angelOpen { 0% { background-color: rgba(255,255,255,0); transform: scale(0.9); } 30% { background-color: rgba(255,255,250,0.95); transform: scale(1.05); } 70% { background-color: rgba(255,223,0,0.85); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
+    @keyframes timeDistortion { 0% { background-color: rgba(0,0,0,0); transform: perspective(500px) rotateY(0deg) scale(1); filter: blur(0px); } 25% { background-color: rgba(75,0,130,0.9); transform: perspective(500px) rotateY(15deg) skewX(20deg) scale(1.1); filter: blur(2px); } 50% { background-color: rgba(255,215,0,0.85); transform: perspective(500px) rotateY(-15deg) skewX(-20deg) scale(0.95); filter: blur(4px); } 75% { background-color: rgba(75,0,130,0.9); transform: perspective(500px) rotateY(10deg) skewX(10deg) scale(1.05); filter: blur(1px); } 100% { background-color: rgba(0,0,0,0.98); transform: perspective(500px) rotateY(0deg) scale(1); filter: blur(0px); } }
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes earthquake { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
@@ -36,6 +37,7 @@ st.markdown(
     .diamond-fade { animation: diamondFlash 2.5s ease-in-out forwards; }
     .smith-fade { animation: smithSpark 10.0s ease-in-out forwards; }
     .angel-fade { animation: angelOpen 8.0s ease-in-out forwards; }
+    .time-fade { animation: timeDistortion 10.0s ease-in-out forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
     .rift-fade { animation: earthquake 5.0s ease-in-out forwards; }
@@ -43,7 +45,7 @@ st.markdown(
     .gravity-fade { animation: sunsetGravity 6.0s ease-in-out forwards; }
     .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .time-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
     .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
@@ -51,6 +53,7 @@ st.markdown(
     .diamond-popup { color: #E0FFFF; text-shadow: 0px 0px 30px #00008B; }
     .smith-popup { color: #FFD700; text-shadow: 0px 0px 30px #FF4500; font-size: 38px; }
     .angel-popup { color: #FFFACD; text-shadow: 0px 0px 40px #FFD700; font-size: 38px; }
+    .time-popup { color: #00FFFF; text-shadow: 0px 0px 40px #FFD700; font-size: 38px; }
     .falling-apple { font-size: 100px; animation: appleFall 2.0s ease-in forwards; }
     
     .pokedex-title { font-size: 16px; font-weight: bold; }
@@ -231,7 +234,6 @@ for sp_key, sp_val in defaults["special_inventory"].items():
     if sp_key not in st.session_state.special_inventory:
         st.session_state.special_inventory[sp_key] = sp_val
 
-# 컷씬 연출 처리 (최적화: history 메모리 과부하 방지를 위해 최근 1000개만 유지)
 if len(st.session_state.history) > 1000:
     st.session_state.history = st.session_state.history[-1000:]
 
@@ -244,6 +246,7 @@ if eff:
         "hephaestus": '<div class="effect-overlay smith-fade"><div class="smith-popup">🔥 대장간의 신 스파크 폭발! 🔥<br>🏛️ 그리스 아테네 신전 강림 🏛️<br>[헤파이스토스] 득템!!</div></div>',
         "gravity": '<div class="effect-overlay gravity-fade"><div class="gravity-text"><div class="falling-apple">🍎</div>[중력] 등급 발견!!</div></div>',
         "blackhole": '<div class="effect-overlay blackhole-fade"><div class="blackhole-popup">🕳️ [블랙홀] 시공간 붕괴!</div></div>',
+        "time_ruler": '<div class="effect-overlay time-fade"><div class="time-popup">⏳ 째깍... 째깍... ⏳<br>🌀 [시간의 지배자] 시공간 일그러짐!</div></div>',
         "rift": '<div class="effect-overlay rift-fade"><div class="rift-popup">⚡ [균열자] 차원 균열 발생!</div></div>',
         "comet": '<div class="effect-overlay comet-fade"><div class="comet-popup">☄️ [혜성] 우주 강림!</div></div>',
         "abyss": '<div class="effect-overlay abyss-fade"><div class="abyss-popup">🌊 [어비스] 심해 소용돌이!</div></div>',
@@ -256,7 +259,7 @@ if eff:
     }
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
-        time.sleep(10.0 if eff in ["hephaestus", "angel"] else (2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0))
+        time.sleep(10.0 if eff in ["hephaestus", "angel", "time_ruler"] else (2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0))
         st.rerun()
 
 
@@ -405,7 +408,7 @@ with tabs[0]:
             mapping = {
                 "중력": "gravity",
                 "블랙홀": "blackhole",
-                "시간의 지배자": "rift",
+                "시간의 지배자": "time_ruler",
                 "균열자": "rift",
                 "혜성": "comet",
                 "어비스": "abyss",
@@ -441,7 +444,7 @@ with tabs[0]:
             mapping = {
                 "중력": "gravity",
                 "블랙홀": "blackhole",
-                "시간의 지배자": "rift",
+                "시간의 지배자": "time_ruler",
                 "균열자": "rift",
                 "혜성": "comet",
                 "어비스": "abyss",
@@ -482,7 +485,7 @@ with tabs[0]:
                     mapping = {
                         "중력": "gravity",
                         "블랙홀": "blackhole",
-                        "시간의 지배자": "rift",
+                        "시간의 지배자": "time_ruler",
                         "균열자": "rift",
                         "혜성": "comet",
                         "어비스": "abyss",
@@ -507,7 +510,7 @@ with tabs[0]:
                         st.rerun()
                     st.success(f"🎉 {cnt}연차 완료!")
 
-# 2. 상점 탭 (행운권 구매 수량 최대 10만 개 확장)
+# 2. 상점 탭
 with tabs[1]:
     st.subheader("💵 등급별 판매소")
     sell_sel = {}
@@ -582,7 +585,7 @@ with tabs[1]:
                     else:
                         st.error("부족")
 
-# 3. 대장간 탭
+# 3. 대장간 탭 (최대 합성 버튼 지원)
 with tabs[2]:
     st.subheader("🛠️ 불꽃의 대장간 (일괄 합성 시스템)")
     hephaestus_name = get_base_name("헤파이스토스")
@@ -603,8 +606,22 @@ with tabs[2]:
 
     st.write(f"현재 보유량: **{owned_count}개** (최대 합성 가능 횟수: **{max_forge_sets}회**)")
 
+    # 세션 상태를 이용해 최대치 버튼 토글 구현
+    max_key = f"max_forge_{selected_forge_item}"
+    if max_key not in st.session_state:
+        st.session_state[max_key] = False
+
+    c_btn1, c_btn2 = st.columns([1.5, 8.5])
+    with c_btn1:
+        if st.button("⚡ 최대치 선택", use_container_width=True, disabled=(max_forge_sets == 0)):
+            st.session_state[f"val_{selected_forge_item}"] = max_forge_sets
+
+    current_val = st.session_state.get(f"val_{selected_forge_item}", 1)
+    if current_val > max_forge_sets:
+        current_val = max(1, max_forge_sets)
+
     if max_forge_sets > 0:
-        forge_count = st.number_input("합성 진행 횟수 선택", min_value=1, max_value=max_forge_sets, value=1)
+        forge_count = st.number_input("합성 진행 횟수 선택", min_value=1, max_value=max_forge_sets, value=current_val, key=f"val_{selected_forge_item}")
     else:
         forge_count = 0
         st.warning("합성 재료(동일 등급 3개 이상)가 부족합니다!")
@@ -646,7 +663,7 @@ with tabs[2]:
         mapping = {
             "중력": "gravity",
             "블랙홀": "blackhole",
-            "시간의 지배자": "rift",
+            "시간의 지배자": "time_ruler",
             "균열자": "rift",
             "혜성": "comet",
             "어비스": "abyss",
@@ -673,7 +690,7 @@ with tabs[2]:
                 result_msg += f"- 🛡️ 무효(재료반환): **{refund_count}회**\n"
             st.success(result_msg)
 
-# 4. 개발자 기부 탭 (1회 / 10회 / 100회 일괄 기부 지원)
+# 4. 개발자 기부 탭
 with tabs[3]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
@@ -720,7 +737,7 @@ with tabs[3]:
                 else:
                     st.error("❌ 보유 코인이 부족합니다!")
 
-# 5. 배낭 탭 (행운권 일괄 사용 수량 최대 10만 개 확장)
+# 5. 배낭 탭
 with tabs[4]:
     st.subheader("🎒 배낭")
     dice_c = st.session_state.special_inventory.get("행운의 주사위", 0)
@@ -763,7 +780,7 @@ with tabs[5]:
         "헤파이스토스": "hephaestus",
         "중력": "gravity",
         "블랙홀": "blackhole",
-        "시간의 지배자": "rift",
+        "시간의 지배자": "time_ruler",
         "균열자": "rift",
         "혜성": "comet",
         "어비스": "abyss",
