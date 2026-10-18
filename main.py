@@ -3,148 +3,46 @@ import random
 import time
 import streamlit as st
 
-# 1. 페이지 기본 설정
 st.set_page_config(
     page_title="두근두근 뽑기 & 상점 시뮬레이터",
     page_icon="🎲",
     layout="centered",
 )
 
-# 애니메이션 CSS 정의
+# 애니메이션 CSS
 st.markdown(
     """
     <style>
-    @keyframes fadeDark {
-        0% { background-color: rgba(0, 0, 0, 0); }
-        25% { background-color: rgba(0, 0, 0, 0.98); }
-        75% { background-color: rgba(0, 0, 0, 0.98); }
-        100% { background-color: rgba(0, 0, 0, 0); }
-    }
-    @keyframes monsterJump {
-        0% { transform: scale(0.2); opacity: 0; }
-        50% { transform: scale(1.2); opacity: 1; }
-        100% { transform: scale(1.0); opacity: 1; }
-    }
-    @keyframes holyFlash {
-        0% { background-color: rgba(0, 0, 0, 0); }
-        20% { background-color: rgba(0, 0, 0, 0.98); }
-        40% { background-color: rgba(255, 255, 255, 1); }
-        80% { background-color: rgba(255, 255, 255, 1); }
-        100% { background-color: rgba(0, 0, 0, 0); }
-    }
-    @keyframes abyssWhirlpool {
-        0% { background: radial-gradient(circle, #001133 0%, #000511 100%); opacity: 0; transform: scale(0.8); }
-        20% { opacity: 1; transform: scale(1); }
-        50% { background: radial-gradient(circle, #003366 0%, #000511 100%); transform: rotate(180deg); }
-        80% { opacity: 1; transform: scale(1); }
-        100% { opacity: 0; transform: scale(1.2); }
-    }
-    @keyframes cometMeteor {
-        0% { background: #020208; opacity: 0; }
-        15% { opacity: 1; }
-        30% { background: radial-gradient(circle at 80% 20%, #ffaa00 0%, #020208 60%); }
-        60% { background: radial-gradient(circle at 20% 80%, #ff4400 0%, #020208 70%); }
-        85% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    @keyframes earthquake {
-        0% { transform: translate(0, 0) rotate(0deg); background: #110000; }
-        10% { transform: translate(-10px, 8px) rotate(-1deg); }
-        20% { transform: translate(12px, -6px) rotate(1.5deg); }
-        30% { transform: translate(-8px, -12px) rotate(-2deg); }
-        40% { transform: translate(14px, 10px) rotate(1deg); }
-        50% { transform: translate(-12px, 6px) rotate(-1.5deg); background: #330000; }
-        60% { transform: translate(8px, -10px) rotate(2deg); }
-        70% { transform: translate(-10px, 12px) rotate(-1deg); }
-        80% { transform: translate(12px, -8px) rotate(1deg); }
-        90% { transform: translate(-6px, 4px) rotate(-0.5deg); }
-        100% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-    }
-    @keyframes blackholeSuck {
-        0% { background: #ffffff; opacity: 0; }
-        15% { background: #ffffff; opacity: 1; }
-        35% { background: radial-gradient(circle, #000000 10%, #110022 90%); }
-        75% { background: radial-gradient(circle, #000000 90%, #000000 100%); transform: scale(1.1); }
-        100% { opacity: 0; }
-    }
-    @keyframes sunsetGravity {
-        0% { background: linear-gradient(180deg, #fd5e53 0%, #e08f62 60%, #4a2e35 100%); opacity: 0; }
-        15% { opacity: 1; }
-        85% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    @keyframes appleFall {
-        0% { transform: translateY(-300px) rotate(0deg); opacity: 0; }
-        20% { opacity: 1; }
-        70% { transform: translateY(150px) rotate(360deg); }
-        80% { transform: translateY(130px) rotate(390deg); }
-        90% { transform: translateY(150px) rotate(400deg); }
-        100% { transform: translateY(150px) rotate(400deg); opacity: 1; }
-    }
-    @keyframes endingFade {
-        0% { background-color: rgba(0, 0, 0, 0); opacity: 0; }
-        20% { background-color: rgba(0, 0, 0, 1); opacity: 1; }
-        80% { background-color: rgba(0, 0, 0, 1); opacity: 1; }
-        100% { background-color: rgba(0, 0, 0, 0); opacity: 0; }
-    }
+    @keyframes fadeDark { 0% { background-color: rgba(0,0,0,0); } 25%, 75% { background-color: rgba(0,0,0,0.98); } 100% { background-color: rgba(0,0,0,0); } }
+    @keyframes monsterJump { 0% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1.0); opacity: 1; } }
+    @keyframes holyFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(0,0,0,0); } }
+    @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
+    @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes earthquake { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
+    @keyframes blackholeSuck { 0% { opacity: 0; } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; } }
+    @keyframes sunsetGravity { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+    @keyframes appleFall { 0% { transform: translateY(-300px); opacity: 0; } 100% { transform: translateY(150px); opacity: 1; } }
+    @keyframes endingFade { 0%, 100% { opacity: 0; background-color: rgba(0,0,0,0); } 50% { opacity: 1; background-color: #000; } }
 
-    .effect-overlay {
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        z-index: 9999999; pointer-events: auto;
-        display: flex; justify-content: center; align-items: center;
-    }
+    .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; justify-content: center; align-items: center; pointer-events: none; }
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
     .holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
-    .abyss-fade { animation: abyssWhirlpool 10.0s ease-in-out forwards; }
-    .comet-fade { animation: cometMeteor 8.0s ease-in-out forwards; }
-    .rift-fade { animation: earthquake 10.0s ease-in-out forwards; }
-    .blackhole-fade { animation: blackholeSuck 10.0s ease-in-out forwards; }
-    .gravity-fade { animation: sunsetGravity 10.0s ease-in-out forwards; }
-    .ending-fade { animation: endingFade 10.0s ease-in-out forwards; background-color: #000000; }
+    .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
+    .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
+    .rift-fade { animation: earthquake 5.0s ease-in-out forwards; }
+    .blackhole-fade { animation: blackholeSuck 6.0s ease-in-out forwards; }
+    .gravity-fade { animation: sunsetGravity 6.0s ease-in-out forwards; }
+    .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup {
-        font-size: 50px; font-weight: bold; color: #FF4500;
-        text-shadow: 0px 0px 20px #000000; animation: monsterJump 0.8s ease-out forwards; text-align: center;
+    .monster-popup, .holy-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
+        font-size: 45px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
-    .holy-popup {
-        font-size: 50px; font-weight: bold; color: #00BFFF;
-        text-shadow: 0px 0px 30px #FFFFFF; animation: monsterJump 0.8s ease-out forwards; text-align: center;
-    }
-    .abyss-popup {
-        font-size: 50px; font-weight: bold; color: #00ffff;
-        text-shadow: 0px 0px 30px #0055ff; animation: monsterJump 1.2s ease-out forwards; text-align: center;
-    }
-    .comet-popup {
-        font-size: 55px; font-weight: bold; color: #ffcc00;
-        text-shadow: 0px 0px 40px #ff3300; animation: monsterJump 1.5s ease-out forwards; text-align: center;
-    }
-    .rift-popup {
-        font-size: 55px; font-weight: bold; color: #ff0000;
-        text-shadow: 0px 0px 30px #ffffff; animation: monsterJump 1.0s ease-out forwards; text-align: center;
-    }
-    .blackhole-popup {
-        font-size: 55px; font-weight: bold; color: #aa00ff;
-        text-shadow: 0px 0px 40px #000000; animation: monsterJump 1.5s ease-out forwards; text-align: center;
-    }
-    .gravity-popup {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .falling-apple { font-size: 100px; animation: appleFall 3.0s ease-in forwards; }
-    .gravity-text {
-        font-size: 50px; font-weight: bold; color: #ffffff;
-        text-shadow: 0px 0px 20px #ff4500; margin-top: 30px; text-align: center;
-    }
-    .ending-text {
-        font-size: 50px; font-weight: bold; color: #ffffff;
-        text-shadow: 0px 0px 30px #FFD700; text-align: center;
-    }
+    .falling-apple { font-size: 100px; animation: appleFall 2.0s ease-in forwards; }
     </style>
 """,
     unsafe_allow_html=True,
 )
 
-# 2. 확률 설정
 TIERS = [
     ("중력", 0.0000000000005, "#FF4500"),
     ("블랙홀", 0.0000000000015, "#AA00FF"),
@@ -188,201 +86,105 @@ HIGH_TIERS = [
     "블랙홀",
     "중력",
 ]
+TICKET_DEFS = [
+    ("만배 행운권", 10000.0, 100),
+    ("십만배 행운권", 100000.0, 1000),
+    ("백만배 행운권", 1000000.0, 10000),
+    ("천만배 행운권", 10000000.0, 30000),
+]
 
 
 def gacha_roll(multiplier=1.0):
-    if multiplier > 1.0:
-        base_dict = {name: prob for name, prob, color in TIERS}
-        color_dict = {name: color for name, prob, color in TIERS}
+    base_dict = {name: prob for name, prob, color in TIERS}
+    color_dict = {name: color for name, prob, color in TIERS}
 
-        total_increase = 0.0
+    if multiplier > 1.0:
+        total_inc = 0.0
         for name in HIGH_TIERS:
             orig = base_dict[name]
-            new_prob = orig * multiplier
-            total_increase += new_prob - orig
-            base_dict[name] = new_prob
+            new_p = orig * multiplier
+            total_inc += new_p - orig
+            base_dict[name] = new_p
 
-        # 일반, 희귀 등급 비율에 맞게 증가한 확률 차감
-        common_rare_sum = base_dict["일반"] + base_dict["희귀"]
-        if common_rare_sum > 0:
-            decrease_ratio = max(
-                0.0, (common_rare_sum - total_increase) / common_rare_sum
-            )
-            base_dict["일반"] *= decrease_ratio
-            base_dict["희귀"] *= decrease_ratio
+        c_sum = base_dict["일반"] + base_dict["희귀"]
+        if c_sum > 0:
+            ratio = max(0.0, (c_sum - total_inc) / c_sum)
+            base_dict["일반"] *= ratio
+            base_dict["희귀"] *= ratio
 
-        adjusted_tiers = [(n, base_dict[n], color_dict[n]) for n, _, _ in TIERS]
-        total_prob = sum(t[1] for t in adjusted_tiers)
-
-        rand_val = random.random() * total_prob
-        cumulative = 0.0
-        for name, prob, color in adjusted_tiers:
-            cumulative += prob
-            if rand_val <= cumulative:
-                return name, color
-        return adjusted_tiers[-1][0], adjusted_tiers[-1][2]
-    else:
-        rand_val = random.random()
-        cumulative = 0.0
-        for name, prob, color in TIERS:
-            cumulative += prob
-            if rand_val <= cumulative:
-                return name, color
-        return "일반", "#A9A9A9"
+    adjusted = [(n, base_dict[n], color_dict[n]) for n, _, _ in TIERS]
+    total_p = sum(t[1] for t in adjusted)
+    rand_v = random.random() * total_p
+    cum = 0.0
+    for name, prob, color in adjusted:
+        cum += prob
+        if rand_v <= cum:
+            return name, color
+    return adjusted[-1][0], adjusted[-1][2]
 
 
-def lucky_dice_roll():
-    rand_val = random.random()
-    if rand_val <= 0.10:
-        return "도깨비", "#FF0055"
-    elif rand_val <= 0.30:
-        return "비밀", "#FF1493"
-    else:
-        return "전설", "#FFD700"
-
-
-# 3. 데이터 초기화
-if "coins" not in st.session_state:
-    st.session_state.coins = 0.0
-if "history" not in st.session_state:
-    st.session_state.history = []
-if "stats" not in st.session_state:
-    st.session_state.stats = {t[0]: 0 for t in TIERS}
-if "inventory" not in st.session_state:
-    st.session_state.inventory = {t[0]: 0 for t in TIERS}
-if "special_inventory" not in st.session_state:
-    st.session_state.special_inventory = {
+# 세션 상태 초기화
+defaults = {
+    "coins": 0.0,
+    "history": [],
+    "stats": {t[0]: 0 for t in TIERS},
+    "inventory": {t[0]: 0 for t in TIERS},
+    "special_inventory": {
         "행운의 주사위": 0,
-        "10배 행운권": 0,
-        "100배 행운권": 0,
-        "1000배 행운권": 0,
+        "만배 행운권": 0,
+        "십만배 행운권": 0,
         "백만배 행운권": 0,
+        "천만배 행운권": 0,
         "100연차 기능권": 0,
         "500연차 기능권": 0,
         "1000연차 기능권": 0,
         "3000연차 기능권": 0,
         "10000연차 기능권": 0,
+    },
+    "unlocked": {
+        t[0]: t[0] in ["일반", "희귀", "영웅", "전설"] for t in TIERS
+    },
+    "has_100_roll": False,
+    "has_500_roll": False,
+    "has_1000_roll": False,
+    "has_3000_roll": False,
+    "has_10000_roll": False,
+    "active_multiplier": 1.0,
+    "active_multiplier_count": 0,
+    "balloons_shown": False,
+    "effect_type": None,
+    "skip_cutscenes_map": {t: False for t in HIGH_TIERS},
+}
+
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
+
+# 컷씬 처리
+eff = st.session_state.effect_type
+if eff:
+    st.session_state.effect_type = None
+    effects_html = {
+        "ending": '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨</div></div>',
+        "gravity": '<div class="effect-overlay gravity-fade"><div class="gravity-text"><div class="falling-apple">🍎</div>[중력] 등급 발견!!</div></div>',
+        "blackhole": '<div class="effect-overlay blackhole-fade"><div class="blackhole-popup">🕳️ [블랙홀] 시공간 붕괴!</div></div>',
+        "rift": '<div class="effect-overlay rift-fade"><div class="rift-popup">⚡ [균열자] 차원 균열 발생!</div></div>',
+        "comet": '<div class="effect-overlay comet-fade"><div class="comet-popup">☄️ [혜성] 우주 강림!</div></div>',
+        "abyss": '<div class="effect-overlay abyss-fade"><div class="abyss-popup">🌊 [어비스] 심해 소용돌이!</div></div>',
+        "holy": '<div class="effect-overlay holy-fade"><div class="holy-popup">✨ [신성한] 등급 강림!</div></div>',
+        "secret": '<div class="effect-overlay dark-fade"><div class="monster-popup">💖 [비밀] 등급 획득!</div></div>',
+        "dokebi": '<div class="effect-overlay dark-fade"><div class="monster-popup">👹 [도깨비] 출현!</div></div>',
     }
-if "unlocked" not in st.session_state:
-    st.session_state.unlocked = {t[0]: False for t in TIERS}
-    for default_open in ["일반", "희귀", "영웅", "전설"]:
-        st.session_state.unlocked[default_open] = True
-
-if "has_100_roll" not in st.session_state:
-    st.session_state.has_100_roll = False
-if "has_500_roll" not in st.session_state:
-    st.session_state.has_500_roll = False
-if "has_1000_roll" not in st.session_state:
-    st.session_state.has_1000_roll = False
-if "has_3000_roll" not in st.session_state:
-    st.session_state.has_3000_roll = False
-if "has_10000_roll" not in st.session_state:
-    st.session_state.has_10000_roll = False
-
-if "active_multiplier" not in st.session_state:
-    st.session_state.active_multiplier = 1.0
-if "active_multiplier_count" not in st.session_state:
-    st.session_state.active_multiplier_count = 0
-
-if "balloons_shown" not in st.session_state:
-    st.session_state.balloons_shown = False
-
-CUTSCENE_TIERS = [
-    "중력",
-    "블랙홀",
-    "시간의 지배자",
-    "균열자",
-    "혜성",
-    "어비스",
-    "신성한",
-    "도깨비",
-    "비밀",
-]
-if "skip_cutscenes_map" not in st.session_state:
-    st.session_state.skip_cutscenes_map = {t: False for t in CUTSCENE_TIERS}
-
-if "effect_type" not in st.session_state:
-    st.session_state.effect_type = None
-
-# 컷씬 재생 처리
-if st.session_state.effect_type == "ending":
-    st.markdown(
-        '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨<br><span style="font-size: 25px; color: #888888;">모든 등급을 해금하셨습니다.</span></div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(10.0)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "gravity":
-    st.markdown(
-        '<div class="effect-overlay gravity-fade"><div class="gravity-popup"><div class="falling-apple">🍎</div><div class="gravity-text">🍎 [중력] 등급 발견!! 🍎<br>만유인력의 법칙이 만물을 끌어당깁니다.</div></div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(9.5)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "blackhole":
-    st.markdown(
-        '<div class="effect-overlay blackhole-fade"><div class="blackhole-popup">🕳️ [블랙홀] 모든 빛을 흡수합니다... 🕳️<br>시공간이 붕괴되어 소멸합니다!</div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(9.5)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "rift":
-    st.markdown(
-        '<div class="effect-overlay rift-fade"><div class="rift-popup">⚡ [균열자] 차원의 균열 발생!! ⚡<br>지진과 함께 세상을 뒤흔듭니다!</div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(9.5)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "comet":
-    st.markdown(
-        '<div class="effect-overlay comet-fade"><div class="comet-popup">☄️ [혜성] 등급 우주에서 강림!! ☄️<br>거대한 메테오가 충돌합니다!</div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(7.5)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "abyss":
-    st.markdown(
-        '<div class="effect-overlay abyss-fade"><div class="abyss-popup">🌊 [어비스] 심해 소용돌이 발생!! 🌊<br>심연의 수평선이 휘감아칩니다!</div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(9.5)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "holy":
-    st.markdown(
-        '<div class="effect-overlay holy-fade"><div class="holy-popup">✨ [신성한] 등급 강림!! ✨<br>거룩한 빛이 사방을 비춥니다!</div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(2.3)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "secret":
-    st.markdown(
-        '<div class="effect-overlay dark-fade"><h1 style="color: #FF1493; font-size: 50px;">✨ 비밀 등급 획득! ✨</h1></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(2.0)
-    st.session_state.effect_type = None
-    st.rerun()
-elif st.session_state.effect_type == "dokebi":
-    st.markdown(
-        '<div class="effect-overlay dark-fade"><div class="monster-popup">👹 도깨비 튀어나옴!!<br>도깨비 등급 획득!! 👹</div></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(2.0)
-    st.session_state.effect_type = None
-    st.rerun()
+    if eff in effects_html:
+        st.markdown(effects_html[eff], unsafe_allow_html=True)
+        time.sleep(2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0)
+        st.rerun()
 
 
-def get_display_name(tier_name):
-    if not st.session_state.unlocked.get(tier_name, False):
+def get_display_name(name):
+    if not st.session_state.unlocked.get(name, False):
         return "❓ ??"
-    names = {
+    mapping = {
         "중력": "🍎 중력",
         "블랙홀": "🕳️ 블랙홀",
         "시간의 지배자": "⏳ 시간의 지배자",
@@ -397,40 +199,11 @@ def get_display_name(tier_name):
         "희귀": "🔵 희귀",
         "일반": "⚪ 일반",
     }
-    return names.get(tier_name, tier_name)
-
-
-CUTSCENE_PRIORITY = [
-    "중력",
-    "블랙홀",
-    "시간의 지배자",
-    "균열자",
-    "혜성",
-    "어비스",
-    "신성한",
-    "도깨비",
-    "비밀",
-]
-
-
-def get_cutscene_type(name):
-    mapping = {
-        "중력": "gravity",
-        "블랙홀": "blackhole",
-        "시간의 지배자": "rift",
-        "균열자": "rift",
-        "혜성": "comet",
-        "어비스": "abyss",
-        "신성한": "holy",
-        "도깨비": "dokebi",
-        "비밀": "secret",
-    }
-    return mapping.get(name, None)
+    return mapping.get(name, name)
 
 
 def execute_rolls(count):
-    highest_special = None
-
+    highest = None
     for _ in range(count):
         mult = 1.0
         if st.session_state.active_multiplier_count > 0:
@@ -439,38 +212,35 @@ def execute_rolls(count):
             if st.session_state.active_multiplier_count == 0:
                 st.session_state.active_multiplier = 1.0
 
-        name, color = gacha_roll(multiplier=mult)
+        name, _ = gacha_roll(mult)
         st.session_state.history.append(name)
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
-
         st.session_state.unlocked[name] = True
 
-        if name in CUTSCENE_PRIORITY:
-            if not st.session_state.skip_cutscenes_map.get(name, False):
-                if (
-                    highest_special is None
-                    or CUTSCENE_PRIORITY.index(name)
-                    < CUTSCENE_PRIORITY.index(highest_special)
-                ):
-                    highest_special = name
+        if (
+            name in HIGH_TIERS
+            and not st.session_state.skip_cutscenes_map.get(name, False)
+        ):
+            if highest is None or HIGH_TIERS.index(name) < HIGH_TIERS.index(
+                highest
+            ):
+                highest = name
+    return highest
 
-    return highest_special
 
-
-def check_all_unlocked():
+def check_all():
     return all(st.session_state.unlocked.get(t[0], False) for t in TIERS)
 
 
-# 4. 앱 상단 레이아웃
+# 상단 UI
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{st.session_state.coins:.2f} 코인")
 
-if check_all_unlocked():
+if check_all():
     if not st.session_state.balloons_shown:
         st.balloons()
         st.session_state.balloons_shown = True
-
     if st.button(
         "🏆 [엔딩 보기] 플레이해주셔서 감사합니다",
         type="primary",
@@ -481,724 +251,262 @@ if check_all_unlocked():
 
 if st.session_state.active_multiplier_count > 0:
     m_val = st.session_state.active_multiplier
-    m_str = (
-        f"{int(m_val):,}배" if m_val >= 1 else f"{m_val}배"
-    )
     st.info(
-        f"🎟️ **[{m_str} 행운 버프] 활성화 중!** (비밀 이상 등급 확률 {m_str} 상승 | 남은 횟수: **{st.session_state.active_multiplier_count}회**)"
+        f"🎟️ **[{int(m_val):,}배 행운 버프] 활성화 중!** (남은 횟수: **{st.session_state.active_multiplier_count}회**)"
     )
 
-with st.expander("⚙️ 게임 설정 (등급별 컷씬 스킵)"):
-    st.markdown("### 🎬 등급별 컷씬 스킵 설정")
-    st.caption("스킵하고 싶은 등급의 컷씬에 체크하세요.")
-
-    for tier in CUTSCENE_PRIORITY:
-        st.session_state.skip_cutscenes_map[tier] = st.checkbox(
-            f"{get_display_name(tier)} 컷씬 스킵하기",
-            value=st.session_state.skip_cutscenes_map.get(tier, False),
-            key=f"skip_{tier}",
+with st.expander("⚙️ 설정 (컷씬 스킵)"):
+    for t in HIGH_TIERS:
+        st.session_state.skip_cutscenes_map[t] = st.checkbox(
+            f"{get_display_name(t)} 스킵",
+            value=st.session_state.skip_cutscenes_map[t],
         )
 
 st.divider()
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    [
-        "🎰 아이템 뽑기",
-        "🏪 상점 & 판매소",
-        "🎒 배낭",
-        "📕 아이템 도감",
-        "📊 통계 & 기록",
-        "💾 세이브/로드",
-    ]
+tabs = st.tabs(
+    ["🎰 뽑기", "🏪 상점", "🎒 배낭", "📕 도감", "📊 통계", "💾 세이브"]
 )
 
-# ================= TAB 1: 아이템 뽑기 =================
-with tab1:
+# 1. 뽑기 탭
+with tabs[0]:
     st.subheader("아이템 뽑기")
-    col1, col2 = st.columns(2)
-
-    with col1:
+    c1, c2 = st.columns(2)
+    with c1:
         if st.button("🎰 1회 뽑기", use_container_width=True):
-            mult = 1.0
-            if st.session_state.active_multiplier_count > 0:
-                mult = st.session_state.active_multiplier
+            mult = (
+                st.session_state.active_multiplier
+                if st.session_state.active_multiplier_count > 0
+                else 1.0
+            )
+            if mult > 1.0:
                 st.session_state.active_multiplier_count -= 1
                 if st.session_state.active_multiplier_count == 0:
                     st.session_state.active_multiplier = 1.0
-
-            name, color = gacha_roll(multiplier=mult)
-
+            name, color = gacha_roll(mult)
             st.session_state.history.append(name)
             st.session_state.stats[name] += 1
             st.session_state.inventory[name] += 1
-
             st.session_state.unlocked[name] = True
 
-            eff = get_cutscene_type(name)
+            mapping = {
+                "중력": "gravity",
+                "블랙홀": "blackhole",
+                "시간의 지배자": "rift",
+                "균열자": "rift",
+                "혜성": "comet",
+                "어비스": "abyss",
+                "신성한": "holy",
+                "도깨비": "dokebi",
+                "비밀": "secret",
+            }
             if (
-                eff
-                and name in CUTSCENE_PRIORITY
+                name in mapping
                 and not st.session_state.skip_cutscenes_map.get(name, False)
             ):
-                st.session_state.effect_type = eff
+                st.session_state.effect_type = mapping[name]
                 st.rerun()
+            st.success(f"🎉 **[1회]** 당첨: **:{color}[{get_display_name(name)}]**")
 
-            display_name = get_display_name(name)
-            st.success(f"🎉 **[1회 결과]** 당첨: **:{color}[{display_name}]**")
-
-    with col2:
-        if st.button("🚀 10연차!", use_container_width=True):
-            special_hit = execute_rolls(10)
-            if special_hit:
-                eff = get_cutscene_type(special_hit)
-                if eff:
-                    st.session_state.effect_type = eff
-                    st.rerun()
-            st.success("✨ 10연차가 완료되었습니다!")
-
-    roll_buttons = []
-    if st.session_state.has_100_roll:
-        roll_buttons.append(("💥 100연차", 100))
-    if st.session_state.has_500_roll:
-        roll_buttons.append(("🔥 500연차", 500))
-    if st.session_state.has_1000_roll:
-        roll_buttons.append(("⚡ 1000연차", 1000))
-    if st.session_state.has_3000_roll:
-        roll_buttons.append(("🌟 3000연차", 3000))
-    if st.session_state.has_10000_roll:
-        roll_buttons.append(("🌌 10000연차", 10000))
-
-    if roll_buttons:
-        st.write("---")
-        cols = st.columns(len(roll_buttons))
-        for idx, (btn_label, count) in enumerate(roll_buttons):
-            with cols[idx]:
-                if st.button(
-                    btn_label, use_container_width=True, type="primary"
-                ):
-                    special_hit = execute_rolls(count)
-                    if special_hit:
-                        eff = get_cutscene_type(special_hit)
-                        if eff:
-                            st.session_state.effect_type = eff
-                            st.rerun()
-                    st.success(f"🎉 {count}연차가 완료되었습니다!")
-
-# ================= TAB 2: 상점 & 판매소 =================
-with tab2:
-    st.subheader("💵 원하는 등급 선택 판매소")
-    st.caption("판매하고 싶은 등급을 체크하고 판매 버튼을 누르세요.")
-
-    sell_selection = {}
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        sell_selection["일반"] = st.checkbox(
-            f"⚪ 일반 ({st.session_state.inventory['일반']}개)",
-            key="chk_normal",
-        )
-        sell_selection["희귀"] = st.checkbox(
-            f"🔵 희귀 ({st.session_state.inventory['희귀']}개)", key="chk_rare"
-        )
-        sell_selection["영웅"] = st.checkbox(
-            f"🟣 영웅 ({st.session_state.inventory['영웅']}개)", key="chk_epic"
-        )
-        sell_selection["전설"] = st.checkbox(
-            f"🟡 전설 ({st.session_state.inventory['전설']}개)",
-            key="chk_legend",
-        )
     with c2:
-        b_name = get_display_name("비밀")
-        sell_selection["비밀"] = st.checkbox(
-            f"{b_name} ({st.session_state.inventory['비밀']}개)", key="chk_secret"
-        )
-        d_name = get_display_name("도깨비")
-        sell_selection["도깨비"] = st.checkbox(
-            f"{d_name} ({st.session_state.inventory['도깨비']}개)",
-            key="chk_dokebi",
-        )
-        h_name = get_display_name("신성한")
-        sell_selection["신성한"] = st.checkbox(
-            f"{h_name} ({st.session_state.inventory['신성한']}개)", key="chk_holy"
-        )
-        a_name = get_display_name("어비스")
-        sell_selection["어비스"] = st.checkbox(
-            f"{a_name} ({st.session_state.inventory['어비스']}개)",
-            key="chk_abyss",
-        )
-    with c3:
-        cm_name = get_display_name("혜성")
-        sell_selection["혜성"] = st.checkbox(
-            f"{cm_name} ({st.session_state.inventory['혜성']}개)", key="chk_comet"
-        )
-        rf_name = get_display_name("균열자")
-        sell_selection["균열자"] = st.checkbox(
-            f"{rf_name} ({st.session_state.inventory['균열자']}개)", key="chk_rift"
-        )
-        tm_name = get_display_name("시간의 지배자")
-        sell_selection["시간의 지배자"] = st.checkbox(
-            f"{tm_name} ({st.session_state.inventory['시간의 지배자']}개)",
-            key="chk_time",
-        )
-        bh_name = get_display_name("블랙홀")
-        sell_selection["블랙홀"] = st.checkbox(
-            f"{bh_name} ({st.session_state.inventory['블랙홀']}개)",
-            key="chk_blackhole",
-        )
-        gv_name = get_display_name("중력")
-        sell_selection["중력"] = st.checkbox(
-            f"{gv_name} ({st.session_state.inventory['중력']}개)", key="chk_gravity"
-        )
+        if st.button("🚀 10연차!", use_container_width=True):
+            hit = execute_rolls(10)
+            mapping = {
+                "중력": "gravity",
+                "블랙홀": "blackhole",
+                "시간의 지배자": "rift",
+                "균열자": "rift",
+                "혜성": "comet",
+                "어비스": "abyss",
+                "신성한": "holy",
+                "도깨비": "dokebi",
+                "비밀": "secret",
+            }
+            if hit and not st.session_state.skip_cutscenes_map.get(hit, False):
+                st.session_state.effect_type = mapping[hit]
+                st.rerun()
+            st.success("✨ 10연차 완료!")
 
-    if st.button("💰 선택한 아이템 판매하기", type="primary"):
-        earned = 0.0
-        sold_any = False
-        for tier, checked in sell_selection.items():
-            if checked and st.session_state.inventory[tier] > 0:
-                count = st.session_state.inventory[tier]
-                earned += count * SELL_PRICES[tier]
-                st.session_state.inventory[tier] = 0
-                sold_any = True
+    rolls_map = [
+        ("has_100_roll", "💥 100연차", 100),
+        ("has_500_roll", "🔥 500연차", 500),
+        ("has_1000_roll", "⚡ 1000연차", 1000),
+        ("has_3000_roll", "🌟 3000연차", 3000),
+        ("has_10000_roll", "🌌 10000연차", 10000),
+    ]
+    active_rolls = [(lbl, cnt) for flag, lbl, cnt in rolls_map if st.session_state[flag]]
+    if active_rolls:
+        st.write("---")
+        cols = st.columns(len(active_rolls))
+        for idx, (lbl, cnt) in enumerate(active_rolls):
+            with cols[idx]:
+                if st.button(lbl, use_container_width=True, type="primary"):
+                    execute_rolls(cnt)
+                    st.success(f"🎉 {cnt}연차 완료!")
 
-        if sold_any and earned > 0:
+# 2. 상점 탭
+with tabs[1]:
+    st.subheader("💵 등급별 판매소")
+    sell_sel = {}
+    cols = st.columns(3)
+    for i, (t_name, _, _) in enumerate(TIERS):
+        with cols[i % 3]:
+            sell_sel[t_name] = st.checkbox(
+                f"{get_display_name(t_name)} ({st.session_state.inventory[t_name]}개)",
+                key=f"sell_{t_name}",
+            )
+
+    if st.button("💰 선택 아이템 판매", type="primary"):
+        earned = sum(
+            st.session_state.inventory[t] * SELL_PRICES[t]
+            for t, sel in sell_sel.items()
+            if sel
+        )
+        for t, sel in sell_sel.items():
+            if sel:
+                st.session_state.inventory[t] = 0
+        if earned > 0:
             st.session_state.coins += earned
-            st.success(f"🎉 선택한 아이템을 판매하여 {earned:.2f} 코인을 획득했습니다!")
+            st.success(f"🎉 {earned:.2f} 코인 획득!")
             st.rerun()
-        else:
-            st.warning("판매할 아이템을 선택하지 않았거나 개수가 0개입니다.")
 
     st.divider()
-
     st.subheader("🛒 Special 상점")
+    buy_qty = st.number_input("행운권 일괄 구매 수량", 1, 1000, 1)
 
-    st.markdown("### 🎲 행운의 주사위")
-    st.write("가격: **800 코인**")
-    secret_prob_str = (
-        "비밀 20%" if st.session_state.unlocked.get("비밀") else "❓ ??"
-    )
-    dokebi_prob_str = (
-        "도깨비 10%" if st.session_state.unlocked.get("도깨비") else "❓ ??"
-    )
-    st.write(f"확률: **전설 70% | {secret_prob_str} | {dokebi_prob_str}**")
-
-    if st.button("🎲 주사위 구매"):
-        if st.session_state.coins >= 800:
-            st.session_state.coins -= 800
-            st.session_state.special_inventory["행운의 주사위"] += 1
-            st.success("✨ '행운의 주사위'를 배낭에 넣었습니다!")
-        else:
-            st.error("코인이 부족합니다! (800 코인 필요)")
-
-    st.markdown("---")
-    st.markdown("### 🎟️ 배율 행운권 상점")
-    st.caption(
-        "사용 시 비밀 이상 상위 등급의 등장 확률이 지정된 배수만큼 상향됩니다."
-    )
-
-    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-
-    with m_col1:
-        st.markdown("#### 🎟️ 10배 행운권")
-        st.write("가격: **100 코인**")
-        if st.button("10배 구매", key="buy_10x"):
-            if st.session_state.coins >= 100:
-                st.session_state.coins -= 100
-                st.session_state.special_inventory["10배 행운권"] += 1
-                st.success("✨ '10배 행운권' 구매 완료!")
+    t_cols = st.columns(2)
+    with t_cols[0]:
+        if st.button("🎲 주사위 구매 (800코인)"):
+            if st.session_state.coins >= 800:
+                st.session_state.coins -= 800
+                st.session_state.special_inventory["행운의 주사위"] += 1
+                st.success("구매 완료!")
             else:
-                st.error("코인 부족 (100 필요)")
+                st.error("코인 부족!")
 
-    with m_col2:
-        st.markdown("#### 🎟️ 100배 행운권")
-        st.write("가격: **1,000 코인**")
-        if st.button("100배 구매", key="buy_100x"):
-            if st.session_state.coins >= 1000:
-                st.session_state.coins -= 1000
-                st.session_state.special_inventory["100배 행운권"] += 1
-                st.success("✨ '100배 행운권' 구매 완료!")
+    for name, _, price in TICKET_DEFS:
+        cost = price * buy_qty
+        if st.button(f"🎟️ {name} {buy_qty}장 ({cost:,}코인)"):
+            if st.session_state.coins >= cost:
+                st.session_state.coins -= cost
+                st.session_state.special_inventory[name] += buy_qty
+                st.success("구매 완료!")
             else:
-                st.error("코인 부족 (1,000 필요)")
+                st.error("코인 부족!")
 
-    with m_col3:
-        st.markdown("#### 🎟️ 1000배 행운권")
-        st.write("가격: **10,000 코인**")
-        if st.button("1000배 구매", key="buy_1000x"):
-            if st.session_state.coins >= 10000:
-                st.session_state.coins -= 10000
-                st.session_state.special_inventory["1000배 행운권"] += 1
-                st.success("✨ '1000배 행운권' 구매 완료!")
+    # 연차 상점
+    st.markdown("### 🎫 연차 해금 상점")
+    t_shop = [
+        ("has_100_roll", "💥 100연차", 500, "100연차 기능권"),
+        ("has_500_roll", "🔥 500연차", 50000, "500연차 기능권"),
+        ("has_1000_roll", "⚡ 1000연차", 150000, "1000연차 기능권"),
+        ("has_3000_roll", "🌟 3000연차", 300000, "3000연차 기능권"),
+        ("has_10000_roll", "🌌 10000연차", 2000000, "10000연차 기능권"),
+    ]
+    s_cols = st.columns(5)
+    for idx, (flag, title, price, key_name) in enumerate(t_shop):
+        with s_cols[idx]:
+            st.markdown(f"#### {title}")
+            if st.session_state[flag]:
+                st.button("품절", disabled=True, key=f"s_{idx}")
             else:
-                st.error("코인 부족 (10,000 필요)")
+                if st.button(f"{price:,}코인", key=f"b_{idx}"):
+                    if st.session_state.coins >= price:
+                        st.session_state.coins -= price
+                        st.session_state.special_inventory[key_name] += 1
+                        st.session_state[flag] = True
+                        st.success("해금완료!")
+                        st.rerun()
+                    else:
+                        st.error("부족")
 
-    with m_col4:
-        st.markdown("#### 🌟 백만배 행운권")
-        st.write("가격: **100,000 코인**")
-        if st.button("백만배 구매", key="buy_1000000x"):
-            if st.session_state.coins >= 100000:
-                st.session_state.coins -= 100000
-                st.session_state.special_inventory["백만배 행운권"] += 1
-                st.success("✨ '백만배 행운권' 구매 완료!")
-            else:
-                st.error("코인 부족 (100,000 필요)")
-
-    st.markdown("---")
-    st.markdown("### 🎫 연차 기능 해금 상점")
-    t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
-
-    with t_col1:
-        st.markdown("#### 💥 100연차")
-        st.write("가격: **500 코인**")
-        sold_100 = st.session_state.has_100_roll or (
-            st.session_state.special_inventory.get("100연차 기능권", 0) > 0
-        )
-        if sold_100:
-            st.button("🚫 [품절]", disabled=True, key="shop_100")
-        else:
-            if st.button("구매하기", key="buy_100"):
-                if st.session_state.coins >= 500:
-                    st.session_state.coins -= 500
-                    st.session_state.special_inventory["100연차 기능권"] += 1
-                    st.success("✨ 100연차 기능권 획득!")
-                    st.rerun()
-                else:
-                    st.error("코인 부족 (500)")
-
-    with t_col2:
-        st.markdown("#### 🔥 500연차")
-        st.write("가격: **5만 코인**")
-        sold_500 = st.session_state.has_500_roll or (
-            st.session_state.special_inventory.get("500연차 기능권", 0) > 0
-        )
-        if sold_500:
-            st.button("🚫 [품절]", disabled=True, key="shop_500")
-        else:
-            if st.button("구매하기", key="buy_500"):
-                if st.session_state.coins >= 50000:
-                    st.session_state.coins -= 50000
-                    st.session_state.special_inventory["500연차 기능권"] += 1
-                    st.success("✨ 500연차 기능권 획득!")
-                    st.rerun()
-                else:
-                    st.error("코인 부족 (5만)")
-
-    with t_col3:
-        st.markdown("#### ⚡ 1000연차")
-        st.write("가격: **15만 코인**")
-        sold_1000 = st.session_state.has_1000_roll or (
-            st.session_state.special_inventory.get("1000연차 기능권", 0) > 0
-        )
-        if sold_1000:
-            st.button("🚫 [품절]", disabled=True, key="shop_1000")
-        else:
-            if st.button("구매하기", key="buy_1000"):
-                if st.session_state.coins >= 150000:
-                    st.session_state.coins -= 150000
-                    st.session_state.special_inventory["1000연차 기능권"] += 1
-                    st.success("✨ 1000연차 기능권 획득!")
-                    st.rerun()
-                else:
-                    st.error("코인 부족 (15만)")
-
-    with t_col4:
-        st.markdown("#### 🌟 3000연차")
-        st.write("가격: **30만 코인**")
-        sold_3000 = st.session_state.has_3000_roll or (
-            st.session_state.special_inventory.get("3000연차 기능권", 0) > 0
-        )
-        if sold_3000:
-            st.button("🚫 [품절]", disabled=True, key="shop_3000")
-        else:
-            if st.button("구매하기", key="buy_3000"):
-                if st.session_state.coins >= 300000:
-                    st.session_state.coins -= 300000
-                    st.session_state.special_inventory["3000연차 기능권"] += 1
-                    st.success("✨ 3000연차 기능권 획득!")
-                    st.rerun()
-                else:
-                    st.error("코인 부족 (30만)")
-
-    with t_col5:
-        st.markdown("#### 🌌 10000연차")
-        st.write("가격: **2백만 코인**")
-        sold_10000 = st.session_state.has_10000_roll or (
-            st.session_state.special_inventory.get("10000연차 기능권", 0) > 0
-        )
-        if sold_10000:
-            st.button("🚫 [품절]", disabled=True, key="shop_10000")
-        else:
-            if st.button("구매하기", key="buy_10000"):
-                if st.session_state.coins >= 2000000:
-                    st.session_state.coins -= 2000000
-                    st.session_state.special_inventory["10000연차 기능권"] += 1
-                    st.success("✨ 10000연차 기능권 획득!")
-                    st.rerun()
-                else:
-                    st.error("코인 부족 (2백만)")
-
-# ================= TAB 3: 배낭 =================
-with tab3:
-    st.subheader("🎒 특수 아이템 배낭")
-
-    st.markdown("### 🎲 행운의 주사위")
-    dice_count = st.session_state.special_inventory.get("행운의 주사위", 0)
-    st.write(f"보유: **{dice_count}개**")
-    if st.button("주사위 사용", disabled=(dice_count == 0)):
+# 3. 배낭 탭
+with tabs[2]:
+    st.subheader("🎒 배낭")
+    dice_c = st.session_state.special_inventory["행운의 주사위"]
+    if st.button(f"🎲 주사위 사용 (보유: {dice_c}개)", disabled=(dice_c == 0)):
         st.session_state.special_inventory["행운의 주사위"] -= 1
         name, color = lucky_dice_roll()
-        st.session_state.history.append(f"주사위사용:{name}")
+        st.session_state.history.append(f"주사위:{name}")
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
-
         st.session_state.unlocked[name] = True
-
-        if name in ["도깨비", "비밀"]:
-            if not st.session_state.skip_cutscenes_map.get(name, False):
-                st.session_state.effect_type = (
-                    "dokebi" if name == "도깨비" else "secret"
-                )
-                st.rerun()
-
-        display_name = get_display_name(name)
-        st.success(f"🎲 결과: **:{color}[{display_name}]** 당첨!")
+        st.success(f"당첨: {get_display_name(name)}")
         st.rerun()
 
     st.markdown("---")
-    st.markdown("### 🎟️ 배율 행운권 사용 (다음 1회 뽑기 적용)")
-
-    u_col1, u_col2, u_col3, u_col4 = st.columns(4)
-
-    with u_col1:
-        st.markdown("#### 🎟️ 10배")
-        cnt_10 = st.session_state.special_inventory.get("10배 행운권", 0)
-        st.write(f"보유: **{cnt_10}개**")
-        if st.button("10배 사용", disabled=(cnt_10 == 0), key="use_10x"):
-            st.session_state.special_inventory["10배 행운권"] -= 1
-            st.session_state.active_multiplier = 10.0
-            st.session_state.active_multiplier_count += 1
-            st.success("🎉 다음 뽑기에 '10배 확률' 적용!")
-            st.rerun()
-
-    with u_col2:
-        st.markdown("#### 🎟️ 100배")
-        cnt_100 = st.session_state.special_inventory.get("100배 행운권", 0)
-        st.write(f"보유: **{cnt_100}개**")
-        if st.button("100배 사용", disabled=(cnt_100 == 0), key="use_100x"):
-            st.session_state.special_inventory["100배 행운권"] -= 1
-            st.session_state.active_multiplier = 100.0
-            st.session_state.active_multiplier_count += 1
-            st.success("🎉 다음 뽑기에 '100배 확률' 적용!")
-            st.rerun()
-
-    with u_col3:
-        st.markdown("#### 🎟️ 1000배")
-        cnt_1000 = st.session_state.special_inventory.get("1000배 행운권", 0)
-        st.write(f"보유: **{cnt_1000}개**")
-        if st.button("1000배 사용", disabled=(cnt_1000 == 0), key="use_1000x"):
-            st.session_state.special_inventory["1000배 행운권"] -= 1
-            st.session_state.active_multiplier = 1000.0
-            st.session_state.active_multiplier_count += 1
-            st.success("🎉 다음 뽑기에 '1000배 확률' 적용!")
-            st.rerun()
-
-    with u_col4:
-        st.markdown("#### 🌟 백만배")
-        cnt_1m = st.session_state.special_inventory.get("백만배 행운권", 0)
-        st.write(f"보유: **{cnt_1m}개**")
-        if st.button("백만배 사용", disabled=(cnt_1m == 0), key="use_1000000x"):
-            st.session_state.special_inventory["백만배 행운권"] -= 1
-            st.session_state.active_multiplier = 1000000.0
-            st.session_state.active_multiplier_count += 1
-            st.success("🎉 다음 뽑기에 '백만배 확률' 적용!")
-            st.rerun()
-
-    st.markdown("---")
-    st.markdown("### 🎫 연차 기능권 사용")
-    t_b1, t_b2, t_b3, t_b4, t_b5 = st.columns(5)
-
-    with t_b1:
-        st.markdown("#### 💥 100연차권")
-        c_100 = st.session_state.special_inventory.get("100연차 기능권", 0)
-        if st.session_state.has_100_roll:
-            st.write("상태: **해금 완료**")
-        else:
-            st.write(f"보유: {c_100}개")
-            if st.button("사용하기", disabled=(c_100 == 0), key="use_100"):
-                st.session_state.special_inventory["100연차 기능권"] -= 1
-                st.session_state.has_100_roll = True
-                st.success("🎉 100연차 영구 해금!")
-                st.rerun()
-
-    with t_b2:
-        st.markdown("#### 🔥 500연차권")
-        c_500 = st.session_state.special_inventory.get("500연차 기능권", 0)
-        if st.session_state.has_500_roll:
-            st.write("상태: **해금 완료**")
-        else:
-            st.write(f"보유: {c_500}개")
-            if st.button("사용하기", disabled=(c_500 == 0), key="use_500"):
-                st.session_state.special_inventory["500연차 기능권"] -= 1
-                st.session_state.has_500_roll = True
-                st.success("🎉 500연차 영구 해금!")
-                st.rerun()
-
-    with t_b3:
-        st.markdown("#### ⚡ 1000연차권")
-        c_1000 = st.session_state.special_inventory.get("1000연차 기능권", 0)
-        if st.session_state.has_1000_roll:
-            st.write("상태: **해금 완료**")
-        else:
-            st.write(f"보유: {c_1000}개")
-            if st.button("사용하기", disabled=(c_1000 == 0), key="use_1000"):
-                st.session_state.special_inventory["1000연차 기능권"] -= 1
-                st.session_state.has_1000_roll = True
-                st.success("🎉 1000연차 영구 해금!")
-                st.rerun()
-
-    with t_b4:
-        st.markdown("#### 🌟 3000연차권")
-        c_3000 = st.session_state.special_inventory.get("3000연차 기능권", 0)
-        if st.session_state.has_3000_roll:
-            st.write("상태: **해금 완료**")
-        else:
-            st.write(f"보유: {c_3000}개")
-            if st.button("사용하기", disabled=(c_3000 == 0), key="use_3000"):
-                st.session_state.special_inventory["3000연차 기능권"] -= 1
-                st.session_state.has_3000_roll = True
-                st.success("🎉 3000연차 영구 해금!")
-                st.rerun()
-
-    with t_b5:
-        st.markdown("#### 🌌 10000연차권")
-        c_10000 = st.session_state.special_inventory.get(
-            "10000연차 기능권", 0
-        )
-        if st.session_state.has_10000_roll:
-            st.write("상태: **해금 완료**")
-        else:
-            st.write(f"보유: {c_10000}개")
-            if st.button("사용하기", disabled=(c_10000 == 0), key="use_10000"):
-                st.session_state.special_inventory["10000연차 기능권"] -= 1
-                st.session_state.has_10000_roll = True
-                st.success("🎉 10000연차 영구 해금!")
-                st.rerun()
-
-# ================= TAB 4: 아이템 도감 =================
-with tab4:
-    st.subheader("📕 등급 도감")
-    st.caption("각 등급을 뽑으면 도감에 정식 등록되어 상세 정보가 해금됩니다.")
-
-    for tier_name, prob, color in TIERS:
-        is_unlocked = st.session_state.unlocked.get(tier_name, False)
-        prob_percent = prob * 100
-
-        with st.container():
-            if is_unlocked:
-                disp_name = get_display_name(tier_name)
-                price = SELL_PRICES[tier_name]
-                st.markdown(
-                    f"### :{color}[{disp_name}]  \n"
-                    f"* **등장 확률**: `{prob_percent:.13f}%`  \n"
-                    f"* **판매 가격**: `{price:.2f} 코인`  \n"
-                    f"* **상태**: `🔓 도감 해금 완료`"
-                )
-            else:
-                st.markdown(
-                    f"### ❓ 미해금 등급  \n"
-                    f"* **등장 확률**: `{prob_percent:.13f}%`  \n"
-                    f"* **판매 가격**: `??? 코인`  \n"
-                    f"* **상태**: `🔒 뽑아서 해금 필요`"
-                )
-            st.divider()
-
-# ================= TAB 5: 통계 & 기록 =================
-with tab5:
-    st.subheader("📊 누적 뽑기 통계")
-    total_count = len(st.session_state.history)
-
-    if total_count > 0:
-        cols1 = st.columns(5)
-        for idx, t in enumerate(
-            ["중력", "블랙홀", "시간의 지배자", "균열자", "혜성"]
+    use_qty = st.number_input("행운권 일괄 사용 수량", 1, 10000, 1, key="u_qty")
+    for name, mult, _ in TICKET_DEFS:
+        cnt = st.session_state.special_inventory[name]
+        if st.button(
+            f"🎟️ {name} {use_qty}장 사용 (보유: {cnt}개)", disabled=(cnt < use_qty)
         ):
-            disp = get_display_name(t)
-            cols1[idx].metric(disp, f"{st.session_state.stats[t]}회")
+            st.session_state.special_inventory[name] -= use_qty
+            if st.session_state.active_multiplier == mult:
+                st.session_state.active_multiplier_count += use_qty
+            else:
+                st.session_state.active_multiplier = mult
+                st.session_state.active_multiplier_count = use_qty
+            st.success(f"{name} {use_qty}장 적용!")
+            st.rerun()
 
-        cols2 = st.columns(4)
-        for idx, t in enumerate(["어비스", "신성한", "도깨비", "비밀"]):
-            disp = get_display_name(t)
-            cols2[idx].metric(disp, f"{st.session_state.stats[t]}회")
+# 4. 도감 탭
+with tabs[3]:
+    st.subheader("📕 도감")
+    for t_name, prob, color in TIERS:
+        unlocked = st.session_state.unlocked[t_name]
+        disp = get_display_name(t_name)
+        price = SELL_PRICES[t_name] if unlocked else "???"
+        st.markdown(
+            f"### :{color}[{disp}] | 확률: `{prob*100:.11f}%` | 가격: `{price}`"
+        )
 
-        cols3 = st.columns(4)
-        for idx, t in enumerate(["전설", "영웅", "희귀", "일반"]):
-            disp = get_display_name(t)
-            cols3[idx].metric(disp, f"{st.session_state.stats[t]}회")
-
-        st.caption(f"총 획득 횟수: {total_count}회")
-
-        with st.expander("📜 최근 뽑기 기록 보기"):
-            for idx, item in enumerate(
-                reversed(st.session_state.history[-20:]), 1
-            ):
-                disp = get_display_name(item.replace("주사위사용:", ""))
-                st.write(f"{idx}. {disp}")
-
-        st.divider()
-
-        if st.button("🗑️ 전체 데이터 초기화", type="secondary"):
-            st.session_state.coins = 0.0
-            st.session_state.history = []
-            st.session_state.stats = {t[0]: 0 for t in TIERS}
-            st.session_state.inventory = {t[0]: 0 for t in TIERS}
-            st.session_state.special_inventory = {
-                "행운의 주사위": 0,
-                "10배 행운권": 0,
-                "100배 행운권": 0,
-                "1000배 행운권": 0,
-                "백만배 행운권": 0,
-                "100연차 기능권": 0,
-                "500연차 기능권": 0,
-                "1000연차 기능권": 0,
-                "3000연차 기능권": 0,
-                "10000연차 기능권": 0,
-            }
-            st.session_state.unlocked = {t[0]: False for t in TIERS}
-            for default_open in ["일반", "희귀", "영웅", "전설"]:
-                st.session_state.unlocked[default_open] = True
-            st.session_state.has_100_roll = False
-            st.session_state.has_500_roll = False
-            st.session_state.has_1000_roll = False
-            st.session_state.has_3000_roll = False
-            st.session_state.has_10000_roll = False
-            st.session_state.active_multiplier = 1.0
-            st.session_state.active_multiplier_count = 0
-            st.session_state.balloons_shown = False
-            st.session_state.skip_cutscenes_map = {
-                t: False for t in CUTSCENE_TIERS
-            }
+# 5. 통계 탭
+with tabs[4]:
+    st.subheader("📊 통계")
+    if st.session_state.history:
+        cols = st.columns(4)
+        for idx, t in enumerate(HIGH_TIERS + ["전설", "영웅", "희귀", "일반"]):
+            cols[idx % 4].metric(
+                get_display_name(t), f"{st.session_state.stats[t]}회"
+            )
+        if st.button("🗑️ 초기화"):
+            for k in list(st.session_state.keys()):
+                del st.session_state[k]
             st.rerun()
     else:
-        st.write("아직 기록이 없습니다.")
+        st.write("기록 없음")
 
-# ================= TAB 6: 세이브 / 로드 =================
-with tab6:
-    st.subheader("💾 세이브 파일 관리")
-
-    game_data = {
-        "coins": st.session_state.coins,
-        "history": st.session_state.history,
-        "stats": st.session_state.stats,
-        "inventory": st.session_state.inventory,
-        "special_inventory": st.session_state.special_inventory,
-        "unlocked": st.session_state.unlocked,
-        "has_100_roll": st.session_state.has_100_roll,
-        "has_500_roll": st.session_state.has_500_roll,
-        "has_1000_roll": st.session_state.has_1000_roll,
-        "has_3000_roll": st.session_state.has_3000_roll,
-        "has_10000_roll": st.session_state.has_10000_roll,
-        "active_multiplier": st.session_state.active_multiplier,
-        "active_multiplier_count": st.session_state.active_multiplier_count,
-        "balloons_shown": st.session_state.balloons_shown,
-        "skip_cutscenes_map": st.session_state.skip_cutscenes_map,
-    }
-    json_data = json.dumps(game_data, ensure_ascii=False, indent=4)
-
-    st.download_button(
-        label="📥 세이브 파일 다운로드",
-        data=json_data,
-        file_name="gacha_save.json",
-        mime="application/json",
+# 6. 세이브 탭
+with tabs[5]:
+    st.subheader("💾 세이브 / 로드")
+    data = json.dumps(
+        {
+            k: st.session_state[k]
+            for k in [
+                "coins",
+                "history",
+                "stats",
+                "inventory",
+                "special_inventory",
+                "unlocked",
+                "has_100_roll",
+                "has_500_roll",
+                "has_1000_roll",
+                "has_3000_roll",
+                "has_10000_roll",
+                "active_multiplier",
+                "active_multiplier_count",
+            ]
+        },
+        ensure_ascii=False,
     )
+    st.download_button("📥 다운로드", data, "gacha_save.json", "application/json")
+    st.text_area("텍스트 백업", data, height=100)
 
-    st.markdown("---")
-    st.markdown("### 📱 폰에서 다운로드가 안 될 때 (텍스트 백업)")
-    st.caption(
-        "아래 상자의 내용을 전체 복사하여 메모장에 붙여넣고 `gacha_save.json`으로 저장하세요."
-    )
-    st.text_area("세이브 백업용 텍스트", json_data, height=150)
-
-    st.divider()
-
-    st.markdown("### 📤 세이브 파일 불러오기")
-    uploaded_file = st.file_uploader(
-        "저장해 둔 세이브 파일(gacha_save.json)을 업로드하세요.",
-        type=["json"],
-    )
-
-    if uploaded_file is not None:
-        try:
-            loaded_data = json.load(uploaded_file)
-            if st.button("🔄 이 데이터로 게임 시작하기"):
-                st.session_state.coins = loaded_data.get("coins", 0.0)
-                st.session_state.history = loaded_data.get("history", [])
-
-                default_stats = {t[0]: 0 for t in TIERS}
-                st.session_state.stats = {
-                    **default_stats,
-                    **loaded_data.get("stats", {}),
-                }
-
-                default_inventory = {t[0]: 0 for t in TIERS}
-                st.session_state.inventory = {
-                    **default_inventory,
-                    **loaded_data.get("inventory", {}),
-                }
-
-                default_special = {
-                    "행운의 주사위": 0,
-                    "10배 행운권": 0,
-                    "100배 행운권": 0,
-                    "1000배 행운권": 0,
-                    "백만배 행운권": 0,
-                    "100연차 기능권": 0,
-                    "500연차 기능권": 0,
-                    "1000연차 기능권": 0,
-                    "3000연차 기능권": 0,
-                    "10000연차 기능권": 0,
-                }
-                st.session_state.special_inventory = {
-                    **default_special,
-                    **loaded_data.get("special_inventory", {}),
-                }
-
-                default_unlocked = {t[0]: False for t in TIERS}
-                for default_open in ["일반", "희귀", "영웅", "전설"]:
-                    default_unlocked[default_open] = True
-                st.session_state.unlocked = {
-                    **default_unlocked,
-                    **loaded_data.get("unlocked", {}),
-                }
-
-                st.session_state.has_100_roll = loaded_data.get(
-                    "has_100_roll", False
-                )
-                st.session_state.has_500_roll = loaded_data.get(
-                    "has_500_roll", False
-                )
-                st.session_state.has_1000_roll = loaded_data.get(
-                    "has_1000_roll", False
-                )
-                st.session_state.has_3000_roll = loaded_data.get(
-                    "has_3000_roll", False
-                )
-                st.session_state.has_10000_roll = loaded_data.get(
-                    "has_10000_roll", False
-                )
-                st.session_state.active_multiplier = loaded_data.get(
-                    "active_multiplier", 1.0
-                )
-                st.session_state.active_multiplier_count = loaded_data.get(
-                    "active_multiplier_count", 0
-                )
-                st.session_state.balloons_shown = loaded_data.get(
-                    "balloons_shown", False
-                )
-
-                default_skip_map = {t: False for t in CUTSCENE_TIERS}
-                st.session_state.skip_cutscenes_map = {
-                    **default_skip_map,
-                    **loaded_data.get("skip_cutscenes_map", {}),
-                }
-
-                st.success("🎉 세이브 파일을 성공적으로 불러왔습니다!")
-                st.rerun()
-        except Exception as e:
-            st.error(f"세이브 파일 형식이 잘못되었습니다: {e}")
+    up = st.file_uploader("로드", type=["json"])
+    if up and st.button("🔄 불러오기 실행"):
+        for k, v in json.load(up).items():
+            st.session_state[k] = v
+        st.success("완료!")
+        st.rerun()
