@@ -220,6 +220,8 @@ if eff:
 
 
 def get_base_name(name):
+    if not st.session_state.unlocked.get(name, False):
+        return "❓ ??"
     mapping = {
         "중력": "🍎 중력",
         "블랙홀": "🕳️ 블랙홀",
