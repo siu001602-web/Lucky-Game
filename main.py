@@ -21,12 +21,12 @@ st.markdown(
     @keyframes smithSpark { 0% { background-color: rgba(255,69,0,0); transform: scale(0.9); } 20% { background-color: rgba(255,140,0,0.9); transform: scale(1.1); } 40% { background-color: rgba(255,215,0,1); transform: scale(1.0); } 70% { background-color: rgba(255,69,0,0.8); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
     @keyframes angelOpen { 0% { background-color: rgba(255,255,255,0); transform: scale(0.9); } 30% { background-color: rgba(255,255,250,0.95); transform: scale(1.05); } 70% { background-color: rgba(255,223,0,0.85); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
     @keyframes timeDistortion { 0% { background-color: rgba(0,0,0,0); transform: perspective(500px) rotateY(0deg) scale(1); filter: blur(0px); } 25% { background-color: rgba(75,0,130,0.9); transform: perspective(500px) rotateY(15deg) skewX(20deg) scale(1.1); filter: blur(2px); } 50% { background-color: rgba(255,215,0,0.85); transform: perspective(500px) rotateY(-15deg) skewX(-20deg) scale(0.95); filter: blur(4px); } 75% { background-color: rgba(75,0,130,0.9); transform: perspective(500px) rotateY(10deg) skewX(10deg) scale(1.05); filter: blur(1px); } 100% { background-color: rgba(0,0,0,0.98); transform: perspective(500px) rotateY(0deg) scale(1); filter: blur(0px); } }
+    @keyframes gravityCollapse { 0% { background-color: rgba(139,0,0,0); transform: scale(1) rotate(0deg); } 20% { background-color: rgba(139,0,0,0.85); transform: scale(1.1) rotate(5deg); } 40% { background-color: rgba(255,69,0,0.9); transform: scale(0.95) rotate(-5deg) skewX(10deg); } 70% { background-color: rgba(75,0,130,0.95); transform: scale(1.05) rotate(3deg) skewX(-10deg); } 100% { background-color: rgba(0,0,0,0.98); transform: scale(1) rotate(0deg); } }
+    @keyframes blackholeUniverse { 0% { background-color: rgba(255,255,255,1); transform: scale(0.2); border-radius: 50%; } 30% { background-color: rgba(0,0,0,1); transform: scale(1.0); border-radius: 0%; } 60% { background: radial-gradient(circle, #110033 0%, #000000 100%); transform: scale(1.0); box-shadow: inset 0 0 100px #9400D3; } 100% { background: radial-gradient(circle, #220044 0%, #000000 100%); transform: scale(1.0); } }
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes earthquake { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
-    @keyframes blackholeSuck { 0% { opacity: 0; } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; } }
-    @keyframes sunsetGravity { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-    @keyframes appleFall { 0% { transform: translateY(-300px); opacity: 0; } 100% { transform: translateY(150px); opacity: 1; } }
+    @keyframes appleRain { 0% { transform: translateY(-400px) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(300px) scale(1.2); opacity: 0.9; } }
     @keyframes endingFade { 0%, 100% { opacity: 0; background-color: rgba(0,0,0,0); } 50% { opacity: 1; background-color: #000; } }
 
     .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; justify-content: center; align-items: center; pointer-events: none; }
@@ -38,14 +38,14 @@ st.markdown(
     .smith-fade { animation: smithSpark 10.0s ease-in-out forwards; }
     .angel-fade { animation: angelOpen 8.0s ease-in-out forwards; }
     .time-fade { animation: timeDistortion 10.0s ease-in-out forwards; }
+    .gravity-collapse-fade { animation: gravityCollapse 10.0s ease-in-out forwards; }
+    .blackhole-universe-fade { animation: blackholeUniverse 10.0s ease-in-out forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
     .rift-fade { animation: earthquake 5.0s ease-in-out forwards; }
-    .blackhole-fade { animation: blackholeSuck 6.0s ease-in-out forwards; }
-    .gravity-fade { animation: sunsetGravity 6.0s ease-in-out forwards; }
     .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .time-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .abyss-popup, .comet-popup, .rift-popup, .ending-text {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
     .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
@@ -54,7 +54,16 @@ st.markdown(
     .smith-popup { color: #FFD700; text-shadow: 0px 0px 30px #FF4500; font-size: 38px; }
     .angel-popup { color: #FFFACD; text-shadow: 0px 0px 40px #FFD700; font-size: 38px; }
     .time-popup { color: #00FFFF; text-shadow: 0px 0px 40px #FFD700; font-size: 38px; }
-    .falling-apple { font-size: 100px; animation: appleFall 2.0s ease-in forwards; }
+    .gravity-collapse-popup { color: #FF4500; text-shadow: 0px 0px 40px #FF0000; font-size: 42px; }
+    .blackhole-universe-popup { color: #DA70D6; text-shadow: 0px 0px 50px #9400D3; font-size: 42px; }
+    
+    .rain-apple-1 { position: absolute; left: 15%; font-size: 90px; animation: appleRain 1.5s ease-in infinite; }
+    .rain-apple-2 { position: absolute; left: 35%; font-size: 110px; animation: appleRain 1.2s ease-in infinite 0.3s; }
+    .rain-apple-3 { position: absolute; left: 55%; font-size: 80px; animation: appleRain 1.8s ease-in infinite 0.6s; }
+    .rain-apple-4 { position: absolute; left: 75%; font-size: 100px; animation: appleRain 1.4s ease-in infinite 0.2s; }
+
+    .galaxy-star { position: absolute; background: #FFF; border-radius: 50%; animation: starTwinkle 2s infinite ease-in-out; }
+    @keyframes starTwinkle { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
     
     .pokedex-title { font-size: 16px; font-weight: bold; }
     .pokedex-sub { font-size: 12px; color: #888; }
@@ -244,8 +253,8 @@ if eff:
         "ending": '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨</div></div>',
         "angel": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "hephaestus": '<div class="effect-overlay smith-fade"><div class="smith-popup">🔥 대장간의 신 스파크 폭발! 🔥<br>🏛️ 그리스 아테네 신전 강림 🏛️<br>[헤파이스토스] 득템!!</div></div>',
-        "gravity": '<div class="effect-overlay gravity-fade"><div class="gravity-text"><div class="falling-apple">🍎</div>[중력] 등급 발견!!</div></div>',
-        "blackhole": '<div class="effect-overlay blackhole-fade"><div class="blackhole-popup">🕳️ [블랙홀] 시공간 붕괴!</div></div>',
+        "gravity": '<div class="effect-overlay gravity-collapse-fade"><div class="gravity-collapse-popup">🍎 중력장 붕괴! 🍎<br>사과 폭풍우 강림!!<br>[중력] 등급 획득!!</div><div class="rain-apple-1">🍎</div><div class="rain-apple-2">🍎</div><div class="rain-apple-3">🍎</div><div class="rain-apple-4">🍎</div></div>',
+        "blackhole": '<div class="effect-overlay blackhole-universe-fade"><div class="blackhole-universe-popup">🕳️ 사건의 지평선 붕괴 🕳️<br>✨ 무한한 은하수의 확장 ✨<br>[블랙홀] 강림!!</div><div class="galaxy-star" style="top:20%; left:30%; width:4px; height:4px;"></div><div class="galaxy-star" style="top:40%; left:70%; width:6px; height:6px;"></div><div class="galaxy-star" style="top:70%; left:25%; width:5px; height:5px;"></div><div class="galaxy-star" style="top:80%; left:80%; width:4px; height:4px;"></div><div class="galaxy-star" style="top:15%; left:85%; width:7px; height:7px;"></div></div>',
         "time_ruler": '<div class="effect-overlay time-fade"><div class="time-popup">⏳ 째깍... 째깍... ⏳<br>🌀 [시간의 지배자] 시공간 일그러짐!</div></div>',
         "rift": '<div class="effect-overlay rift-fade"><div class="rift-popup">⚡ [균열자] 차원 균열 발생!</div></div>',
         "comet": '<div class="effect-overlay comet-fade"><div class="comet-popup">☄️ [혜성] 우주 강림!</div></div>',
@@ -259,7 +268,7 @@ if eff:
     }
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
-        time.sleep(10.0 if eff in ["hephaestus", "angel", "time_ruler"] else (2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0))
+        time.sleep(10.0 if eff in ["hephaestus", "angel", "time_ruler", "gravity", "blackhole"] else (2.0 if eff not in ["abyss", "rift"] else 6.0))
         st.rerun()
 
 
@@ -585,7 +594,7 @@ with tabs[1]:
                     else:
                         st.error("부족")
 
-# 3. 대장간 탭 (최대 합성 버튼 지원)
+# 3. 대장간 탭
 with tabs[2]:
     st.subheader("🛠️ 불꽃의 대장간 (일괄 합성 시스템)")
     hephaestus_name = get_base_name("헤파이스토스")
@@ -606,7 +615,6 @@ with tabs[2]:
 
     st.write(f"현재 보유량: **{owned_count}개** (최대 합성 가능 횟수: **{max_forge_sets}회**)")
 
-    # 세션 상태를 이용해 최대치 버튼 토글 구현
     max_key = f"max_forge_{selected_forge_item}"
     if max_key not in st.session_state:
         st.session_state[max_key] = False
