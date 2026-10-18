@@ -309,6 +309,7 @@ defaults = {
         "3000연차 기능권": 0,
         "10000연차 기능권": 0,
         "할로윈 10000연차 해금": False,
+        "할로윈 100000연차 해금": False,
     },
     "has_100_roll": False,
     "has_500_roll": False,
@@ -653,6 +654,16 @@ with tabs[1]:
             st.success("🌌 할로윈 10000연차 완료!")
             st.rerun()
 
+    # 할로윈 10만 연차 버튼 추가 (해금된 경우에만 활성화)
+    if st.session_state.special_inventory.get("할로윈 100000연차 해금", False):
+        if st.button("🔥 할로윈 100000연차!", use_container_width=True, type="primary", disabled=(h_tickets < 100000)):
+            cutscene = execute_halloween_rolls(100000)
+            if cutscene and not st.session_state.skip_cutscenes_map.get("호박왕" if cutscene == "pumpkin_king" else "유령", False):
+                st.session_state.effect_type = cutscene
+                st.rerun()
+            st.success("🔥 할로윈 100000연차 완료!")
+            st.rerun()
+
     st.write("---")
     st.markdown("### 📦 할로윈 전용 상자 합성 시스템")
     st.info("재료 소모: **유령 1개 + 사탕 1개 + 박쥐 1개**를 소모하여 **'할로윈 상자'**를 개봉하고 특수 몬스터를 획득하세요! (할로윈 상자에서 나오는 등급들은 판매 불가)")
@@ -797,6 +808,21 @@ with tabs[2]:
                 st.session_state.coins -= 2000000.0
                 st.session_state.special_inventory["할로윈 10000연차 해금"] = True
                 st.success("🎉 할로윈 1만 연차 기능 해금 완료!")
+                st.rerun()
+            else:
+                st.error("코인 부족!")
+
+    # 할로윈 10만 연차 해금 상품 추가 (천만 코인 = 10,000,000 코인)
+    st.markdown("---")
+    st.markdown("#### 🔥 할로윈 100000연차 해금권 (천만 코인)")
+    if st.session_state.special_inventory.get("할로윈 100000연차 해금", False):
+        st.button("품절 (할로윈 10만 연차 해금됨)", disabled=True, key="hw_100k_sold")
+    else:
+        if st.button("10,000,000 코인으로 할로윈 100000연차 해금", key="buy_hw_100k"):
+            if st.session_state.coins >= 10000000.0:
+                st.session_state.coins -= 10000000.0
+                st.session_state.special_inventory["할로윈 100000연차 해금"] = True
+                st.success("🎉 할로윈 10만 연차 기능 해금 완료!")
                 st.rerun()
             else:
                 st.error("코인 부족!")
