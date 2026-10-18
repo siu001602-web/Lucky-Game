@@ -37,8 +37,8 @@ st.markdown(
     .gold-fade { animation: goldFlash 2.5s ease-in-out forwards; }
     .diamond-fade { animation: diamondFlash 2.5s ease-in-out forwards; }
     .smith-fade { animation: smithSpark 10.0s ease-in-out forwards; }
-    .angel-fade { animation: angelOpen 8.0s ease-in-out forwards; }
-    .archangel-fade { animation: archangelRing 8.0s ease-in-out forwards; }
+    .angel-fade { animation: angelOpen 5.0s ease-in-out forwards; }
+    .archangel-fade { animation: archangelRing 5.0s ease-in-out forwards; }
     .time-fade { animation: timeDistortion 10.0s ease-in-out forwards; }
     .gravity-collapse-fade { animation: gravityCollapse 10.0s ease-in-out forwards; }
     .blackhole-universe-fade { animation: blackholeUniverse 10.0s ease-in-out forwards; }
@@ -273,12 +273,14 @@ for sp_key, sp_val in defaults["special_inventory"].items():
 if len(st.session_state.history) > 1000:
     st.session_state.history = st.session_state.history[-1000:]
 
+# 컷씬 단계별 연출 처리
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
     effects_html = {
         "ending": '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨</div></div>',
-        "archangel": '<div class="effect-overlay archangel-fade"><div class="archangel-popup">🕊️✨ 천상의 문이 열리고... ✨🕊️<br>🌀 찬란한 천사링 전개 🌀<br>[대천사] 강림!!</div></div>',
+        "archangel_phase1": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
+        "archangel_phase2": '<div class="effect-overlay archangel-fade"><div class="archangel-popup">🕊️✨ 천상의 문이 열리고... ✨🕊️<br>🌀 찬란한 천사링 전개 🌀<br>[대천사] 강림!!</div></div>',
         "angel": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "hephaestus": '<div class="effect-overlay smith-fade"><div class="smith-popup">🔥 대장간의 신 스파크 폭발! 🔥<br>🏛️ 그리스 아테네 신전 강림 🏛️<br>[헤파이스토스] 득템!!</div></div>',
         "gravity": '<div class="effect-overlay gravity-collapse-fade"><div class="gravity-collapse-popup">🍎 중력장 붕괴! 🍎<br>사과 폭풍우 강림!!<br>[중력] 등급 획득!!</div><div class="rain-apple-1">🍎</div><div class="rain-apple-2">🍎</div><div class="rain-apple-3">🍎</div><div class="rain-apple-4">🍎</div></div>',
@@ -296,7 +298,11 @@ if eff:
     }
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
-        time.sleep(10.0 if eff in ["hephaestus", "angel", "archangel", "time_ruler", "gravity", "blackhole"] else (5.0 if eff == "rift" else (2.0 if eff != "abyss" else 6.0)))
+        if eff == "archangel_phase1":
+            time.sleep(4.0)
+            st.session_state.effect_type = "archangel_phase2"
+        else:
+            time.sleep(5.0 if eff in ["hephaestus", "angel", "archangel_phase2", "time_ruler", "gravity", "blackhole"] else (5.0 if eff == "rift" else (2.0 if eff != "abyss" else 6.0)))
         st.rerun()
 
 
@@ -727,12 +733,11 @@ with tabs[2]:
                 result_msg += f"- 🛡️ 무효(재료반환): **{format_currency(refund_count)}회**\n"
             st.success(result_msg)
 
-# 4. 개발자 기부 탭 (수호천사 & 대천사 확률 계산 정상화)
+# 4. 개발자 기부 탭
 with tabs[3]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
     
-    # 누적 기부금 계산 버그 수정 (정확한 기부 단계 확률 매핑)
     if total_d >= 30000000.0:
         curr_angel_p = 1.0
         curr_arch_p = 0.01
@@ -779,13 +784,17 @@ with tabs[3]:
                     if hit_type == "archangel":
                         st.session_state.inventory["대천사"] += 1
                         st.session_state.unlocked["대천사"] = True
-                        st.session_state.effect_type = "archangel"
+                        st.session_state.effect_type = "archangel_phase1"
                         st.rerun()
                     elif hit_type == "angel":
                         st.session_state.inventory["수호천사"] += 1
+                        first_time = not st.session_state.unlocked.get("수호천사", False)
                         st.session_state.unlocked["수호천사"] = True
-                        st.session_state.effect_type = "angel"
-                        st.rerun()
+                        if first_time:
+                            st.session_state.effect_type = "angel"
+                            st.rerun()
+                        else:
+                            st.success(f"🎉 [{get_base_name('수호천사')}] 획득 완료!")
                     else:
                         st.warning(f"💸 총 {format_currency(d_cnt)}회({format_currency(cost_total)}코인) 기부 완료! (아쉽게도 이번엔 천사가 나오지 않았습니다!)")
                 else:
@@ -830,7 +839,7 @@ with tabs[4]:
 with tabs[5]:
     st.subheader("📕 도감")
     mapping_cutscene = {
-        "대천사": "archangel",
+        "대천사": "archangel_phase1",
         "수호천사": "angel",
         "헤파이스토스": "hephaestus",
         "중력": "gravity",
