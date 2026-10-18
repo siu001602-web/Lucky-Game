@@ -331,6 +331,7 @@ defaults = {
         "1000연차 기능권": 0,
         "3000연차 기능권": 0,
         "10000연차 기능권": 0,
+        "할로윈 10000연차 해금": False,
     },
     "has_100_roll": False,
     "has_500_roll": False,
@@ -527,7 +528,6 @@ def execute_halloween_rolls(count):
     return hit_cutscene
 
 
-# 업적 달성 여부 체크 함수 (모든 할로윈 테마 등급 수집 확인)
 def check_halloween_achievement():
     all_halloween_items = [t[0] for t in HALLOWEEN_TIERS + HALLOWEEN_BOX_TIERS]
     return all(st.session_state.unlocked.get(item, False) for item in all_halloween_items)
@@ -536,7 +536,6 @@ def check_halloween_achievement():
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{format_currency(st.session_state.coins)} 코인")
 
-# 칭호 시스템 표시 영역
 if check_halloween_achievement():
     st.markdown("🏆 **[칭호 장착 중]** 🎃 **해피 할로윈** 🎃")
 
@@ -732,6 +731,16 @@ with tabs[1]:
             st.success("✨ 할로윈 10연차 완료!")
             st.rerun()
 
+    # 할로윈 1만 연차 버튼 추가 (해금된 경우에만 활성화)
+    if st.session_state.special_inventory.get("할로윈 10000연차 해금", False):
+        if st.button("🌌 할로윈 10000연차!", use_container_width=True, type="primary", disabled=(h_tickets < 10000)):
+            cutscene = execute_halloween_rolls(10000)
+            if cutscene and not st.session_state.skip_cutscenes_map.get("호박왕" if cutscene == "pumpkin_king" else "유령", False):
+                st.session_state.effect_type = cutscene
+                st.rerun()
+            st.success("🌌 할로윈 10000연차 완료!")
+            st.rerun()
+
     st.write("---")
     st.markdown("### 📦 할로윈 전용 상자 합성 시스템")
     st.info("재료 소모: **유령 1개 + 사탕 1개 + 박쥐 1개**를 소모하여 **'할로윈 상자'**를 개봉하고 특수 몬스터를 획득하세요! (할로윈 상자에서 나오는 등급들은 판매 불가)")
@@ -865,6 +874,21 @@ with tabs[2]:
                         st.rerun()
                     else:
                         st.error("부족")
+
+    # 할로윈 1만 연차 해금 상품 (200만 코인)
+    st.markdown("---")
+    st.markdown("#### 🎃 할로윈 10000연차 해금권")
+    if st.session_state.special_inventory.get("할로윈 10000연차 해금", False):
+        st.button("품절 (할로윈 1만 연차 해금됨)", disabled=True, key="hw_10k_sold")
+    else:
+        if st.button("2,000,000 코인으로 할로윈 10000연차 해금", key="buy_hw_10k"):
+            if st.session_state.coins >= 2000000.0:
+                st.session_state.coins -= 2000000.0
+                st.session_state.special_inventory["할로윈 10000연차 해금"] = True
+                st.success("🎉 할로윈 1만 연차 기능 해금 완료!")
+                st.rerun()
+            else:
+                st.error("코인 부족!")
 
 with tabs[3]:
     st.subheader("🛠️ 불꽃의 대장간 (일괄 합성 시스템)")
@@ -1153,7 +1177,6 @@ with tabs[6]:
 with tabs[7]:
     st.subheader("📊 통계 & 업적")
     
-    # 업적 현황 표시
     st.markdown("### 🏆 업적 목록")
     achieved = check_halloween_achievement()
     if achieved:
