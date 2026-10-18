@@ -24,13 +24,14 @@ st.markdown(
     @keyframes timeDistortion { 0% { background-color: rgba(0,0,0,0); transform: perspective(500px) rotateY(0deg) scale(1); filter: blur(0px); } 25% { background-color: rgba(75,0,130,0.9); transform: perspective(500px) rotateY(15deg) skewX(20deg) scale(1.1); filter: blur(2px); } 50% { background-color: rgba(255,215,0,0.85); transform: perspective(500px) rotateY(-15deg) skewX(-20deg) scale(0.95); filter: blur(4px); } 75% { background-color: rgba(75,0,130,0.9); transform: perspective(500px) rotateY(10deg) skewX(10deg) scale(1.05); filter: blur(1px); } 100% { background-color: rgba(0,0,0,0.98); transform: perspective(500px) rotateY(0deg) scale(1); filter: blur(0px); } }
     @keyframes gravityCollapse { 0% { background-color: rgba(139,0,0,0); transform: scale(1) rotate(0deg); } 20% { background-color: rgba(139,0,0,0.85); transform: scale(1.1) rotate(5deg); } 40% { background-color: rgba(255,69,0,0.9); transform: scale(0.95) rotate(-5deg) skewX(10deg); } 70% { background-color: rgba(75,0,130,0.95); transform: scale(1.05) rotate(3deg) skewX(-10deg); } 100% { background-color: rgba(0,0,0,0.98); transform: scale(1) rotate(0deg); } }
     @keyframes blackholeUniverse { 0% { background-color: rgba(255,255,255,1); transform: scale(0.2); border-radius: 50%; } 30% { background-color: rgba(0,0,0,1); transform: scale(1.0); border-radius: 0%; } 60% { background: radial-gradient(circle, #110033 0%, #000000 100%); transform: scale(1.0); box-shadow: inset 0 0 100px #9400D3; } 100% { background: radial-gradient(circle, #220044 0%, #000000 100%); transform: scale(1.0); } }
+    @keyframes galaxyAbsorbPulse { 0% { background: radial-gradient(circle, #000000 0%, #0a001a 100%); transform: scale(1); } 25% { background: radial-gradient(circle, #4b0082 10%, #000000 90%); transform: scale(0.3); } 50% { background: radial-gradient(circle, #8a2be2 80%, #000000 100%); transform: scale(1.4); } 75% { background: radial-gradient(circle, #000000 5%, #191970 95%); transform: scale(0.4); } 100% { background: radial-gradient(circle, #050014 0%, #000000 100%); transform: scale(1); } }
     @keyframes riftSpinGreen { 0% { transform: translate(0, 0) rotate(0deg) scale(1); background-color: rgba(0,0,0,0); } 20% { transform: translate(-12px, 12px) rotate(90deg) scale(1.05); background-color: rgba(0,100,0,0.4); } 40% { transform: translate(12px, -12px) rotate(270deg) scale(0.95); background-color: rgba(0,200,0,0.7); } 70% { transform: translate(-8px, 8px) rotate(540deg) scale(1.1); background-color: rgba(0,255,0,0.95); border-radius: 0%; } 100% { transform: translate(0, 0) rotate(720deg) scale(1); background-color: rgba(0,255,0,1); border-radius: 0%; } }
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes appleRain { 0% { transform: translateY(-400px) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(300px) scale(1.2); opacity: 0.9; } }
     @keyframes endingFade { 0%, 100% { opacity: 0; background-color: rgba(0,0,0,0); } 50% { opacity: 1; background-color: #000; } }
 
-    .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+    .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; justify-content: center; align-items: center; pointer-events: auto; user-select: none; }
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
     .holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
     .green-fade { animation: greenFlash 2.5s ease-in-out forwards; }
@@ -42,12 +43,13 @@ st.markdown(
     .time-fade { animation: timeDistortion 10.0s ease-in-out forwards; }
     .gravity-collapse-fade { animation: gravityCollapse 10.0s ease-in-out forwards; }
     .blackhole-universe-fade { animation: blackholeUniverse 10.0s ease-in-out forwards; }
+    .galaxy-pulse-fade { animation: galaxyAbsorbPulse 6.0s ease-in-out infinite; }
     .rift-spin-green-fade { animation: riftSpinGreen 5.0s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
     .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .galaxy-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup, .ending-text {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
     .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
@@ -59,6 +61,7 @@ st.markdown(
     .time-popup { color: #00FFFF; text-shadow: 0px 0px 40px #FFD700; font-size: 38px; }
     .gravity-collapse-popup { color: #FF4500; text-shadow: 0px 0px 40px #FF0000; font-size: 42px; }
     .blackhole-universe-popup { color: #DA70D6; text-shadow: 0px 0px 50px #9400D3; font-size: 42px; }
+    .galaxy-popup { color: #8A2BE2; text-shadow: 0px 0px 60px #4B0082; font-size: 44px; }
     .rift-spin-green-popup { color: #FFFFFF; text-shadow: 0px 0px 40px #00FF00; font-size: 42px; }
     
     .rain-apple-1 { position: absolute; left: 15%; font-size: 90px; animation: appleRain 1.5s ease-in infinite; }
@@ -97,6 +100,7 @@ def format_currency(val):
 
 
 TIERS = [
+    ("은하", 0.00000000001, "#8A2BE2"),
     ("대천사", 0.0, "#FFFFFF"),
     ("수호천사", 0.0, "#FFF8DC"),
     ("헤파이스토스", 0.0, "#FF8C00"),
@@ -112,10 +116,11 @@ TIERS = [
     ("전설", 0.0009000000000, "#FFD700"),
     ("영웅", 0.0290000000000, "#9400D3"),
     ("희귀", 0.0700000000000, "#1E90FF"),
-    ("일반", 0.8999899890900, "#A9A9A9"),
+    ("일반", 0.89998998908, "#A9A9A9"),
 ]
 
 SELL_PRICES = {
+    "은하": 70000000.0,
     "대천사": 40000000.0,
     "수호천사": 20000000.0,
     "헤파이스토스": 1000000.0,
@@ -135,6 +140,7 @@ SELL_PRICES = {
 }
 
 HIGH_TIERS = [
+    "은하",
     "대천사",
     "수호천사",
     "헤파이스토스",
@@ -151,7 +157,7 @@ HIGH_TIERS = [
 TICKET_DEFS = [
     ("만배 행운권", 10000.0, 100),
     ("십만배 행운권", 100000.0, 1000),
-    ("백만배 행운권", 1000000.0, 10000),
+    ("백만배 행운권", 100000.0, 10000),
     ("천만배 행운권", 10000000.0, 30000),
 ]
 
@@ -165,6 +171,7 @@ TIER_CAPS = {
     "시간의 지배자": 0.02,
     "블랙홀": 0.005,
     "중력": 0.001,
+    "은하": 0.0001,
 }
 
 
@@ -273,7 +280,7 @@ for sp_key, sp_val in defaults["special_inventory"].items():
 if len(st.session_state.history) > 1000:
     st.session_state.history = st.session_state.history[-1000:]
 
-# 컷씬 단계별 연출 처리
+# 컷씬 오버레이 제어 (은하 2단계 흡수/방출 컷씬 포함)
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -281,6 +288,8 @@ if eff:
         "ending": '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨</div></div>',
         "archangel_phase1": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "archangel_phase2": '<div class="effect-overlay archangel-fade"><div class="archangel-popup">🕊️✨ 천상의 문이 열리고... ✨🕊️<br>🌀 찬란한 천사링 전개 🌀<br>[대천사] 강림!!</div></div>',
+        "galaxy_phase1": '<div class="effect-overlay blackhole-universe-fade"><div class="blackhole-universe-popup">🕳️ 사건의 지평선 붕괴 🕳️<br>✨ 차원 너머의 공허가 태동합니다... ✨</div></div>',
+        "galaxy_phase2": '<div class="effect-overlay galaxy-pulse-fade"><div class="galaxy-popup">🌌 공허의 시공간 맥동! 🌌<br>✨ 차원 흡수 및 폭발적 방출 ✨<br>[은하] 강림!!</div></div>',
         "angel": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "hephaestus": '<div class="effect-overlay smith-fade"><div class="smith-popup">🔥 대장간의 신 스파크 폭발! 🔥<br>🏛️ 그리스 아테네 신전 강림 🏛️<br>[헤파이스토스] 득템!!</div></div>',
         "gravity": '<div class="effect-overlay gravity-collapse-fade"><div class="gravity-collapse-popup">🍎 중력장 붕괴! 🍎<br>사과 폭풍우 강림!!<br>[중력] 등급 획득!!</div><div class="rain-apple-1">🍎</div><div class="rain-apple-2">🍎</div><div class="rain-apple-3">🍎</div><div class="rain-apple-4">🍎</div></div>',
@@ -301,8 +310,11 @@ if eff:
         if eff == "archangel_phase1":
             time.sleep(4.0)
             st.session_state.effect_type = "archangel_phase2"
+        elif eff == "galaxy_phase1":
+            time.sleep(4.0)
+            st.session_state.effect_type = "galaxy_phase2"
         else:
-            time.sleep(5.0 if eff in ["hephaestus", "angel", "archangel_phase2", "time_ruler", "gravity", "blackhole"] else (5.0 if eff == "rift" else (2.0 if eff != "abyss" else 6.0)))
+            time.sleep(5.0 if eff in ["hephaestus", "angel", "archangel_phase2", "galaxy_phase2", "time_ruler", "gravity", "blackhole"] else (5.0 if eff == "rift" else (2.0 if eff != "abyss" else 6.0)))
         st.rerun()
 
 
@@ -310,6 +322,7 @@ def get_base_name(name):
     if not st.session_state.unlocked.get(name, False):
         return "❓ ??"
     mapping = {
+        "은하": "🌌 은하",
         "대천사": "👼✨ 대천사",
         "수호천사": "🕊️ 수호천사",
         "헤파이스토스": "🔥 헤파이스토스",
@@ -450,6 +463,7 @@ with tabs[0]:
                 st.session_state.mutation_unlocked[name][mutation] = True
 
             mapping = {
+                "은하": "galaxy_phase1",
                 "중력": "gravity",
                 "블랙홀": "blackhole",
                 "시간의 지배자": "time_ruler",
@@ -486,6 +500,7 @@ with tabs[0]:
         if st.button("🚀 10연차!", use_container_width=True):
             hit, mutation_hit = execute_rolls(10)
             mapping = {
+                "은하": "galaxy_phase1",
                 "중력": "gravity",
                 "블랙홀": "blackhole",
                 "시간의 지배자": "time_ruler",
@@ -527,6 +542,7 @@ with tabs[0]:
                 if st.button(lbl, use_container_width=True, type="primary"):
                     hit, mutation_hit = execute_rolls(cnt)
                     mapping = {
+                        "은하": "galaxy_phase1",
                         "중력": "gravity",
                         "블랙홀": "blackhole",
                         "시간의 지배자": "time_ruler",
@@ -704,6 +720,7 @@ with tabs[2]:
                 st.session_state.inventory[selected_forge_item] += 3
 
         mapping = {
+            "은하": "galaxy_phase1",
             "중력": "gravity",
             "블랙홀": "blackhole",
             "시간의 지배자": "time_ruler",
@@ -839,6 +856,7 @@ with tabs[4]:
 with tabs[5]:
     st.subheader("📕 도감")
     mapping_cutscene = {
+        "은하": "galaxy_phase1",
         "대천사": "archangel_phase1",
         "수호천사": "angel",
         "헤파이스토스": "hephaestus",
