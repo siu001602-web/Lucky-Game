@@ -34,7 +34,6 @@ st.markdown(
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes appleRain { 0% { transform: translateY(-400px) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(300px) scale(1.2); opacity: 0.9; } }
-    @keyframes endingFade { 0%, 100% { opacity: 0; background-color: rgba(0,0,0,0); } 50% { opacity: 1; background-color: #000; } }
 
     .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; user-select: none; }
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
@@ -54,9 +53,8 @@ st.markdown(
     .rift-spin-green-fade { animation: riftSpinGreen 5.0s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
-    .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .galaxy-popup, .pumpkin-king-popup, .ghost-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .galaxy-popup, .pumpkin-king-popup, .ghost-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
     .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
@@ -276,7 +274,6 @@ defaults = {
         t[0]: {"골드": False, "다이아": False, "오염": False} for t in TIERS + HALLOWEEN_TIERS
     },
     "special_inventory": {
-        "행운의 주사위": 0,
         "할로윈 뽑기권": 0,
         "만배 행운권": 0,
         "십만배 행운권": 0,
@@ -295,7 +292,6 @@ defaults = {
     "has_10000_roll": False,
     "active_multiplier": 1.0,
     "active_multiplier_count": 0,
-    "balloons_shown": False,
     "effect_type": None,
     "pending_mutation_effect": None,
     "skip_cutscenes_map": {t: False for t in HIGH_TIERS if t not in ["수호천사", "대천사"]},
@@ -327,7 +323,6 @@ eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
     effects_html = {
-        "ending": '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨</div></div>',
         "archangel_phase1": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "archangel_phase2": '<div class="effect-overlay archangel-fade"><div class="archangel-popup">🕊️✨ 천상의 문이 열리고... ✨🕊️<br>🌀 찬란한 천사링 전개 🌀<br>[대천사] 강림!!</div></div>',
         "galaxy_phase1": '<div class="effect-overlay blackhole-universe-fade"><div class="blackhole-universe-popup">🕳️ 사건의 지평선 붕괴 🕳️<br>✨ 차원 너머의 공허가 태동합니다... ✨</div></div>',
@@ -420,6 +415,10 @@ def execute_rolls(count):
                 st.session_state.active_multiplier = 1.0
 
         name, _, mutation = gacha_roll(mult)
+        
+        # 최초 획득 여부 체크 (처음 해금되는 순간 컷씬을 띄우기 위함)
+        is_first_time = not st.session_state.unlocked.get(name, False)
+
         st.session_state.history.append((name, mutation))
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
@@ -431,8 +430,10 @@ def execute_rolls(count):
             if name in HIGH_TIERS:
                 mutation_hit = mutation
 
+        # 최초 획득이고 스킵이 꺼져있을 때만 컷씬 지정
         if (
-            name in HIGH_TIERS
+            is_first_time
+            and name in HIGH_TIERS
             and not st.session_state.skip_cutscenes_map.get(name, False)
         ):
             if highest is None or HIGH_TIERS.index(name) < HIGH_TIERS.index(
@@ -456,6 +457,7 @@ def execute_halloween_rolls(count):
         st.session_state.unlocked[name] = True
         st.session_state.history.append((name, None))
 
+        # 최초 획득이고 스킵이 꺼져있을 때만 컷씬 발생
         if is_first_time and not st.session_state.skip_cutscenes_map.get(name, False):
             if name == "호박왕":
                 hit_cutscene = "pumpkin_king"
@@ -465,24 +467,8 @@ def execute_halloween_rolls(count):
     return hit_cutscene
 
 
-def check_all():
-    return all(st.session_state.unlocked.get(t[0], False) for t in TIERS)
-
-
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{format_currency(st.session_state.coins)} 코인")
-
-if check_all():
-    if not st.session_state.balloons_shown:
-        st.balloons()
-        st.session_state.balloons_shown = True
-    if st.button(
-        "🏆 [엔딩 보기] 플레이해주셔서 감사합니다",
-        type="primary",
-        use_container_width=True,
-    ):
-        st.session_state.effect_type = "ending"
-        st.rerun()
 
 if st.session_state.active_multiplier_count > 0:
     m_val = st.session_state.active_multiplier
@@ -520,7 +506,11 @@ with tabs[0]:
                 st.session_state.active_multiplier_count -= 1
                 if st.session_state.active_multiplier_count == 0:
                     st.session_state.active_multiplier = 1.0
+            
+            is_first_time = not st.session_state.unlocked.get(name, False) if 'name' in locals() else False # 안전 처리
             name, color, mutation = gacha_roll(mult)
+            is_first_time = not st.session_state.unlocked.get(name, False)
+
             st.session_state.history.append((name, mutation))
             st.session_state.stats[name] += 1
             st.session_state.inventory[name] += 1
@@ -549,7 +539,8 @@ with tabs[0]:
             }
 
             if (
-                name in mapping
+                is_first_time
+                and name in mapping
                 and not st.session_state.skip_cutscenes_map.get(name, False)
             ):
                 st.session_state.effect_type = mapping[name]
@@ -718,16 +709,6 @@ with tabs[2]:
 
     st.markdown("---")
     buy_qty = st.number_input("일반 행운권 일괄 구매 수량", 1, 100000, 1)
-
-    t_cols = st.columns(2)
-    with t_cols[0]:
-        if st.button("🎲 주사위 구매 (800코인)"):
-            if st.session_state.coins >= 800:
-                st.session_state.coins -= 800
-                st.session_state.special_inventory["행운의 주사위"] += 1
-                st.success("구매 완료!")
-            else:
-                st.error("코인 부족!")
 
     for name, _, price in TICKET_DEFS:
         cost = price * buy_qty
@@ -916,13 +897,17 @@ with tabs[4]:
                             break
                     
                     if hit_type == "archangel":
+                        first_time = not st.session_state.unlocked.get("대천사", False)
                         st.session_state.inventory["대천사"] += 1
                         st.session_state.unlocked["대천사"] = True
-                        st.session_state.effect_type = "archangel_phase1"
-                        st.rerun()
+                        if first_time:
+                            st.session_state.effect_type = "archangel_phase1"
+                            st.rerun()
+                        else:
+                            st.success(f"🎉 [{get_base_name('대천사')}] 획득 완료!")
                     elif hit_type == "angel":
-                        st.session_state.inventory["수호천사"] += 1
                         first_time = not st.session_state.unlocked.get("수호천사", False)
+                        st.session_state.inventory["수호천사"] += 1
                         st.session_state.unlocked["수호천사"] = True
                         if first_time:
                             st.session_state.effect_type = "angel"
@@ -936,21 +921,6 @@ with tabs[4]:
 
 with tabs[5]:
     st.subheader("🎒 배낭")
-    dice_c = st.session_state.special_inventory.get("행운의 주사위", 0)
-    if st.button(f"🎲 주사위 사용 (보유: {format_currency(dice_c)}개)", disabled=(dice_c == 0)):
-        st.session_state.special_inventory["행운의 주사위"] -= 1
-        name, color, mutation = gacha_roll(1.0)
-        st.session_state.history.append((name, mutation))
-        st.session_state.stats[name] += 1
-        st.session_state.inventory[name] += 1
-        st.session_state.unlocked[name] = True
-        if mutation:
-            st.session_state.mutation_stats[mutation] += 1
-            st.session_state.mutation_unlocked[name][mutation] = True
-        st.success(f"당첨: {get_display_name(name, mutation)}")
-        st.rerun()
-
-    st.markdown("---")
     use_qty = st.number_input("행운권 일괄 사용 수량", 1, 100000, 1, key="u_qty")
     for name, mult, _ in TICKET_DEFS:
         cnt = st.session_state.special_inventory.get(name, 0)
