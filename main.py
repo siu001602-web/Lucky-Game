@@ -231,7 +231,10 @@ for sp_key, sp_val in defaults["special_inventory"].items():
     if sp_key not in st.session_state.special_inventory:
         st.session_state.special_inventory[sp_key] = sp_val
 
-# 컷씬 연출 처리
+# 컷씬 연출 처리 (최적화: history 메모리 과부하 방지를 위해 최근 1000개만 유지)
+if len(st.session_state.history) > 1000:
+    st.session_state.history = st.session_state.history[-1000:]
+
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -504,7 +507,7 @@ with tabs[0]:
                         st.rerun()
                     st.success(f"🎉 {cnt}연차 완료!")
 
-# 2. 상점 탭
+# 2. 상점 탭 (행운권 구매 수량 최대 10만 개 확장)
 with tabs[1]:
     st.subheader("💵 등급별 판매소")
     sell_sel = {}
@@ -532,7 +535,7 @@ with tabs[1]:
 
     st.divider()
     st.subheader("🛒 Special 상점")
-    buy_qty = st.number_input("행운권 일괄 구매 수량", 1, 1000, 1)
+    buy_qty = st.number_input("행운권 일괄 구매 수량", 1, 100000, 1)
 
     t_cols = st.columns(2)
     with t_cols[0]:
@@ -670,7 +673,7 @@ with tabs[2]:
                 result_msg += f"- 🛡️ 무효(재료반환): **{refund_count}회**\n"
             st.success(result_msg)
 
-# 4. 개발자 기부 탭
+# 4. 개발자 기부 탭 (1회 / 10회 / 100회 일괄 기부 지원)
 with tabs[3]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
@@ -687,25 +690,37 @@ with tabs[3]:
 
     display_reward_name = get_base_name("수호천사")
 
-    st.info(f"💡 개발자에게 1회 **10,000 코인**을 기부할 수 있습니다.\n- 현재 누적 기부금: **{total_d:,.0f} 코인**\n- 현재 [{display_reward_name}] 획득 확률: **{prob_tier_str}**")
+    st.info(f"💡 개발자에게 1회 **10,000 코인**을 기부합니다.\n- 현재 누적 기부금: **{total_d:,.0f} 코인**\n- 현재 [{display_reward_name}] 획득 확률: **{prob_tier_str}**")
 
-    if st.button("💖 개발자에게 10,000 코인 기부하기", type="primary"):
-        if st.session_state.coins >= 10000.0:
-            st.session_state.coins -= 10000.0
-            st.session_state.total_donated += 10000.0
-            
-            roll_v = random.random() * 100
-            if roll_v < current_angel_prob:
-                st.session_state.inventory["수호천사"] += 1
-                st.session_state.unlocked["수호천사"] = True
-                st.session_state.effect_type = "angel"
-                st.rerun()
-            else:
-                st.warning("💸 10,000 코인을 기부했습니다! (아쉽게도 이번 기부는 꽝입니다! 다음 기회를 노려보세요!)")
-        else:
-            st.error("❌ 보유 코인이 부족합니다! (필요: 10,000 코인)")
+    donation_counts = [1, 10, 100]
+    d_cols = st.columns(len(donation_counts))
+    
+    for idx, d_cnt in enumerate(donation_counts):
+        cost_total = d_cnt * 10000.0
+        with d_cols[idx]:
+            if st.button(f"💖 {d_cnt}회 기부 ({cost_total:,.0f}코인)", use_container_width=True, type="primary"):
+                if st.session_state.coins >= cost_total:
+                    st.session_state.coins -= cost_total
+                    st.session_state.total_donated += cost_total
+                    
+                    angel_hit = False
+                    for _ in range(d_cnt):
+                        roll_v = random.random() * 100
+                        if roll_v < current_angel_prob:
+                            st.session_state.inventory["수호천사"] += 1
+                            st.session_state.unlocked["수호천사"] = True
+                            angel_hit = True
+                            break
+                    
+                    if angel_hit:
+                        st.session_state.effect_type = "angel"
+                        st.rerun()
+                    else:
+                        st.warning(f"💸 총 {d_cnt}회({cost_total:,.0f}코인) 기부 완료! (아쉽게도 이번엔 수호천사가 나오지 않았습니다!)")
+                else:
+                    st.error("❌ 보유 코인이 부족합니다!")
 
-# 5. 배낭 탭
+# 5. 배낭 탭 (행운권 일괄 사용 수량 최대 10만 개 확장)
 with tabs[4]:
     st.subheader("🎒 배낭")
     dice_c = st.session_state.special_inventory.get("행운의 주사위", 0)
@@ -723,7 +738,7 @@ with tabs[4]:
         st.rerun()
 
     st.markdown("---")
-    use_qty = st.number_input("행운권 일괄 사용 수량", 1, 10000, 1, key="u_qty")
+    use_qty = st.number_input("행운권 일괄 사용 수량", 1, 100000, 1, key="u_qty")
     for name, mult, _ in TICKET_DEFS:
         cnt = st.session_state.special_inventory.get(name, 0)
         if st.button(
