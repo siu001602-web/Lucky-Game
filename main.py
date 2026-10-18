@@ -122,7 +122,7 @@ def gacha_roll(multiplier=1.0):
     return adjusted[-1][0], adjusted[-1][2]
 
 
-# 세션 상태 초기화
+# 세션 상태 기본값 정의
 defaults = {
     "coins": 0.0,
     "history": [],
@@ -159,10 +159,14 @@ for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# 기존 세션에 inventory 키가 누락된 경우 안전하게 보정
+# 누락된 인벤토리 및 특수 인벤토리 키 안전 보정
 for t, _, _ in TIERS:
     if t not in st.session_state.inventory:
         st.session_state.inventory[t] = 0
+
+for sp_key, sp_val in defaults["special_inventory"].items():
+    if sp_key not in st.session_state.special_inventory:
+        st.session_state.special_inventory[sp_key] = sp_val
 
 # 컷씬 처리
 eff = st.session_state.effect_type
@@ -428,7 +432,7 @@ with tabs[1]:
 # 3. 배낭 탭
 with tabs[2]:
     st.subheader("🎒 배낭")
-    dice_c = st.session_state.special_inventory["행운의 주사위"]
+    dice_c = st.session_state.special_inventory.get("행운의 주사위", 0)
     if st.button(f"🎲 주사위 사용 (보유: {dice_c}개)", disabled=(dice_c == 0)):
         st.session_state.special_inventory["행운의 주사위"] -= 1
         name, color = lucky_dice_roll()
@@ -442,7 +446,7 @@ with tabs[2]:
     st.markdown("---")
     use_qty = st.number_input("행운권 일괄 사용 수량", 1, 10000, 1, key="u_qty")
     for name, mult, _ in TICKET_DEFS:
-        cnt = st.session_state.special_inventory[name]
+        cnt = st.session_state.special_inventory.get(name, 0)
         if st.button(
             f"🎟️ {name} {use_qty}장 사용 (보유: {cnt}개)",
             disabled=(cnt < use_qty),
