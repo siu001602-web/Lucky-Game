@@ -191,7 +191,7 @@ def gacha_roll(multiplier=1.0):
     total_p = sum(b_dict.values())
     rand_v = random.random() * total_p
     cum = 0.0
-    for name, prob, color in normal:
+    for name, prob, color, price in normal:
         cum += b_dict[name]
         if rand_v <= cum: return name, color, check_mutation()
     return normal[-1][0], normal[-1][2], check_mutation()
@@ -338,7 +338,7 @@ with tabs[1]:
         else:
             st.success(f"📦 할로윈 상자 개봉 결과: **[{get_base_name(box_name)}]** 획득!")
 
-# 3. 상점 탭 (확률업 아이템 구매 추가)
+# 3. 상점 탭
 with tabs[2]:
     st.subheader("💵 판매소 및 Special 상점")
     sellable_items = [t for t in ALL_TIERS if t[0] not in [hb[0] for hb in HALLOWEEN_BOX_DATA]]
@@ -470,7 +470,7 @@ with tabs[4]:
                 else:
                     st.error("❌ 보유 코인이 부족합니다!")
 
-# 6. 배낭 탭 (행운권 사용 기능 추가)
+# 6. 배낭 탭
 with tabs[5]:
     st.subheader("🎒 배낭 (확률업 행운권 사용)")
     dice = st.session_state.special_inventory.get("행운의 주사위", 0)
