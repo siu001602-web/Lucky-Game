@@ -254,11 +254,7 @@ if eff:
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
         time.sleep(10.0 if eff in ["hephaestus", "angel"] else (2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0))
-        
-        if eff not in ["pollution", "gold", "diamond"] and st.session_state.pending_mutation_effect:
-            st.session_state.effect_type = st.session_state.pending_mutation_effect
-            st.session_state.pending_mutation_effect = None
-            st.rerun()
+        st.rerun()
 
 
 def get_base_name(name):
@@ -375,7 +371,7 @@ with st.expander("⚙️ 설정 (컷씬 스킵)"):
 st.divider()
 
 tabs = st.tabs(
-    ["🎰 뽑기", "🏪 상점", "🛠️ 대장간", "🎁 개발자 기부", "🎒 배낭", "📕 도감", "📊 통계", "💾 세이브"]
+    ["🎰 뽑기", "🏪 상점", "🛠️ 대장간", "🎁 개발자 기부", "🎒 배낭", "📕 도감", "📊 통계", "💾 세이브", "🔑 개발자"]
 )
 
 # 1. 뽑기 탭
@@ -583,7 +579,7 @@ with tabs[1]:
                     else:
                         st.error("부족")
 
-# 3. 대장간 탭 (일괄 합성 지원)
+# 3. 대장간 탭
 with tabs[2]:
     st.subheader("🛠️ 불꽃의 대장간 (일괄 합성 시스템)")
     hephaestus_name = get_base_name("헤파이스토스")
@@ -618,64 +614,77 @@ with tabs[2]:
         fail_count = 0
         refund_count = 0
         hephaestus_hit = False
+        last_success_item = None
 
         for _ in range(forge_count):
             roll_val = random.random() * 100
-            if roll_val < 0.1:  # 0.1% 대박 (헤파이스토스)
+            if roll_val < 0.1:
                 st.session_state.inventory["헤파이스토스"] += 1
                 st.session_state.unlocked["헤파이스토스"] = True
                 hephaestus_hit = True
-            elif roll_val < 19.9 + 0.1:  # 19.9% 승급
+            elif roll_val < 19.9 + 0.1:
                 current_idx = secret_and_above.index(selected_forge_item)
                 if current_idx > 0:
                     upper_item = secret_and_above[current_idx - 1]
                     st.session_state.inventory[upper_item] += 1
                     st.session_state.unlocked[upper_item] = True
                     success_count += 1
+                    last_success_item = upper_item
                 else:
                     st.session_state.inventory["헤파이스토스"] += 1
                     st.session_state.unlocked["헤파이스토스"] = True
                     hephaestus_hit = True
-            elif roll_val < 50.0 + 19.9 + 0.1:  # 50% 실패
+            elif roll_val < 50.0 + 19.9 + 0.1:
                 fail_count += 1
-            else:  # 30% 무효 (재료 복구)
+            else:
                 refund_count += 1
                 st.session_state.inventory[selected_forge_item] += 3
 
-        result_msg = f"✨ **[일괄 합성 결과 ({forge_count}회 진행)]**\n"
-        if success_count > 0:
-            current_idx = secret_and_above.index(selected_forge_item)
-            upper_item = secret_and_above[current_idx - 1] if current_idx > 0 else "헤파이스토스"
-            result_msg += f"- 🌟 승급 성공: **{success_count}회** ({get_base_name(upper_item)} 획득)\n"
-        if fail_count > 0:
-            result_msg += f"- 💥 소멸 실패: **{fail_count}회**\n"
-        if refund_count > 0:
-            result_msg += f"- 🛡️ 무효(재료반환): **{refund_count}회**\n"
+        mapping = {
+            "중력": "gravity",
+            "블랙홀": "blackhole",
+            "시간의 지배자": "rift",
+            "균열자": "rift",
+            "혜성": "comet",
+            "어비스": "abyss",
+            "신성한": "holy",
+            "도깨비": "dokebi",
+            "비밀": "secret",
+        }
+
         if hephaestus_hit:
-            result_msg += f"- 🔥 **[헤파이스토스] 대박 획득!!**\n"
             st.session_state.effect_type = "hephaestus"
-
-        st.success(result_msg)
-        if hephaestus_hit:
             st.rerun()
+        elif last_success_item and last_success_item in mapping:
+            st.session_state.effect_type = mapping[last_success_item]
+            st.rerun()
+        else:
+            result_msg = f"✨ **[일괄 합성 결과 ({forge_count}회 진행)]**\n"
+            if success_count > 0:
+                current_idx = secret_and_above.index(selected_forge_item)
+                upper_item = secret_and_above[current_idx - 1] if current_idx > 0 else "헤파이스토스"
+                result_msg += f"- 🌟 승급 성공: **{success_count}회** ({get_base_name(upper_item)} 획득)\n"
+            if fail_count > 0:
+                result_msg += f"- 💥 소멸 실패: **{fail_count}회**\n"
+            if refund_count > 0:
+                result_msg += f"- 🛡️ 무효(재료반환): **{refund_count}회**\n"
+            st.success(result_msg)
 
-# 4. 개발자 기부 탭 (수호천사 은폐 반영)
+# 4. 개발자 기부 탭
 with tabs[3]:
     st.subheader("🎁 개발자 기부 시스템")
-    
     total_d = st.session_state.get("total_donated", 0.0)
     
     if total_d >= 30000000.0:
-        current_angel_prob = 1.0  # 1%
+        current_angel_prob = 1.0
         prob_tier_str = "1.0% (3천만 코인 달성 보너스!)"
     elif total_d >= 5000000.0:
-        current_angel_prob = 0.1  # 0.1%
+        current_angel_prob = 0.1
         prob_tier_str = "0.1% (5백만 코인 달성 보너스!)"
     else:
-        current_angel_prob = 0.01  # 0.01%
+        current_angel_prob = 0.01
         prob_tier_str = "0.01% (기본 확률)"
 
-    # 미해금 상태일 경우 이름을 ❓ ?? 로 숨김 처리
     display_reward_name = get_base_name("수호천사")
 
     st.info(f"💡 개발자에게 1회 **10,000 코인**을 기부할 수 있습니다.\n- 현재 누적 기부금: **{total_d:,.0f} 코인**\n- 현재 [{display_reward_name}] 획득 확률: **{prob_tier_str}**")
@@ -857,3 +866,20 @@ with tabs[7]:
             st.session_state[k] = v
         st.success("완료!")
         st.rerun()
+
+# 9. 개발자 전용 탭 (비밀번호: 090925)
+with tabs[8]:
+    st.subheader("🔑 개발자 전용 코인 지급 메뉴")
+    pw_input = st.text_input("개발자 비밀번호를 입력하세요", type="password")
+    
+    if pw_input == "090925":
+        st.success("🔓 개발자 권한 인증 완료!")
+        add_coins = st.number_input("지급할 코인 수량을 입력하세요", min_value=0.0, step=1000.0, value=10000.0)
+        if st.button("💰 코인 지급 받기", type="primary"):
+            st.session_state.coins += add_coins
+            st.success(f"🎉 성공적으로 {add_coins:,.2f} 코인이 지급되었습니다!")
+            st.rerun()
+    elif pw_input != "":
+        st.error("❌ 비밀번호가 틀렸습니다!")
+    else:
+        st.info("🔒 접근하려면 올바른 비밀번호를 입력하세요.")
