@@ -70,7 +70,6 @@ HALLOWEEN_DATA = [
     ("박쥐", 99.899899, "#8A2BE2", 1.0),
 ]
 
-# 할로윈 상자 전용 등급 (판매 불가 판정 위해 가격 0 또는 별도 처리)
 HALLOWEEN_BOX_DATA = [
     ("프랑켄슈타인", 0.05, "#32CD32", 0.0),
     ("강시", 0.25, "#FF4500", 0.0),
@@ -136,7 +135,6 @@ if eff:
         "galaxy_phase2": ('purple-hold-fade', '<div class="popup-text">🌌 시공간 맥동 및 방출<br>[은하] 강림!!</div>'),
         "pumpkin_king": ('pumpkin-king-fade', '<div class="moon-icon">🌕</div><div class="pumpkin-icon">🎃</div><div class="popup-text">🎃 어두운 밤하늘, 집 위로 달이 내려앉고... 🎃<br>🌕 거대한 호박왕 강림!! 🌕</div>'),
         "ghost": ('ghost-fade', '<div class="ghost-icon">👻</div><div class="popup-text">👻 ...스스스 ...👻<br>💥 기괴한 유령 출현!! 💥</div>'),
-        # 할로윈 상자 등급별 3초 보라색 화면 + 고유 컷씬
         "zombie": ('zombie-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">🧟 무덤이 갈라지며 화면이 흔들린다!<br>[좀비] 출현!!</div></div>'),
         "skeleton": ('thunder-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">⚡ 하늘에서 벼락이 치며 해골이 강림한다!<br>[스켈레톤] 등장!!</div></div>'),
         "jackolantern": ('pumpkin-king-fade', '<div class="purple-hold-fade effect-overlay"><div class="pumpkin-icon">🎃</div><div class="popup-text">✨ 호박이 튀어나와 반짝인다!<br>[잭오랜턴] 등장!!</div></div>'),
@@ -162,7 +160,7 @@ if eff:
     if eff in effects_map:
         cls, html = effects_map[eff]
         st.markdown(f'<div class="effect-overlay {cls}">{html}</div>', unsafe_allow_html=True)
-        time.sleep(3.0)  # 3초 연출 대기
+        time.sleep(3.0)
         st.rerun()
 
 def check_mutation():
@@ -260,11 +258,10 @@ with tabs[0]:
                 st.session_state.effect_type = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}[mut_hit]; st.rerun()
             st.success("✨ 10연차 완료!")
 
-# 2. 할로윈 탭 (BGM 추가 및 할로윈 상자 합성 시스템)
+# 2. 할로윈 탭
 with tabs[1]:
     st.subheader("🎃 할로윈 한정 뽑기 & 합성")
     
-    # 할로윈 배경음악 (오디오 컴포넌트 활용)
     st.markdown("""
         <audio autoplay loop>
           <source src="https://actions.google.com/sounds/v1/ambiences/creepy_wind.ogg" type="audio/ogg">
@@ -323,7 +320,7 @@ with tabs[1]:
         else:
             st.success(f"📦 할로윈 상자 개봉 결과: **[{get_base_name(box_name)}]** 획득!")
 
-# 3. 상점 탭 (할로윈 상자 등급은 판매 제외)
+# 3. 상점 탭
 with tabs[2]:
     st.subheader("💵 판매소 및 Special 상점")
     sellable_items = [t for t in ALL_TIERS if t[0] not in [hb[0] for hb in HALLOWEEN_BOX_DATA]]
@@ -368,25 +365,55 @@ with tabs[3]:
         else:
             st.warning("재련 실패 또는 무효화되었습니다.")
 
-# 5. 기부 탭
+# 5. 기부 탭 (확률표 및 상세 설명 복구)
 with tabs[4]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
-    p_angel = 1.0 if total_d >= 3e7 else (0.1 if total_d >= 5e6 else 0.01)
-    p_arch = 0.01 if total_d >= 3e7 else (0.001 if total_d >= 5e6 else 0.0001)
-    if st.button("💖 1만 코인 기부", type="primary"):
+    
+    if total_d >= 30000000.0:
+        p_angel, p_arch = 1.0, 0.01
+        str_angel = "1.0% (3천만 코인 달성 보너스!)"
+        str_arch = "0.01% (3천만 코인 달성 보너스!)"
+    elif total_d >= 5000000.0:
+        p_angel, p_arch = 0.1, 0.001
+        str_angel = "0.1% (5백만 코인 달성 보너스!)"
+        str_arch = "0.001% (5백만 코인 달성 보너스!)"
+    else:
+        p_angel, p_arch = 0.01, 0.0001
+        str_angel = "0.01% (기본 확률)"
+        str_arch = "0.0001% (기본 확률)"
+
+    st.info(f"""
+    💡 **개발자 기부 안내**
+    - 1회 기부 금액: **10,000 코인**
+    - 현재 누적 기부금: **{format_currency(total_d)} 코인**
+    
+    📊 **현재 적용 중인 획득 확률표**
+    - [{get_base_name('수호천사')}]: **{str_angel}**
+    - [{get_base_name('대천사')}]: **{str_arch}**
+    """)
+
+    if st.button("💖 1만 코인 기부", type="primary", use_container_width=True):
         if st.session_state.coins >= 10000.0:
-            st.session_state.coins -= 10000.0; st.session_state.total_donated += 10000.0
+            st.session_state.coins -= 10000.0
+            st.session_state.total_donated += 10000.0
+            
             if random.random() * 100 < p_arch:
-                st.session_state.inventory["대천사"] += 1; st.session_state.unlocked["대천사"] = True
-                st.session_state.effect_type = "archangel_phase1"; st.rerun()
+                st.session_state.inventory["대천사"] += 1
+                st.session_state.unlocked["대천사"] = True
+                st.session_state.effect_type = "archangel_phase1"
+                st.rerun()
             elif random.random() * 100 < p_angel:
                 st.session_state.inventory["수호천사"] += 1
                 if not st.session_state.unlocked.get("수호천사", False):
-                    st.session_state.unlocked["수호천사"] = True; st.session_state.effect_type = "angel"; st.rerun()
-                st.success("🕊️ 수호천사 획득!")
-            else: st.warning("아쉽게도 천사가 응답하지 않았습니다.")
-        else: st.error("코인 부족!")
+                    st.session_state.unlocked["수호천사"] = True
+                    st.session_state.effect_type = "angel"
+                    st.rerun()
+                st.success(f"🕊️ [{get_base_name('수호천사')}] 획득 완료!")
+            else:
+                st.warning("💸 1만 코인 기부 완료! (아쉽게도 이번엔 천사가 응답하지 않았습니다.)")
+        else:
+            st.error("❌ 보유 코인이 부족합니다!")
 
 # 6. 배낭 탭
 with tabs[5]:
@@ -398,7 +425,7 @@ with tabs[5]:
         st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
         st.success(f"당첨: {get_display_name(name, mut)}"); st.rerun()
 
-# 7. 도감 탭 (할로윈 도감 별도 분류)
+# 7. 도감 탭
 with tabs[6]:
     st.subheader("📕 도감")
     st.markdown("### 🎃 할로윈 전용 도감")
