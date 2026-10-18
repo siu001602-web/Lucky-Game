@@ -19,6 +19,7 @@ st.markdown(
     @keyframes goldFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,215,0,0.95); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes diamondFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(30,144,255,0.95); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes smithSpark { 0% { background-color: rgba(255,69,0,0); transform: scale(0.9); } 20% { background-color: rgba(255,140,0,0.9); transform: scale(1.1); } 40% { background-color: rgba(255,215,0,1); transform: scale(1.0); } 70% { background-color: rgba(255,69,0,0.8); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
+    @keyframes angelOpen { 0% { background-color: rgba(255,255,255,0); transform: scale(0.9); } 30% { background-color: rgba(255,255,250,0.95); transform: scale(1.05); } 70% { background-color: rgba(255,223,0,0.85); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes earthquake { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
@@ -34,6 +35,7 @@ st.markdown(
     .gold-fade { animation: goldFlash 2.5s ease-in-out forwards; }
     .diamond-fade { animation: diamondFlash 2.5s ease-in-out forwards; }
     .smith-fade { animation: smithSpark 10.0s ease-in-out forwards; }
+    .angel-fade { animation: angelOpen 8.0s ease-in-out forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
     .rift-fade { animation: earthquake 5.0s ease-in-out forwards; }
@@ -41,13 +43,14 @@ st.markdown(
     .gravity-fade { animation: sunsetGravity 6.0s ease-in-out forwards; }
     .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
     .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
     .gold-popup { color: #FFF700; text-shadow: 0px 0px 30px #8B6508; }
     .diamond-popup { color: #E0FFFF; text-shadow: 0px 0px 30px #00008B; }
     .smith-popup { color: #FFD700; text-shadow: 0px 0px 30px #FF4500; font-size: 38px; }
+    .angel-popup { color: #FFFACD; text-shadow: 0px 0px 40px #FFD700; font-size: 38px; }
     .falling-apple { font-size: 100px; animation: appleFall 2.0s ease-in forwards; }
     
     .pokedex-title { font-size: 16px; font-weight: bold; }
@@ -58,7 +61,8 @@ st.markdown(
 )
 
 TIERS = [
-    ("헤파이스토스", 0.0, "#FF8C00"),
+    ("수호천사", 0.0, "#FFF8DC"),  # 기부 전용 특수 등급
+    ("헤파이스토스", 0.0, "#FF8C00"),  # 대장간 전용 특수 등급
     ("중력", 0.0000000000005, "#FF4500"),
     ("블랙홀", 0.0000000000015, "#AA00FF"),
     ("시간의 지배자", 0.0000000000080, "#FFD700"),
@@ -75,7 +79,8 @@ TIERS = [
 ]
 
 SELL_PRICES = {
-    "헤파이스토스": 100000000.0,
+    "수호천사": 20000000.0,
+    "헤파이스토스": 7000000.0,
     "중력": 30000000.0,
     "블랙홀": 10000000.0,
     "시간의 지배자": 5000000.0,
@@ -92,6 +97,7 @@ SELL_PRICES = {
 }
 
 HIGH_TIERS = [
+    "수호천사",
     "헤파이스토스",
     "중력",
     "블랙홀",
@@ -110,6 +116,18 @@ TICKET_DEFS = [
     ("천만배 행운권", 10000000.0, 30000),
 ]
 
+TIER_CAPS = {
+    "비밀": 0.20,
+    "도깨비": 0.18,
+    "신성한": 0.15,
+    "어비스": 0.12,
+    "혜성": 0.08,
+    "균열자": 0.05,
+    "시간의 지배자": 0.02,
+    "블랙홀": 0.005,
+    "중력": 0.001,
+}
+
 
 def check_mutation():
     r = random.random()
@@ -123,25 +141,28 @@ def check_mutation():
 
 
 def gacha_roll(multiplier=1.0):
-    normal_tiers = [t for t in TIERS if t[0] != "헤파이스토스"]
+    normal_tiers = [t for t in TIERS if t[0] not in ["헤파이스토스", "수호천사"]]
     base_dict = {name: prob for name, prob, color in normal_tiers}
     color_dict = {name: color for name, prob, color in normal_tiers}
 
     if multiplier > 1.0:
-        total_inc = 0.0
+        total_high_prob = 0.0
         for name in HIGH_TIERS:
-            if name == "헤파이스토스":
+            if name in ["헤파이스토스", "수호천사"]:
                 continue
             orig = base_dict[name]
-            new_p = orig * multiplier
-            total_inc += new_p - orig
-            base_dict[name] = new_p
+            boosted = orig * multiplier
+            cap = TIER_CAPS.get(name, 1.0)
+            final_p = min(boosted, cap)
+            base_dict[name] = final_p
+            total_high_prob += final_p
 
-        c_sum = base_dict["일반"] + base_dict["희귀"]
-        if c_sum > 0:
-            ratio = max(0.0, (c_sum - total_inc) / c_sum)
-            base_dict["일반"] *= ratio
-            base_dict["희귀"] *= ratio
+        remaining_prob = max(0.10, 1.0 - total_high_prob)
+        low_tiers = ["일반", "희귀", "영웅", "전설"]
+        low_sum = sum(base_dict[k] for k in low_tiers)
+        if low_sum > 0:
+            for k in low_tiers:
+                base_dict[k] = (base_dict[k] / low_sum) * remaining_prob
 
     adjusted = [(n, base_dict[n], color_dict[n]) for n, _, _ in normal_tiers]
     total_p = sum(t[1] for t in adjusted)
@@ -156,6 +177,7 @@ def gacha_roll(multiplier=1.0):
 
 defaults = {
     "coins": 0.0,
+    "total_donated": 0.0,  # 누적 기부금
     "history": [],
     "stats": {t[0]: 0 for t in TIERS},
     "inventory": {t: 0 for t, _, _ in TIERS},
@@ -188,7 +210,7 @@ defaults = {
     "balloons_shown": False,
     "effect_type": None,
     "pending_mutation_effect": None,
-    "skip_cutscenes_map": {t: False for t in HIGH_TIERS},
+    "skip_cutscenes_map": {t: False for t in HIGH_TIERS if t not in ["수호천사"]},
 }
 
 for k, v in defaults.items():
@@ -215,6 +237,7 @@ if eff:
     st.session_state.effect_type = None
     effects_html = {
         "ending": '<div class="effect-overlay ending-fade"><div class="ending-text">✨ 플레이해주셔서 감사합니다! ✨</div></div>',
+        "angel": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "hephaestus": '<div class="effect-overlay smith-fade"><div class="smith-popup">🔥 대장간의 신 스파크 폭발! 🔥<br>🏛️ 그리스 아테네 신전 강림 🏛️<br>[헤파이스토스] 득템!!</div></div>',
         "gravity": '<div class="effect-overlay gravity-fade"><div class="gravity-text"><div class="falling-apple">🍎</div>[중력] 등급 발견!!</div></div>',
         "blackhole": '<div class="effect-overlay blackhole-fade"><div class="blackhole-popup">🕳️ [블랙홀] 시공간 붕괴!</div></div>',
@@ -230,9 +253,8 @@ if eff:
     }
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
-        time.sleep(10.0 if eff == "hephaestus" else (2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0))
+        time.sleep(10.0 if eff in ["hephaestus", "angel"] else (2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0))
         
-        # 기본 컷씬 종료 후 대기 중인 돌연변이 컷씬 연쇄 실행
         if eff not in ["pollution", "gold", "diamond"] and st.session_state.pending_mutation_effect:
             st.session_state.effect_type = st.session_state.pending_mutation_effect
             st.session_state.pending_mutation_effect = None
@@ -243,6 +265,7 @@ def get_base_name(name):
     if not st.session_state.unlocked.get(name, False):
         return "❓ ??"
     mapping = {
+        "수호천사": "🕊️ 수호천사",
         "헤파이스토스": "🔥 헤파이스토스",
         "중력": "🍎 중력",
         "블랙홀": "🕳️ 블랙홀",
@@ -341,6 +364,8 @@ if st.session_state.active_multiplier_count > 0:
 
 with st.expander("⚙️ 설정 (컷씬 스킵)"):
     for t in HIGH_TIERS:
+        if t == "수호천사":
+            continue
         st.session_state.skip_cutscenes_map[t] = st.checkbox(
             f"{get_base_name(t)} 스킵",
             value=st.session_state.skip_cutscenes_map[t],
@@ -350,7 +375,7 @@ with st.expander("⚙️ 설정 (컷씬 스킵)"):
 st.divider()
 
 tabs = st.tabs(
-    ["🎰 뽑기", "🏪 상점", "🛠️ 대장간", "🎒 배낭", "📕 도감", "📊 통계", "💾 세이브"]
+    ["🎰 뽑기", "🏪 상점", "🛠️ 대장간", "🎁 개발자 기부", "🎒 배낭", "📕 도감", "📊 통계", "💾 세이브"]
 )
 
 # 1. 뽑기 탭
@@ -558,13 +583,13 @@ with tabs[1]:
                     else:
                         st.error("부족")
 
-# 3. 대장간 탭 (합성)
+# 3. 대장간 탭 (일괄 합성 지원)
 with tabs[2]:
-    st.subheader("🛠️ 불꽃의 대장간 (합성 시스템)")
+    st.subheader("🛠️ 불꽃의 대장간 (일괄 합성 시스템)")
     hephaestus_name = get_base_name("헤파이스토스")
     st.info(f"비밀 등급 이상 아이템 3개를 소모하여 상위 등급이나 대장간 신을 영접하세요!\n- 승급: 19.9% | 실패(소멸): 50% | 무효(유지): 30% | {hephaestus_name}: 0.1%")
 
-    secret_and_above = [t[0] for t in TIERS if t[0] != "헤파이스토스"]
+    secret_and_above = [t[0] for t in TIERS if t[0] not in ["헤파이스토스", "수호천사"]]
     secret_idx = secret_and_above.index("비밀")
     forge_targets = secret_and_above[: secret_idx + 1]
 
@@ -575,37 +600,103 @@ with tabs[2]:
     )
 
     owned_count = st.session_state.inventory.get(selected_forge_item, 0)
-    st.write(f"현재 보유량: **{owned_count}개** (필요: 3개)")
+    max_forge_sets = owned_count // 3
 
-    if st.button("🔥 대장간 재련 시작", type="primary", disabled=(owned_count < 3)):
-        st.session_state.inventory[selected_forge_item] -= 3
-        
-        roll_val = random.random() * 100
-        if roll_val < 0.1:  # 0.1% 대박
-            st.session_state.inventory["헤파이스토스"] += 1
-            st.session_state.unlocked["헤파이스토스"] = True
-            st.session_state.effect_type = "hephaestus"
-            st.rerun()
-        elif roll_val < 19.9 + 0.1:  # 19.9% 윗 등급 승급
-            current_idx = secret_and_above.index(selected_forge_item)
-            if current_idx > 0:
-                upper_item = secret_and_above[current_idx - 1]
-                st.session_state.inventory[upper_item] += 1
-                st.session_state.unlocked[upper_item] = True
-                st.success(f"✨ 대성공! 윗 등급인 **{get_base_name(upper_item)}**(을)를 획득했습니다!")
-            else:
+    st.write(f"현재 보유량: **{owned_count}개** (최대 합성 가능 횟수: **{max_forge_sets}회**)")
+
+    if max_forge_sets > 0:
+        forge_count = st.number_input("합성 진행 횟수 선택", min_value=1, max_value=max_forge_sets, value=1)
+    else:
+        forge_count = 0
+        st.warning("합성 재료(동일 등급 3개 이상)가 부족합니다!")
+
+    if st.button("🔥 대장간 일괄 재련 시작", type="primary", disabled=(max_forge_sets == 0)):
+        total_materials_needed = forge_count * 3
+        st.session_state.inventory[selected_forge_item] -= total_materials_needed
+
+        success_count = 0
+        fail_count = 0
+        refund_count = 0
+        hephaestus_hit = False
+
+        for _ in range(forge_count):
+            roll_val = random.random() * 100
+            if roll_val < 0.1:  # 0.1% 대박 (헤파이스토스)
                 st.session_state.inventory["헤파이스토스"] += 1
                 st.session_state.unlocked["헤파이스토스"] = True
-                st.session_state.effect_type = "hephaestus"
-                st.rerun()
-        elif roll_val < 50.0 + 19.9 + 0.1:  # 50% 실패
-            st.error("💥 재련 실패... 뜨거운 불꽃 속에서 재료 아이템이 흔적도 없이 사라졌습니다!")
-        else:  # 30% 무효
-            st.session_state.inventory[selected_forge_item] += 3
-            st.warning("🛡️ 재련 무효! 불안정한 에너지로 인해 소모된 재료가 그대로 반환되었습니다.")
+                hephaestus_hit = True
+            elif roll_val < 19.9 + 0.1:  # 19.9% 승급
+                current_idx = secret_and_above.index(selected_forge_item)
+                if current_idx > 0:
+                    upper_item = secret_and_above[current_idx - 1]
+                    st.session_state.inventory[upper_item] += 1
+                    st.session_state.unlocked[upper_item] = True
+                    success_count += 1
+                else:
+                    st.session_state.inventory["헤파이스토스"] += 1
+                    st.session_state.unlocked["헤파이스토스"] = True
+                    hephaestus_hit = True
+            elif roll_val < 50.0 + 19.9 + 0.1:  # 50% 실패
+                fail_count += 1
+            else:  # 30% 무효 (재료 복구)
+                refund_count += 1
+                st.session_state.inventory[selected_forge_item] += 3
 
-# 4. 배낭 탭
+        result_msg = f"✨ **[일괄 합성 결과 ({forge_count}회 진행)]**\n"
+        if success_count > 0:
+            current_idx = secret_and_above.index(selected_forge_item)
+            upper_item = secret_and_above[current_idx - 1] if current_idx > 0 else "헤파이스토스"
+            result_msg += f"- 🌟 승급 성공: **{success_count}회** ({get_base_name(upper_item)} 획득)\n"
+        if fail_count > 0:
+            result_msg += f"- 💥 소멸 실패: **{fail_count}회**\n"
+        if refund_count > 0:
+            result_msg += f"- 🛡️ 무효(재료반환): **{refund_count}회**\n"
+        if hephaestus_hit:
+            result_msg += f"- 🔥 **[헤파이스토스] 대박 획득!!**\n"
+            st.session_state.effect_type = "hephaestus"
+
+        st.success(result_msg)
+        if hephaestus_hit:
+            st.rerun()
+
+# 4. 개발자 기부 탭 (신규)
 with tabs[3]:
+    st.subheader("🕊️ 개발자 기부 시스템")
+    
+    total_d = st.session_state.get("total_donated", 0.0)
+    
+    # 현재 기부금에 따른 확률 계산
+    if total_d >= 30000000.0:
+        current_angel_prob = 1.0  # 1%
+        prob_tier_str = "1.0% (3천만 코인 달성 보너스!)"
+    elif total_d >= 5000000.0:
+        current_angel_prob = 0.1  # 0.1%
+        prob_tier_str = "0.1% (5백만 코인 달성 보너스!)"
+    else:
+        current_angel_prob = 0.01  # 0.01%
+        prob_tier_str = "0.01% (기본 확률)"
+
+    st.info(f"💡 개발자에게 1회 **10,000 코인**을 기부할 수 있습니다.\n- 현재 누적 기부금: **{total_d:,.0f} 코인**\n- 현재 [수호천사] 획득 확률: **{prob_tier_str}**")
+
+    if st.button("💖 개발자에게 10,000 코인 기부하기", type="primary"):
+        if st.session_state.coins >= 10000.0:
+            st.session_state.coins -= 10000.0
+            st.session_state.total_donated += 10000.0
+            
+            # 수호천사 확률 판정 (0 ~ 100)
+            roll_v = random.random() * 100
+            if roll_v < current_angel_prob:
+                st.session_state.inventory["수호천사"] += 1
+                st.session_state.unlocked["수호천사"] = True
+                st.session_state.effect_type = "angel"
+                st.rerun()
+            else:
+                st.warning("💸 10,000 코인을 기부했습니다! (아쉽게도 이번 기부는 꽝입니다! 다음 기회를 노려보세요!)")
+        else:
+            st.error("❌ 보유 코인이 부족합니다! (필요: 10,000 코인)")
+
+# 5. 배낭 탭
+with tabs[4]:
     st.subheader("🎒 배낭")
     dice_c = st.session_state.special_inventory.get("행운의 주사위", 0)
     if st.button(f"🎲 주사위 사용 (보유: {dice_c}개)", disabled=(dice_c == 0)):
@@ -639,10 +730,11 @@ with tabs[3]:
             st.success(f"{name} {use_qty}장 적용!")
             st.rerun()
 
-# 5. 도감 탭
-with tabs[4]:
+# 6. 도감 탭
+with tabs[5]:
     st.subheader("📕 도감")
     mapping_cutscene = {
+        "수호천사": "angel",
         "헤파이스토스": "hephaestus",
         "중력": "gravity",
         "블랙홀": "blackhole",
@@ -659,7 +751,13 @@ with tabs[4]:
         unlocked = st.session_state.unlocked[t_name]
         disp = get_base_name(t_name)
         price = SELL_PRICES[t_name] if unlocked else "???"
-        prob_str = f"{prob*100:.11f}%" if prob > 0 else "대장간 전용"
+        
+        if t_name == "수호천사":
+            prob_str = "기부 전용 (누적 기부금 연동)"
+        elif prob > 0:
+            prob_str = f"{prob*100:.11f}%"
+        else:
+            prob_str = "대장간 전용"
 
         c1, c2 = st.columns([3.2, 1.0])
         with c1:
@@ -690,8 +788,8 @@ with tabs[4]:
 
         st.markdown("<hr style='margin: 4px 0px; border-color: rgba(255,255,255,0.08);'>", unsafe_allow_html=True)
 
-# 6. 통계 탭
-with tabs[5]:
+# 7. 통계 탭
+with tabs[6]:
     st.subheader("📊 통계")
     if st.session_state.history:
         cols = st.columns(4)
@@ -722,14 +820,15 @@ with tabs[5]:
     else:
         st.write("기록 없음")
 
-# 7. 세이브 탭
-with tabs[6]:
+# 8. 세이브 탭
+with tabs[7]:
     st.subheader("💾 세이브 / 로드")
     data = json.dumps(
         {
             k: st.session_state[k]
             for k in [
                 "coins",
+                "total_donated",
                 "history",
                 "stats",
                 "inventory",
