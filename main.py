@@ -42,13 +42,30 @@ st.markdown(
     }
     .smith-popup { color: #FFD700; text-shadow: 0px 0px 30px #FF4500; font-size: 38px; }
     .falling-apple { font-size: 100px; animation: appleFall 2.0s ease-in forwards; }
+    
+    /* 도감 UI 사이즈 압축 스타일 */
+    .pokedex-item {
+        padding: 6px 12px;
+        margin-bottom: 4px;
+        border-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .pokedex-title {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    .pokedex-sub {
+        font-size: 12px;
+        color: #888;
+    }
     </style>
 """,
     unsafe_allow_html=True,
 )
 
 TIERS = [
-    ("헤파이스토스", 0.0, "#FF8C00"),  # 대장간 전용 특수 등급 (일반 뽑기 제외)
+    ("헤파이스토스", 0.0, "#FF8C00"),
     ("중력", 0.0000000000005, "#FF4500"),
     ("블랙홀", 0.0000000000015, "#AA00FF"),
     ("시간의 지배자", 0.0000000000080, "#FFD700"),
@@ -113,7 +130,6 @@ def check_mutation():
 
 
 def gacha_roll(multiplier=1.0):
-    # 헤파이스토스는 일반 뽑기 확률에서 제외
     normal_tiers = [t for t in TIERS if t[0] != "헤파이스토스"]
     base_dict = {name: prob for name, prob, color in normal_tiers}
     color_dict = {name: color for name, prob, color in normal_tiers}
@@ -537,11 +553,10 @@ with tabs[1]:
 # 3. 대장간 탭 (합성)
 with tabs[2]:
     st.subheader("🛠️ 불꽃의 대장간 (합성 시스템)")
-    st.info("비밀 등급 이상 아이템 3개를 소모하여 상위 등급이나 대장간 신을 영접하세요!\n- 승급: 19.9% | 실패(소멸): 50% | 무효(유지): 30% | 헤파이스토스: 0.1%")
+    hephaestus_name = get_base_name("헤파이스토스")
+    st.info(f"비밀 등급 이상 아이템 3개를 소모하여 상위 등급이나 대장간 신을 영접하세요!\n- 승급: 19.9% | 실패(소멸): 50% | 무효(유지): 30% | {hephaestus_name}: 0.1%")
 
-    # 비밀 등급 이상만 선택 가능하도록 필터링
     secret_and_above = [t[0] for t in TIERS if t[0] != "헤파이스토스"]
-    # 인덱스상 비밀("비밀") 이상인 항목 추출
     secret_idx = secret_and_above.index("비밀")
     forge_targets = secret_and_above[: secret_idx + 1]
 
@@ -557,7 +572,7 @@ with tabs[2]:
     if st.button("🔥 대장간 재련 시작", type="primary", disabled=(owned_count < 3)):
         st.session_state.inventory[selected_forge_item] -= 3
         
-        roll_val = random.random() * 100  # 0 ~ 100
+        roll_val = random.random() * 100
         if roll_val < 0.1:  # 0.1% 대박
             st.session_state.inventory["헤파이스토스"] += 1
             st.session_state.unlocked["헤파이스토스"] = True
@@ -571,14 +586,13 @@ with tabs[2]:
                 st.session_state.unlocked[upper_item] = True
                 st.success(f"✨ 대성공! 윗 등급인 **{get_base_name(upper_item)}**(을)를 획득했습니다!")
             else:
-                # 이미 최고 단계인 경우 헤파이스토스로 지급
                 st.session_state.inventory["헤파이스토스"] += 1
                 st.session_state.unlocked["헤파이스토스"] = True
                 st.session_state.effect_type = "hephaestus"
                 st.rerun()
-        elif roll_val < 50.0 + 19.9 + 0.1:  # 50% 실패 (소멸 - 이미 위에서 3개 차감됨)
+        elif roll_val < 50.0 + 19.9 + 0.1:  # 50% 실패
             st.error("💥 재련 실패... 뜨거운 불꽃 속에서 재료 아이템이 흔적도 없이 사라졌습니다!")
-        else:  # 30% 무효 (아이템 복구)
+        else:  # 30% 무효
             st.session_state.inventory[selected_forge_item] += 3
             st.warning("🛡️ 재련 무효! 불안정한 에너지로 인해 소모된 재료가 그대로 반환되었습니다.")
 
@@ -617,7 +631,7 @@ with tabs[3]:
             st.success(f"{name} {use_qty}장 적용!")
             st.rerun()
 
-# 5. 도감 탭
+# 5. 도감 탭 (슬림/컴팩트 사이즈 적용)
 with tabs[4]:
     st.subheader("📕 도감")
     mapping_cutscene = {
@@ -639,37 +653,35 @@ with tabs[4]:
         price = SELL_PRICES[t_name] if unlocked else "???"
         prob_str = f"{prob*100:.11f}%" if prob > 0 else "대장간 전용"
 
-        col_a, col_b = st.columns([4, 1])
-        with col_a:
+        # 컴팩트 1줄 레이아웃 구성
+        c1, c2 = st.columns([3.2, 1.0])
+        with c1:
             st.markdown(
-                f"### :{color}[{disp}] | 확률: `{prob_str}` | 가격: `{price}`"
+                f"<div class='pokedex-title'>:<span style='color:{color}'>{disp}</span> | 확률: <code>{prob_str}</code> | 가격: <code>{price}</code></div>",
+                unsafe_allow_html=True,
             )
             if unlocked:
                 m_dict = st.session_state.mutation_unlocked.get(t_name, {})
-                g_unlocked = (
-                    "🪙 골드 (해금)" if m_dict.get("골드") else "🪙 골드 (미발견)"
-                )
-                d_unlocked = (
-                    "💎 다이아 (해금)"
-                    if m_dict.get("다이아")
-                    else "💎 다이아 (미발견)"
-                )
-                p_unlocked = (
-                    "☣️ 오염 (해금)" if m_dict.get("오염") else "☣️ 오염 (미발견)"
-                )
-                st.caption(
-                    f"돌연변이 현황: {g_unlocked} | {d_unlocked} | {p_unlocked}"
+                g_u = "🪙골드(O)" if m_dict.get("골드") else "🪙골드(X)"
+                d_u = "💎다이아(O)" if m_dict.get("다이아") else "💎다이아(X)"
+                p_u = "☣️오염(O)" if m_dict.get("오염") else "☣️오염(X)"
+                st.markdown(
+                    f"<div class='pokedex-sub'>돌연변이: {g_u} | {d_u} | {p_u}</div>",
+                    unsafe_allow_html=True,
                 )
             else:
-                st.caption("돌연변이 현황: 🔒 미해금")
+                st.markdown(
+                    "<div class='pokedex-sub'>돌연변이: 🔒 미해금</div>",
+                    unsafe_allow_html=True,
+                )
 
-        with col_b:
+        with c2:
             if unlocked and t_name in mapping_cutscene:
-                if st.button("▶ 다시보기", key=f"preview_{t_name}"):
+                if st.button("▶ 다시보기", key=f"preview_{t_name}", use_container_width=True):
                     st.session_state.effect_type = mapping_cutscene[t_name]
                     st.rerun()
 
-        st.divider()
+        st.markdown("<hr style='margin: 4px 0px; border-color: rgba(255,255,255,0.08);'>", unsafe_allow_html=True)
 
 # 6. 통계 탭
 with tabs[5]:
