@@ -130,6 +130,7 @@ defaults = {
     "special_inventory": {"행운의 주사위": 0, "할로윈 뽑기권": 0, "만배 행운권": 0, "십만배 행운권": 0, "백만배 행운권": 0, "천만배 행운권": 0, "100연차 기능권": 0, "500연차 기능권": 0, "1000연차 기능권": 0, "3000연차 기능권": 0, "10000연차 기능권": 0},
     "has_100_roll": False, "has_500_roll": False, "has_1000_roll": False, "has_3000_roll": False, "has_10000_roll": False,
     "active_multiplier": 1.0, "active_multiplier_count": 0, "balloons_shown": False, "effect_type": None,
+    "pending_mutation_info": None,
     "skip_cutscenes_map": {t: False for t in HIGH_TIERS if t not in ["수호천사", "대천사"]}
 }
 for k, v in defaults.items():
@@ -138,6 +139,9 @@ for k, v in defaults.items():
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
+    mut_info = st.session_state.get("pending_mutation_info", "")
+    st.session_state["pending_mutation_info"] = None
+
     effects_map = {
         "ending": ('ending-fade', '<div class="popup-text">✨ 플레이해주셔서 감사합니다! ✨</div>'),
         "archangel_phase1": ('purple-hold-fade', '<div class="popup-text">🕊️ 하늘의 문이 열립니다!<br>[수호천사] 강림!!</div>'),
@@ -153,6 +157,9 @@ if eff:
         "vampire": ('vampire-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">🧛 붉은 피의 물결과 날카로운 이빨!<br>[뱀파이어] 강림!!</div></div>'),
         "jiangshi": ('jiangshi-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">🧟‍♂️ 쿵쿵! 화면이 밀려났다 돌아온다!<br>[강시] 출현!!</div></div>'),
         "frankestein": ('frank-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">⚡ 번개와 유령들이 뒤덮는 공포!<br>[프랑켄슈타인] 강림!!</div></div>'),
+        "pollution": ('purple-hold-fade', f'<div class="popup-text">☣️ [오염 돌연변이] 발현!!<br><span style="font-size:24px; color:#00FF00;">{mut_info}</span></div>'),
+        "gold": ('purple-hold-fade', f'<div class="popup-text">🪙 [골드 돌연변이] 발현!!<br><span style="font-size:24px; color:#FFD700;">{mut_info}</span></div>'),
+        "diamond": ('purple-hold-fade', f'<div class="popup-text">💎 [다이아 돌연변이] 발현!!<br><span style="font-size:24px; color:#1E90FF;">{mut_info}</span></div>'),
         "angel": ('purple-hold-fade', '<div class="popup-text">🕊️ [수호천사] 강림!!</div>'),
         "hephaestus": ('purple-hold-fade', '<div class="popup-text">🔥 대장간의 신 강림!<br>[헤파이스토스] 득템!!</div>'),
         "gravity": ('purple-hold-fade', '<div class="popup-text">🍎 중력장 붕괴!<br>[중력] 등급 획득!!</div>'),
@@ -164,9 +171,6 @@ if eff:
         "holy": ('purple-hold-fade', '<div class="popup-text">✨ [신성한] 등급 강림!</div>'),
         "secret": ('purple-hold-fade', '<div class="popup-text">💖 [비밀] 등급 획득!</div>'),
         "dokebi": ('purple-hold-fade', '<div class="popup-text">👹 [도깨비] 출현!</div>'),
-        "pollution": ('purple-hold-fade', '<div class="popup-text">☣️ [오염 돌연변이] 발현!!</div>'),
-        "gold": ('purple-hold-fade', '<div class="popup-text">🪙 [골드 돌연변이] 발현!!</div>'),
-        "diamond": ('purple-hold-fade', '<div class="popup-text">💎 [다이아 돌연변이] 발현!!</div>'),
     }
     if eff in effects_map:
         cls, html = effects_map[eff]
@@ -248,17 +252,23 @@ with tabs[0]:
             name, color, mut = gacha_roll(mult)
             st.session_state.history.append((name, mut))
             st.session_state.stats[name] += 1; st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
-            if mut: st.session_state.mutation_stats[mut] += 1; st.session_state.mutation_unlocked[name][mut] = True
             
+            mut_map = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}
+            if mut:
+                st.session_state.mutation_stats[mut] += 1
+                st.session_state.mutation_unlocked[name][mut] = True
+                if name in HIGH_TIERS and mut in mut_map:
+                    st.session_state.pending_mutation_info = f"당첨 아이템: {get_base_name(name)}"
+                    st.session_state.effect_type = mut_map[mut]
+                    st.rerun()
+
             mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
             if name in mapping and not st.session_state.skip_cutscenes_map.get(name, False):
                 st.session_state.effect_type = mapping[name]; st.rerun()
-            elif mut and name in HIGH_TIERS:
-                st.session_state.effect_type = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}[mut]; st.rerun()
             st.success(f"🎉 당첨: **:{color}[{get_display_name(name, mut)}]**")
     with c2:
         if st.button("🚀 10연차!", use_container_width=True):
-            highest, mut_hit = None, None
+            highest, mut_hit, mut_item_name = None, None, None
             for _ in range(10):
                 mult = st.session_state.active_multiplier if st.session_state.active_multiplier_count > 0 else 1.0
                 if mult > 1.0:
@@ -267,13 +277,23 @@ with tabs[0]:
                 name, _, mut = gacha_roll(mult)
                 st.session_state.history.append((name, mut))
                 st.session_state.stats[name] += 1; st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
-                if mut: st.session_state.mutation_stats[mut] += 1; st.session_state.mutation_unlocked[name][mut] = True; mut_hit = mut
+                if mut:
+                    st.session_state.mutation_stats[mut] += 1
+                    st.session_state.mutation_unlocked[name][mut] = True
+                    if name in HIGH_TIERS:
+                        mut_hit = mut
+                        mut_item_name = name
                 if name in HIGH_TIERS: highest = name
+
             mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
+            mut_map = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}
+
             if highest and not st.session_state.skip_cutscenes_map.get(highest, False):
                 st.session_state.effect_type = mapping[highest]; st.rerun()
-            elif mut_hit:
-                st.session_state.effect_type = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}[mut_hit]; st.rerun()
+            elif mut_hit and mut_hit in mut_map:
+                st.session_state.pending_mutation_info = f"당첨 아이템: {get_base_name(mut_item_name)}"
+                st.session_state.effect_type = mut_map[mut_hit]
+                st.rerun()
             st.success("✨ 10연차 완료!")
 
 # 2. 할로윈 탭
@@ -489,6 +509,7 @@ with tabs[5]:
             disabled=(cnt < use_qty),
             key=f"use_{name}",
         ):
+            st.session_state.special_inventory[name] -= yn = use_qty
             st.session_state.special_inventory[name] -= use_qty
             if st.session_state.active_multiplier == mult:
                 st.session_state.active_multiplier_count += use_qty
@@ -540,4 +561,4 @@ with tabs[9]:
     if st.text_input("비밀번호", type="password") == "090925":
         add = st.number_input("지급 코인", value=10000.0, step=1000.0)
         if st.button("💰 지급 받기", type="primary"):
-            st.session_state.coins += add; st.success("지급 완료!"); st.rerun()
+            st.session_state.coins += add; st.success(f"🎉 성공적으로 {format_currency(add)} 코인이 지급되었습니다!"); st.rerun()
