@@ -25,14 +25,18 @@ st.markdown(
     @keyframes gravityCollapse { 0% { background-color: rgba(139,0,0,0); transform: scale(1) rotate(0deg); } 20% { background-color: rgba(139,0,0,0.85); transform: scale(1.1) rotate(5deg); } 40% { background-color: rgba(255,69,0,0.9); transform: scale(0.95) rotate(-5deg) skewX(10deg); } 70% { background-color: rgba(75,0,130,0.95); transform: scale(1.05) rotate(3deg) skewX(-10deg); } 100% { background-color: rgba(0,0,0,0.98); transform: scale(1) rotate(0deg); } }
     @keyframes blackholeUniverse { 0% { background-color: rgba(255,255,255,1); transform: scale(0.2); border-radius: 50%; } 30% { background-color: rgba(0,0,0,1); transform: scale(1.0); border-radius: 0%; } 60% { background: radial-gradient(circle, #110033 0%, #000000 100%); transform: scale(1.0); box-shadow: inset 0 0 100px #9400D3; } 100% { background: radial-gradient(circle, #220044 0%, #000000 100%); transform: scale(1.0); } }
     @keyframes galaxyAbsorbPulse { 0% { background: radial-gradient(circle, #000000 0%, #0a001a 100%); transform: scale(1); } 25% { background: radial-gradient(circle, #4b0082 10%, #000000 90%); transform: scale(0.3); } 50% { background: radial-gradient(circle, #8a2be2 80%, #000000 100%); transform: scale(1.4); } 75% { background: radial-gradient(circle, #000000 5%, #191970 95%); transform: scale(0.4); } 100% { background: radial-gradient(circle, #050014 0%, #000000 100%); transform: scale(1); } }
-    @keyframes halloweenGlow { 0% { background-color: rgba(0,0,0,0); } 30% { background-color: rgba(255,140,0,0.9); } 70% { background-color: rgba(75,0,130,0.95); } 100% { background-color: rgba(0,0,0,0.98); } }
+    @keyframes pumpkinKingAnim { 0% { background-color: rgba(0,0,0,0.95); } 30% { background: radial-gradient(circle at 50% 20%, #FFD700 0%, #0a0014 80%); } 60% { background: radial-gradient(circle at 50% 50%, #FF8C00 10%, #000000 90%); } 100% { background-color: rgba(10,0,20,0.98); } }
+    @keyframes moonDrop { 0% { transform: translateY(-200px) scale(0.5); opacity: 0; } 50% { transform: translateY(0px) scale(1.2); opacity: 1; } 100% { transform: translateY(0px) scale(1.0); opacity: 1; } }
+    @keyframes pumpkinPop { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 70% { transform: scale(1.4) rotate(10deg); opacity: 1; } 100% { transform: scale(1.0) rotate(0deg); opacity: 1; } }
+    @keyframes ghostSurprise { 0% { background-color: #000; opacity: 0; } 60% { background-color: #000; opacity: 0; } 61% { background-color: #1a0033; opacity: 1; } 100% { background-color: rgba(0,0,0,0.95); opacity: 1; } }
+    @keyframes ghostPop { 0%, 60% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(1.0); opacity: 1; } }
     @keyframes riftSpinGreen { 0% { transform: translate(0, 0) rotate(0deg) scale(1); background-color: rgba(0,0,0,0); } 20% { transform: translate(-12px, 12px) rotate(90deg) scale(1.05); background-color: rgba(0,100,0,0.4); } 40% { transform: translate(12px, -12px) rotate(270deg) scale(0.95); background-color: rgba(0,200,0,0.7); } 70% { transform: translate(-8px, 8px) rotate(540deg) scale(1.1); background-color: rgba(0,255,0,0.95); border-radius: 0%; } 100% { transform: translate(0, 0) rotate(720deg) scale(1); background-color: rgba(0,255,0,1); border-radius: 0%; } }
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes appleRain { 0% { transform: translateY(-400px) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(300px) scale(1.2); opacity: 0.9; } }
     @keyframes endingFade { 0%, 100% { opacity: 0; background-color: rgba(0,0,0,0); } 50% { opacity: 1; background-color: #000; } }
 
-    .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; justify-content: center; align-items: center; pointer-events: auto; user-select: none; }
+    .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; user-select: none; }
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
     .holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
     .green-fade { animation: greenFlash 2.5s ease-in-out forwards; }
@@ -45,13 +49,14 @@ st.markdown(
     .gravity-collapse-fade { animation: gravityCollapse 10.0s ease-in-out forwards; }
     .blackhole-universe-fade { animation: blackholeUniverse 10.0s ease-in-out forwards; }
     .galaxy-pulse-fade { animation: galaxyAbsorbPulse 6.0s ease-in-out infinite; }
-    .halloween-fade { animation: halloweenGlow 5.0s ease-in-out forwards; }
+    .pumpkin-king-fade { animation: pumpkinKingAnim 6.0s ease-in-out forwards; }
+    .ghost-fade { animation: ghostSurprise 5.0s ease-in-out forwards; }
     .rift-spin-green-fade { animation: riftSpinGreen 5.0s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
     .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .galaxy-popup, .halloween-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .galaxy-popup, .pumpkin-king-popup, .ghost-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup, .ending-text {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
     .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
@@ -64,8 +69,13 @@ st.markdown(
     .gravity-collapse-popup { color: #FF4500; text-shadow: 0px 0px 40px #FF0000; font-size: 42px; }
     .blackhole-universe-popup { color: #DA70D6; text-shadow: 0px 0px 50px #9400D3; font-size: 42px; }
     .galaxy-popup { color: #8A2BE2; text-shadow: 0px 0px 60px #4B0082; font-size: 44px; }
-    .halloween-popup { color: #FF8C00; text-shadow: 0px 0px 50px #4B0082; font-size: 42px; }
+    .pumpkin-king-popup { color: #FF8C00; text-shadow: 0px 0px 50px #FF4500; font-size: 40px; animation: pumpkinPop 1.2s ease-out forwards; }
+    .ghost-popup { color: #E0FFFF; text-shadow: 0px 0px 50px #9400D3; font-size: 42px; animation: ghostPop 2.0s ease-out forwards; }
     .rift-spin-green-popup { color: #FFFFFF; text-shadow: 0px 0px 40px #00FF00; font-size: 42px; }
+    
+    .moon-icon { font-size: 100px; animation: moonDrop 2.0s ease-out forwards; margin-bottom: 20px; }
+    .pumpkin-icon { font-size: 130px; animation: pumpkinPop 1.5s ease-out forwards; margin-bottom: 20px; }
+    .ghost-icon { font-size: 150px; animation: ghostPop 2.0s ease-out forwards; margin-bottom: 20px; }
     
     .rain-apple-1 { position: absolute; left: 15%; font-size: 90px; animation: appleRain 1.5s ease-in infinite; }
     .rain-apple-2 { position: absolute; left: 35%; font-size: 110px; animation: appleRain 1.2s ease-in infinite 0.3s; }
@@ -122,11 +132,12 @@ TIERS = [
     ("일반", 0.8999899890845, "#A9A9A9"),
 ]
 
+# 할로윈 등급 확률 조정 (호박왕: 0.000001%, 유령: 0.0001%)
 HALLOWEEN_TIERS = [
     ("호박왕", 0.000001, "#FF8C00"),
-    ("유령", 0.001, "#E0FFFF"),
+    ("유령", 0.0001, "#E0FFFF"),
     ("사탕", 0.1, "#FF69B4"),
-    ("박쥐", 99.898999, "#8A2BE2"),
+    ("박쥐", 99.899899, "#8A2BE2"),
 ]
 
 HALLOWEEN_PRICES = {
@@ -172,6 +183,7 @@ HIGH_TIERS = [
     "도깨비",
     "비밀",
     "호박왕",
+    "유령",
 ]
 TICKET_DEFS = [
     ("만배 행운권", 10000.0, 100),
@@ -213,7 +225,7 @@ def gacha_roll(multiplier=1.0):
     if multiplier > 1.0:
         total_high_prob = 0.0
         for name in HIGH_TIERS:
-            if name in ["헤파이스토스", "수호천사", "대천사", "호박왕"]:
+            if name in ["헤파이스토스", "수호천사", "대천사", "호박왕", "유령"]:
                 continue
             orig = base_dict.get(name, 0.0)
             boosted = orig * multiplier
@@ -258,7 +270,7 @@ defaults = {
     "inventory": {t[0]: 0 for t in TIERS + HALLOWEEN_TIERS},
     "mutation_stats": {"골드": 0, "다이아": 0, "오염": 0},
     "unlocked": {
-        t[0]: t[0] in ["일반", "희귀", "영웅", "전설"] for t in TIERS + HALLOWEEN_TIERS
+        t[0]: t[0] in ["일반", "희귀", "영웅", "전설", "사탕", "박쥐"] for t in TIERS + HALLOWEEN_TIERS
     },
     "mutation_unlocked": {
         t[0]: {"골드": False, "다이아": False, "오염": False} for t in TIERS + HALLOWEEN_TIERS
@@ -311,7 +323,7 @@ for sp_key, sp_val in defaults["special_inventory"].items():
 if len(st.session_state.history) > 1000:
     st.session_state.history = st.session_state.history[-1000:]
 
-# 컷씬 오버레이 제어
+# 컷씬 오버레이 제어 (호박왕 및 유령 전용 컷씬 추가)
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -321,7 +333,8 @@ if eff:
         "archangel_phase2": '<div class="effect-overlay archangel-fade"><div class="archangel-popup">🕊️✨ 천상의 문이 열리고... ✨🕊️<br>🌀 찬란한 천사링 전개 🌀<br>[대천사] 강림!!</div></div>',
         "galaxy_phase1": '<div class="effect-overlay blackhole-universe-fade"><div class="blackhole-universe-popup">🕳️ 사건의 지평선 붕괴 🕳️<br>✨ 차원 너머의 공허가 태동합니다... ✨</div></div>',
         "galaxy_phase2": '<div class="effect-overlay galaxy-pulse-fade"><div class="galaxy-popup">🌌 공허의 시공간 맥동! 🌌<br>✨ 차원 흡수 및 폭발적 방출 ✨<br>[은하] 강림!!</div></div>',
-        "pumpkin_king": '<div class="effect-overlay halloween-fade"><div class="halloween-popup">🎃 할로윈 밤의 지배자! 🎃<br>🦇 유령과 호박의 대행진 🦇<br>[호박왕] 강림!!</div></div>',
+        "pumpkin_king": '<div class="effect-overlay pumpkin-king-fade"><div class="moon-icon">🌕</div><div class="pumpkin-icon">🎃</div><div class="pumpkin-king-popup">🎃 어두운 밤하늘, 집 위로 달이 내려앉고... 🎃<br>🌕 거대한 호박왕 강림!! 🌕</div></div>',
+        "ghost": '<div class="effect-overlay ghost-fade"><div class="ghost-icon">👻</div><div class="ghost-popup">👻 ...스스스 ...👻<br>💥 기괴한 유령 출현!! 💥</div></div>',
         "angel": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "hephaestus": '<div class="effect-overlay smith-fade"><div class="smith-popup">🔥 대장간의 신 스파크 폭발! 🔥<br>🏛️ 그리스 아테네 신전 강림 🏛️<br>[헤파이스토스] 득템!!</div></div>',
         "gravity": '<div class="effect-overlay gravity-collapse-fade"><div class="gravity-collapse-popup">🍎 중력장 붕괴! 🍎<br>사과 폭풍우 강림!!<br>[중력] 등급 획득!!</div><div class="rain-apple-1">🍎</div><div class="rain-apple-2">🍎</div><div class="rain-apple-3">🍎</div><div class="rain-apple-4">🍎</div></div>',
@@ -346,7 +359,7 @@ if eff:
             time.sleep(4.0)
             st.session_state.effect_type = "galaxy_phase2"
         else:
-            time.sleep(5.0 if eff in ["hephaestus", "angel", "archangel_phase2", "galaxy_phase2", "pumpkin_king", "time_ruler", "gravity", "blackhole"] else (5.0 if eff == "rift" else (2.0 if eff != "abyss" else 6.0)))
+            time.sleep(5.0 if eff in ["hephaestus", "angel", "archangel_phase2", "galaxy_phase2", "pumpkin_king", "ghost", "time_ruler", "gravity", "blackhole"] else (5.0 if eff == "rift" else (2.0 if eff != "abyss" else 6.0)))
         st.rerun()
 
 
@@ -432,7 +445,7 @@ def execute_rolls(count):
 
 
 def execute_halloween_rolls(count):
-    has_pumpkin = False
+    hit_cutscene = None
     for _ in range(count):
         st.session_state.special_inventory["할로윈 뽑기권"] -= 1
         name, _ = halloween_roll()
@@ -440,9 +453,13 @@ def execute_halloween_rolls(count):
         st.session_state.inventory[name] += 1
         st.session_state.unlocked[name] = True
         st.session_state.history.append((name, None))
+
         if name == "호박왕":
-            has_pumpkin = True
-    return has_pumpkin
+            hit_cutscene = "pumpkin_king"
+        elif name == "유령" and hit_cutscene != "pumpkin_king":
+            hit_cutscene = "ghost"
+
+    return hit_cutscene
 
 
 def check_all():
@@ -629,18 +646,18 @@ with tabs[1]:
     hc1, hc2 = st.columns(2)
     with hc1:
         if st.button("🎃 할로윈 1회 뽑기", use_container_width=True, disabled=(h_tickets < 1)):
-            hit_pumpkin = execute_halloween_rolls(1)
-            if hit_pumpkin and not st.session_state.skip_cutscenes_map.get("호박왕", False):
-                st.session_state.effect_type = "pumpkin_king"
+            cutscene = execute_halloween_rolls(1)
+            if cutscene and not st.session_state.skip_cutscenes_map.get("호박왕" if cutscene == "pumpkin_king" else "유령", False):
+                st.session_state.effect_type = cutscene
                 st.rerun()
             st.success("🎉 할로윈 1회 뽑기 완료!")
             st.rerun()
 
     with hc2:
         if st.button("🚀 할로윈 10연차!", use_container_width=True, disabled=(h_tickets < 10)):
-            hit_pumpkin = execute_halloween_rolls(10)
-            if hit_pumpkin and not st.session_state.skip_cutscenes_map.get("호박왕", False):
-                st.session_state.effect_type = "pumpkin_king"
+            cutscene = execute_halloween_rolls(10)
+            if cutscene and not st.session_state.skip_cutscenes_map.get("호박왕" if cutscene == "pumpkin_king" else "유령", False):
+                st.session_state.effect_type = cutscene
                 st.rerun()
             st.success("✨ 할로윈 10연차 완료!")
             st.rerun()
@@ -651,9 +668,9 @@ with tabs[1]:
     for idx, b_cnt in enumerate(h_bulk_counts):
         with h_cols[idx]:
             if st.button(f"🎃 {format_currency(b_cnt)}연차", use_container_width=True, disabled=(h_tickets < b_cnt)):
-                hit_pumpkin = execute_halloween_rolls(b_cnt)
-                if hit_pumpkin and not st.session_state.skip_cutscenes_map.get("호박왕", False):
-                    st.session_state.effect_type = "pumpkin_king"
+                cutscene = execute_halloween_rolls(b_cnt)
+                if cutscene and not st.session_state.skip_cutscenes_map.get("호박왕" if cutscene == "pumpkin_king" else "유령", False):
+                    st.session_state.effect_type = cutscene
                     st.rerun()
                 st.success(f"🎉 할로윈 {format_currency(b_cnt)}연차 완료!")
                 st.rerun()
@@ -973,6 +990,7 @@ with tabs[6]:
         "도깨비": "dokebi",
         "비밀": "secret",
         "호박왕": "pumpkin_king",
+        "유령": "ghost",
     }
 
     st.markdown("### 🎲 일반 / 특수 등급 도감")
@@ -1022,7 +1040,7 @@ with tabs[6]:
         unlocked = st.session_state.unlocked.get(t_name, False)
         disp = get_base_name(t_name)
         price = format_currency(HALLOWEEN_PRICES[t_name]) if unlocked else "???"
-        prob_str = f"{prob}%"
+        prob_str = f"{prob:.6f}%" if prob < 0.01 else f"{prob}%"
 
         c1, c2 = st.columns([3.2, 1.0])
         with c1:
@@ -1042,7 +1060,7 @@ with tabs[7]:
     st.subheader("📊 통계")
     if st.session_state.history:
         cols = st.columns(4)
-        for idx, t in enumerate(HIGH_TIERS + ["전설", "영웅", "희귀", "일반", "유령", "사탕", "박쥐"]):
+        for idx, t in enumerate(HIGH_TIERS + ["전설", "영웅", "희귀", "일반", "사탕", "박쥐"]):
             cols[idx % 4].metric(
                 get_base_name(t), f"{format_currency(st.session_state.stats.get(t, 0))}회"
             )
