@@ -127,7 +127,7 @@ defaults = {
 for k, v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
 
-# 컷씬 처리 (화면 터치 불가 기능 유지)
+# 컷씬 처리
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -207,9 +207,13 @@ if st.session_state.active_multiplier_count > 0:
     st.info(f"🎟️ **[{int(st.session_state.active_multiplier):,}배 행운 버프] 활성화 중!** (남은 횟수: {st.session_state.active_multiplier_count}회)")
 
 with st.expander("⚙️ 설정 (컷씬 스킵)"):
-    for t in HIGH_TIERS:
+    for idx, t in enumerate(HIGH_TIERS):
         if t in ["수호천사", "대천사"]: continue
-        st.session_state.skip_cutscenes_map[t] = st.checkbox(f"{get_base_name(t)} 스킵", value=st.session_state.skip_cutscenes_map[t])
+        st.session_state.skip_cutscenes_map[t] = st.checkbox(
+            f"{get_base_name(t)} 스킵", 
+            value=st.session_state.skip_cutscenes_map[t],
+            key=f"skip_setting_{t}_{idx}"
+        )
 
 st.divider()
 tabs = st.tabs(["🎰 뽑기", "🎃 할로윈", "🏪 상점", "🛠️ 대장간", "🎁 기부", "🎒 배낭", "📕 도감", "📊 통계", "💾 세이브", "🔑 개발자"])
@@ -269,7 +273,7 @@ with tabs[1]:
 # 3. 상점 탭
 with tabs[2]:
     st.subheader("💵 판매소 및 Special 상점")
-    sell_sel = {t[0]: st.checkbox(f"{get_base_name(t[0])} ({format_currency(st.session_state.inventory.get(t[0], 0))}개)") for t in ALL_TIERS}
+    sell_sel = {t[0]: st.checkbox(f"{get_base_name(t[0])} ({format_currency(st.session_state.inventory.get(t[0], 0))}개)", key=f"sell_check_{t[0]}") for t in ALL_TIERS}
     if st.button("💰 선택 아이템 판매", type="primary"):
         earned = sum(st.session_state.inventory[t] * SELL_PRICES[t] for t, sel in sell_sel.items() if sel)
         for t, sel in sell_sel.items():
