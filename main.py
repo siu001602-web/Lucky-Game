@@ -132,7 +132,6 @@ TIERS = [
     ("일반", 0.8999899890845, "#A9A9A9"),
 ]
 
-# 할로윈 등급 확률 조정 (호박왕: 0.000001%, 유령: 0.0001%)
 HALLOWEEN_TIERS = [
     ("호박왕", 0.000001, "#FF8C00"),
     ("유령", 0.0001, "#E0FFFF"),
@@ -185,6 +184,7 @@ HIGH_TIERS = [
     "호박왕",
     "유령",
 ]
+
 TICKET_DEFS = [
     ("만배 행운권", 10000.0, 100),
     ("십만배 행운권", 100000.0, 1000),
@@ -323,7 +323,6 @@ for sp_key, sp_val in defaults["special_inventory"].items():
 if len(st.session_state.history) > 1000:
     st.session_state.history = st.session_state.history[-1000:]
 
-# 컷씬 오버레이 제어 (호박왕 및 유령 전용 컷씬 추가)
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -449,15 +448,19 @@ def execute_halloween_rolls(count):
     for _ in range(count):
         st.session_state.special_inventory["할로윈 뽑기권"] -= 1
         name, _ = halloween_roll()
+        
+        is_first_time = not st.session_state.unlocked.get(name, False)
+        
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
         st.session_state.unlocked[name] = True
         st.session_state.history.append((name, None))
 
-        if name == "호박왕":
-            hit_cutscene = "pumpkin_king"
-        elif name == "유령" and hit_cutscene != "pumpkin_king":
-            hit_cutscene = "ghost"
+        if is_first_time and not st.session_state.skip_cutscenes_map.get(name, False):
+            if name == "호박왕":
+                hit_cutscene = "pumpkin_king"
+            elif name == "유령" and hit_cutscene != "pumpkin_king":
+                hit_cutscene = "ghost"
 
     return hit_cutscene
 
@@ -466,7 +469,6 @@ def check_all():
     return all(st.session_state.unlocked.get(t[0], False) for t in TIERS)
 
 
-# 상단 UI
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric(label="💰 보유 코인", value=f"{format_currency(st.session_state.coins)} 코인")
 
@@ -504,7 +506,6 @@ tabs = st.tabs(
     ["🎰 뽑기", "🎃 할로윈", "🏪 상점", "🛠️ 대장간", "🎁 개발자 기부", "🎒 배낭", "📕 도감", "📊 통계", "💾 세이브", "🔑 개발자"]
 )
 
-# 1. 일반 뽑기 탭
 with tabs[0]:
     st.subheader("아이템 뽑기")
     c1, c2 = st.columns(2)
@@ -637,7 +638,6 @@ with tabs[0]:
                         st.rerun()
                     st.success(f"🎉 {cnt}연차 완료!")
 
-# 2. 🎃 할로윈 탭
 with tabs[1]:
     st.subheader("🎃 할로윈 한정 뽑기")
     h_tickets = st.session_state.special_inventory.get("할로윈 뽑기권", 0)
@@ -675,7 +675,6 @@ with tabs[1]:
                 st.success(f"🎉 할로윈 {format_currency(b_cnt)}연차 완료!")
                 st.rerun()
 
-# 3. 상점 탭
 with tabs[2]:
     st.subheader("💵 등급별 판매소")
     sell_sel = {}
@@ -765,7 +764,6 @@ with tabs[2]:
                     else:
                         st.error("부족")
 
-# 4. 대장간 탭
 with tabs[3]:
     st.subheader("🛠️ 불꽃의 대장간 (일괄 합성 시스템)")
     hephaestus_name = get_base_name("헤파이스토스")
@@ -870,7 +868,6 @@ with tabs[3]:
                 result_msg += f"- 🛡️ 무효(재료반환): **{format_currency(refund_count)}회**\n"
             st.success(result_msg)
 
-# 5. 개발자 기부 탭
 with tabs[4]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
@@ -937,7 +934,6 @@ with tabs[4]:
                 else:
                     st.error("❌ 보유 코인이 부족합니다!")
 
-# 6. 배낭 탭
 with tabs[5]:
     st.subheader("🎒 배낭")
     dice_c = st.session_state.special_inventory.get("행운의 주사위", 0)
@@ -972,7 +968,6 @@ with tabs[5]:
             st.success(f"{name} {format_currency(use_qty)}장 적용!")
             st.rerun()
 
-# 7. 도감 탭
 with tabs[6]:
     st.subheader("📕 도감")
     mapping_cutscene = {
@@ -1055,7 +1050,6 @@ with tabs[6]:
                     st.rerun()
         st.markdown("<hr style='margin: 4px 0px; border-color: rgba(255,255,255,0.08);'>", unsafe_allow_html=True)
 
-# 8. 통계 탭
 with tabs[7]:
     st.subheader("📊 통계")
     if st.session_state.history:
@@ -1087,7 +1081,6 @@ with tabs[7]:
     else:
         st.write("기록 없음")
 
-# 9. 세이브 탭
 with tabs[8]:
     st.subheader("💾 세이브 / 로드")
     data = json.dumps(
@@ -1124,7 +1117,6 @@ with tabs[8]:
         st.success("완료!")
         st.rerun()
 
-# 10. 개발자 전용 탭 (비밀번호: 090925)
 with tabs[9]:
     st.subheader("🔑 개발자 전용 코인 지급 메뉴")
     pw_input = st.text_input("개발자 비밀번호를 입력하세요", type="password")
