@@ -9,7 +9,6 @@ st.set_page_config(
     layout="centered",
 )
 
-# 애니메이션 CSS
 st.markdown(
     """
     <style>
@@ -128,7 +127,7 @@ defaults = {
     "coins": 0.0,
     "history": [],
     "stats": {t[0]: 0 for t in TIERS},
-    "inventory": {t[0]: 0 for t in TIERS},
+    "inventory": {t: 0 for t, _, _ in TIERS},
     "special_inventory": {
         "행운의 주사위": 0,
         "만배 행운권": 0,
@@ -159,6 +158,11 @@ defaults = {
 for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
+
+# 기존 세션에 inventory 키가 누락된 경우 안전하게 보정
+for t, _, _ in TIERS:
+    if t not in st.session_state.inventory:
+        st.session_state.inventory[t] = 0
 
 # 컷씬 처리
 eff = st.session_state.effect_type
@@ -353,13 +357,13 @@ with tabs[1]:
     for i, (t_name, _, _) in enumerate(TIERS):
         with cols[i % 3]:
             sell_sel[t_name] = st.checkbox(
-                f"{get_display_name(t_name)} ({st.session_state.inventory[t_name]}개)",
+                f"{get_display_name(t_name)} ({st.session_state.inventory.get(t_name, 0)}개)",
                 key=f"sell_{t_name}",
             )
 
     if st.button("💰 선택 아이템 판매", type="primary"):
         earned = sum(
-            st.session_state.inventory[t] * SELL_PRICES[t]
+            st.session_state.inventory.get(t, 0) * SELL_PRICES[t]
             for t, sel in sell_sel.items()
             if sel
         )
@@ -471,7 +475,7 @@ with tabs[4]:
         cols = st.columns(4)
         for idx, t in enumerate(HIGH_TIERS + ["전설", "영웅", "희귀", "일반"]):
             cols[idx % 4].metric(
-                get_display_name(t), f"{st.session_state.stats[t]}회"
+                get_display_name(t), f"{st.session_state.stats.get(t, 0)}회"
             )
         if st.button("🗑️ 초기화"):
             for k in list(st.session_state.keys()):
