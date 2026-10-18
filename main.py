@@ -365,7 +365,7 @@ with tabs[3]:
         else:
             st.warning("재련 실패 또는 무효화되었습니다.")
 
-# 5. 기부 탭 (확률표 및 상세 설명 복구)
+# 5. 기부 탭 (최대 100회 일괄 기부 적용)
 with tabs[4]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
@@ -388,32 +388,55 @@ with tabs[4]:
     - 1회 기부 금액: **10,000 코인**
     - 현재 누적 기부금: **{format_currency(total_d)} 코인**
     
-    📊 **현재 적용 중인 획득 확률표**
+    📊 **현재 적용 중인 획득 확률표 (1회당)**
     - [{get_base_name('수호천사')}]: **{str_angel}**
     - [{get_base_name('대천사')}]: **{str_arch}**
     """)
 
-    if st.button("💖 1만 코인 기부", type="primary", use_container_width=True):
-        if st.session_state.coins >= 10000.0:
-            st.session_state.coins -= 10000.0
-            st.session_state.total_donated += 10000.0
-            
-            if random.random() * 100 < p_arch:
-                st.session_state.inventory["대천사"] += 1
-                st.session_state.unlocked["대천사"] = True
-                st.session_state.effect_type = "archangel_phase1"
-                st.rerun()
-            elif random.random() * 100 < p_angel:
-                st.session_state.inventory["수호천사"] += 1
-                if not st.session_state.unlocked.get("수호천사", False):
-                    st.session_state.unlocked["수호천사"] = True
-                    st.session_state.effect_type = "angel"
-                    st.rerun()
-                st.success(f"🕊️ [{get_base_name('수호천사')}] 획득 완료!")
-            else:
-                st.warning("💸 1만 코인 기부 완료! (아쉽게도 이번엔 천사가 응답하지 않았습니다.)")
-        else:
-            st.error("❌ 보유 코인이 부족합니다!")
+    donation_counts = [1, 10, 100]
+    d_cols = st.columns(len(donation_counts))
+    
+    for idx, d_cnt in enumerate(donation_counts):
+        cost_total = d_cnt * 10000.0
+        with d_cols[idx]:
+            if st.button(f"💖 {d_cnt}회 기부\n({format_currency(cost_total)}코인)", use_container_width=True, type="primary", key=f"donate_btn_{d_cnt}"):
+                if st.session_state.coins >= cost_total:
+                    st.session_state.coins -= cost_total
+                    st.session_state.total_donated += cost_total
+                    
+                    hit_archangel = False
+                    hit_angel = False
+                    angel_count = 0
+                    archangel_count = 0
+
+                    for _ in range(d_cnt):
+                        if random.random() * 100 < p_arch:
+                            st.session_state.inventory["대천사"] += 1
+                            st.session_state.unlocked["대천사"] = True
+                            hit_archangel = True
+                            archangel_count += 1
+                        elif random.random() * 100 < p_angel:
+                            st.session_state.inventory["수호천사"] += 1
+                            st.session_state.unlocked["수호천사"] = True
+                            hit_angel = True
+                            angel_count += 1
+
+                    if hit_archangel:
+                        st.session_state.effect_type = "archangel_phase1"
+                        st.rerun()
+                    elif hit_angel and angel_count == 1 and not st.session_state.unlocked.get("수호천사", False):
+                        st.session_state.effect_type = "angel"
+                        st.rerun()
+                    else:
+                        msg = f"💸 {d_cnt}회 기부 완료! ({format_currency(cost_total)}코인 소모)\n"
+                        if archangel_count > 0 or angel_count > 0:
+                            msg += f"- [{get_base_name('대천사')}]: {archangel_count}회 획득!\n"
+                            msg += f"- [{get_base_name('수호천사')}]: {angel_count}회 획득!\n"
+                            st.success(msg)
+                        else:
+                            st.warning(f"💸 총 {d_cnt}회 기부 완료! (아쉽게도 이번엔 천사가 응답하지 않았습니다.)")
+                else:
+                    st.error("❌ 보유 코인이 부족합니다!")
 
 # 6. 배낭 탭
 with tabs[5]:
