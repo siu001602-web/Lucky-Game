@@ -260,6 +260,7 @@ with st.expander("⚙️ 설정 (컷씬 스킵)"):
         st.session_state.skip_cutscenes_map[t] = st.checkbox(
             f"{get_display_name(t)} 스킵",
             value=st.session_state.skip_cutscenes_map[t],
+            key=f"skip_setting_{t}",
         )
 
 st.divider()
@@ -386,7 +387,7 @@ with tabs[1]:
 
     for name, _, price in TICKET_DEFS:
         cost = price * buy_qty
-        if st.button(f"🎟️ {name} {buy_qty}장 ({cost:,}코인)"):
+        if st.button(f"🎟️ {name} {buy_qty}장 ({cost:,}코인)", key=f"buy_{name}"):
             if st.session_state.coins >= cost:
                 st.session_state.coins -= cost
                 st.session_state.special_inventory[name] += buy_qty
@@ -439,7 +440,9 @@ with tabs[2]:
     for name, mult, _ in TICKET_DEFS:
         cnt = st.session_state.special_inventory[name]
         if st.button(
-            f"🎟️ {name} {use_qty}장 사용 (보유: {cnt}개)", disabled=(cnt < use_qty)
+            f"🎟️ {name} {use_qty}장 사용 (보유: {cnt}개)",
+            disabled=(cnt < use_qty),
+            key=f"use_{name}",
         ):
             st.session_state.special_inventory[name] -= use_qty
             if st.session_state.active_multiplier == mult:
