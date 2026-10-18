@@ -561,27 +561,54 @@ with tabs[2]:
 # 4. 도감 탭
 with tabs[3]:
     st.subheader("📕 도감")
+    mapping_cutscene = {
+        "중력": "gravity",
+        "블랙홀": "blackhole",
+        "시간의 지배자": "rift",
+        "균열자": "rift",
+        "혜성": "comet",
+        "어비스": "abyss",
+        "신성한": "holy",
+        "도깨비": "dokebi",
+        "비밀": "secret",
+    }
+
     for t_name, prob, color in TIERS:
         unlocked = st.session_state.unlocked[t_name]
         disp = get_base_name(t_name)
         price = SELL_PRICES[t_name] if unlocked else "???"
-        st.markdown(
-            f"### :{color}[{disp}] | 확률: `{prob*100:.11f}%` | 가격: `{price}`"
-        )
-        if unlocked:
-            m_dict = st.session_state.mutation_unlocked.get(t_name, {})
-            g_unlocked = "🪙 골드 (해금)" if m_dict.get("골드") else "🪙 골드 (미발견)"
-            d_unlocked = (
-                "💎 다이아 (해금)" if m_dict.get("다이아") else "💎 다이아 (미발견)"
+
+        col_a, col_b = st.columns([4, 1])
+        with col_a:
+            st.markdown(
+                f"### :{color}[{disp}] | 확률: `{prob*100:.11f}%` | 가격: `{price}`"
             )
-            p_unlocked = (
-                "☣️ 오염 (해금)" if m_dict.get("오염") else "☣️ 오염 (미발견)"
-            )
-            st.caption(
-                f"돌연변이 현황: {g_unlocked} | {d_unlocked} | {p_unlocked}"
-            )
-        else:
-            st.caption("돌연변이 현황: 🔒 미해금")
+            if unlocked:
+                m_dict = st.session_state.mutation_unlocked.get(t_name, {})
+                g_unlocked = (
+                    "🪙 골드 (해금)" if m_dict.get("골드") else "🪙 골드 (미발견)"
+                )
+                d_unlocked = (
+                    "💎 다이아 (해금)"
+                    if m_dict.get("다이아")
+                    else "💎 다이아 (미발견)"
+                )
+                p_unlocked = (
+                    "☣️ 오염 (해금)" if m_dict.get("오염") else "☣️ 오염 (미발견)"
+                )
+                st.caption(
+                    f"돌연변이 현황: {g_unlocked} | {d_unlocked} | {p_unlocked}"
+                )
+            else:
+                st.caption("돌연변이 현황: 🔒 미해금")
+
+        with col_b:
+            if unlocked and t_name in mapping_cutscene:
+                if st.button("▶ 다시보기", key=f"preview_{t_name}"):
+                    st.session_state.effect_type = mapping_cutscene[t_name]
+                    st.rerun()
+
+        st.divider()
 
 # 5. 통계 탭
 with tabs[4]:
