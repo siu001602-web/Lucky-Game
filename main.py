@@ -90,6 +90,14 @@ TICKET_DEFS = [
     ("천만배 행운권", 10000000.0, 30000),
 ]
 
+ROLL_DEFS = [
+    ("100연차 기능권", 50000.0, 100),
+    ("500연차 기능권", 250000.0, 500),
+    ("1000연차 기능권", 500000.0, 1000),
+    ("3000연차 기능권", 1500000.0, 3000),
+    ("10000연차 기능권", 5000000.0, 10000),
+]
+
 TIER_CAPS = {
     "비밀": 0.20, "도깨비": 0.18, "신성한": 0.15, "어비스": 0.12, "혜성": 0.08,
     "균열자": 0.05, "시간의 지배자": 0.02, "블랙홀": 0.005, "중력": 0.001, "은하": 0.00001
@@ -200,6 +208,39 @@ def gacha_roll(multiplier=1.0):
         if rand_v <= cum: return name, color, check_mutation()
     return normal[-1][0], normal[-1][2], check_mutation()
 
+def execute_bulk_roll(count):
+    highest, mut_hit, mut_item_name = None, None, None
+    for _ in range(count):
+        mult = st.session_state.active_multiplier if st.session_state.active_multiplier_count > 0 else 1.0
+        if mult > 1.0:
+            st.session_state.active_multiplier_count -= 1
+            if st.session_state.active_multiplier_count == 0: st.session_state.active_multiplier = 1.0
+        name, _, mut = gacha_roll(mult)
+        st.session_state.history.append((name, mut))
+        st.session_state.stats[name] += 1
+        st.session_state.inventory[name] += 1
+        st.session_state.unlocked[name] = True
+        if mut:
+            st.session_state.mutation_stats[mut] += 1
+            st.session_state.mutation_unlocked[name][mut] = True
+            if name in HIGH_TIERS:
+                mut_hit = mut
+                mut_item_name = name
+        if name in HIGH_TIERS: highest = name
+
+    mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
+    mut_map = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}
+
+    if highest and not st.session_state.skip_cutscenes_map.get(highest, False):
+        st.session_state.effect_type = mapping[highest]
+        st.rerun()
+    elif mut_hit and mut_hit in mut_map:
+        st.session_state.pending_mutation_info = f"당첨 아이템: {get_base_name(mut_item_name)}"
+        st.session_state.effect_type = mut_map[mut_hit]
+        st.rerun()
+    else:
+        st.success(f"✨ {count}연차 완료!")
+
 def halloween_roll():
     rand_v = random.random() * 100.0
     cum = 0.0
@@ -268,33 +309,17 @@ with tabs[0]:
             st.success(f"🎉 당첨: **:{color}[{get_display_name(name, mut)}]**")
     with c2:
         if st.button("🚀 10연차!", use_container_width=True):
-            highest, mut_hit, mut_item_name = None, None, None
-            for _ in range(10):
-                mult = st.session_state.active_multiplier if st.session_state.active_multiplier_count > 0 else 1.0
-                if mult > 1.0:
-                    st.session_state.active_multiplier_count -= 1
-                    if st.session_state.active_multiplier_count == 0: st.session_state.active_multiplier = 1.0
-                name, _, mut = gacha_roll(mult)
-                st.session_state.history.append((name, mut))
-                st.session_state.stats[name] += 1; st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
-                if mut:
-                    st.session_state.mutation_stats[mut] += 1
-                    st.session_state.mutation_unlocked[name][mut] = True
-                    if name in HIGH_TIERS:
-                        mut_hit = mut
-                        mut_item_name = name
-                if name in HIGH_TIERS: highest = name
+            execute_bulk_roll(10)
 
-            mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
-            mut_map = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}
-
-            if highest and not st.session_state.skip_cutscenes_map.get(highest, False):
-                st.session_state.effect_type = mapping[highest]; st.rerun()
-            elif mut_hit and mut_hit in mut_map:
-                st.session_state.pending_mutation_info = f"당첨 아이템: {get_base_name(mut_item_name)}"
-                st.session_state.effect_type = mut_map[mut_hit]
-                st.rerun()
-            st.success("✨ 10연차 완료!")
+    st.markdown("---")
+    st.markdown("### ⚡ 활성화된 대규모 연차 버튼")
+    r_cols = st.columns(5)
+    roll_configs = [("100연차", 100, "has_100_roll"), ("500연차", 500, "has_500_roll"), ("1000연차", 1000, "has_1000_roll"), ("3000연차", 3000, "has_3000_roll"), ("10000연차", 10000, "has_10000_roll")]
+    for idx, (label, count, flag_key) in enumerate(roll_configs):
+        with r_cols[idx]:
+            is_unlocked = st.session_state.special_inventory.get(f"{label} 기능권", 0) > 0 or st.session_state.get(flag_key, False)
+            if st.button(f"🚀 {label}", disabled=not is_unlocked, use_container_width=True):
+                execute_bulk_roll(count)
 
 # 2. 할로윈 탭
 with tabs[1]:
@@ -358,7 +383,7 @@ with tabs[1]:
         else:
             st.success(f"📦 할로윈 상자 개봉 결과: **[{get_base_name(box_name)}]** 획득!")
 
-# 3. 상점 탭
+# 3. 상점 탭 (연차 기능권 및 행운권 상점 복구)
 with tabs[2]:
     st.subheader("💵 판매소 및 Special 상점")
     sellable_items = [t for t in ALL_TIERS if t[0] not in [hb[0] for hb in HALLOWEEN_BOX_DATA]]
@@ -371,7 +396,8 @@ with tabs[2]:
             st.session_state.coins += earned; st.success(f"🎉 {format_currency(earned)} 코인 획득!"); st.rerun()
     
     st.divider()
-    st.markdown("### 🛒 Special 상점 (확률업 행운권 구매)")
+    st.markdown("### 🛒 Special 상점 (연차 기능권 & 행운권 구매)")
+    
     h_buy_qty = st.number_input("할로윈 뽑기권 구매 (장당 100코인, 최대 1백만)", 1, 1000000, 1)
     if st.button("🎟️ 할로윈 뽑기권 구매", type="primary"):
         cost = h_buy_qty * 100.0
@@ -379,6 +405,18 @@ with tabs[2]:
             st.session_state.coins -= cost; st.session_state.special_inventory["할로윈 뽑기권"] += h_buy_qty
             st.success("구매 완료!"); st.rerun()
         else: st.error("코인 부족!")
+
+    st.markdown("---")
+    st.markdown("#### ⚡ 연차 기능권 구매")
+    for name, price, _ in ROLL_DEFS:
+        if st.button(f"🛒 {name} 구매 ({format_currency(price)} 코인)", key=f"buy_roll_{name}"):
+            if st.session_state.coins >= price:
+                st.session_state.coins -= price
+                st.session_state.special_inventory[name] += 1
+                st.success(f"{name} 구매 완료!")
+                st.rerun()
+            else:
+                st.error("코인 부족!")
 
     st.markdown("---")
     buy_qty = st.number_input("행운권 일괄 구매 수량", 1, 100000, 1, key="buy_ticket_qty")
@@ -393,7 +431,7 @@ with tabs[2]:
             else:
                 st.error("코인 부족!")
 
-# 4. 대장간 탭
+# 4. 대장간 탭 (대장간 시스템 복구)
 with tabs[3]:
     st.subheader("🛠️ 불꽃의 대장간")
     st.info("비밀 등급 이상 3개를 소모하여 상위 등급이나 헤파이스토스를 영접하세요! (승급 19.9%, 소멸 50%, 무효 30%, 신 0.1%)")
@@ -490,15 +528,30 @@ with tabs[4]:
                 else:
                     st.error("❌ 보유 코인이 부족합니다!")
 
-# 6. 배낭 탭
+# 6. 배낭 탭 (연차 기능권 및 행운권 사용 복구)
 with tabs[5]:
-    st.subheader("🎒 배낭 (확률업 행운권 사용)")
+    st.subheader("🎒 배낭 (아이템 사용)")
     dice = st.session_state.special_inventory.get("행운의 주사위", 0)
     if st.button(f"🎲 주사위 사용 (보유: {dice}개)", disabled=(dice == 0)):
         st.session_state.special_inventory["행운의 주사위"] -= 1
         name, color, mut = gacha_roll(1.0)
         st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
         st.success(f"당첨: {get_display_name(name, mut)}"); st.rerun()
+
+    st.markdown("---")
+    st.markdown("#### ⚡ 연차 기능권 활성화")
+    for name, _, _ in ROLL_DEFS:
+        cnt = st.session_state.special_inventory.get(name, 0)
+        flag_key = f"has_{name.split('연차')[0]}_roll"
+        if st.button(f"🎟️ {name} 사용 (보유: {cnt}개)", disabled=(cnt < 1), key=f"use_roll_{name}"):
+            st.session_state.special_inventory[name] -= 1
+            if name == "100연차 기능권": st.session_state.has_100_roll = True
+            elif name == "500연차 기능권": st.session_state.has_500_roll = True
+            elif name == "1000연차 기능권": st.session_state.has_1000_roll = True
+            elif name == "3000연차 기능권": st.session_state.has_3000_roll = True
+            elif name == "10000연차 기능권": st.session_state.has_10000_roll = True
+            st.success(f"✨ {name}이 활성화되었습니다!")
+            st.rerun()
 
     st.markdown("---")
     use_qty = st.number_input("행운권 일괄 사용 수량", 1, 100000, 1, key="u_qty")
@@ -547,7 +600,7 @@ with tabs[7]:
 # 9. 세이브 탭
 with tabs[8]:
     st.subheader("💾 세이브 / 로드")
-    data = json.dumps({k: st.session_state[k] for k in ["coins", "total_donated", "inventory", "unlocked", "special_inventory"]}, ensure_ascii=False)
+    data = json.dumps({k: st.session_state[k] for k in ["coins", "total_donated", "inventory", "unlocked", "special_inventory", "has_100_roll", "has_500_roll", "has_1000_roll", "has_3000_roll", "has_10000_roll"]}, ensure_ascii=False)
     st.download_button("📥 다운로드", data, "save.json", "application/json")
     up = st.file_uploader("로드", type=["json"])
     if up and st.button("🔄 불러오기"):
