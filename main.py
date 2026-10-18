@@ -16,8 +16,6 @@ st.markdown(
     @keyframes monsterJump { 0% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1.0); opacity: 1; } }
     @keyframes holyFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes greenFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(0,255,0,0.9); } 100% { background-color: rgba(0,0,0,0); } }
-    @keyframes goldFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,215,0,0.95); } 100% { background-color: rgba(0,0,0,0); } }
-    @keyframes diamondFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(30,144,255,0.95); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes smithSpark { 0% { background-color: rgba(255,69,0,0); transform: scale(0.9); } 20% { background-color: rgba(255,140,0,0.9); transform: scale(1.1); } 40% { background-color: rgba(255,215,0,1); transform: scale(1.0); } 70% { background-color: rgba(255,69,0,0.8); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
     @keyframes angelOpen { 0% { background-color: rgba(255,255,255,0); transform: scale(0.9); } 30% { background-color: rgba(255,255,250,0.95); transform: scale(1.05); } 70% { background-color: rgba(255,223,0,0.85); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
     @keyframes archangelRing { 0% { background-color: rgba(255,255,255,0); transform: scale(0.8); } 40% { background-color: rgba(255,255,255,0.9); transform: scale(1.2) rotate(180deg); } 70% { background-color: rgba(255,215,0,0.8); transform: scale(1.0) rotate(360deg); filter: drop-shadow(0 0 30px #FFD700); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0) rotate(360deg); } }
@@ -47,9 +45,6 @@ st.markdown(
     .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; user-select: none; }
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
     .holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
-    .green-fade { animation: greenFlash 2.5s ease-in-out forwards; }
-    .gold-fade { animation: goldFlash 2.5s ease-in-out forwards; }
-    .diamond-fade { animation: diamondFlash 2.5s ease-in-out forwards; }
     .smith-fade { animation: smithSpark 10.0s ease-in-out forwards; }
     .angel-fade { animation: angelOpen 5.0s ease-in-out forwards; }
     .archangel-fade { animation: archangelRing 5.0s ease-in-out forwards; }
@@ -72,12 +67,9 @@ st.markdown(
     .jiangshi-cutscene { animation: jiangshiAnim 3.0s ease-in-out infinite; color: #FFD700; font-size: 42px; font-weight: bold; text-shadow: 0 0 25px #B8860B; text-align: center; }
     .frank-cutscene { animation: frankAnim 3.0s ease-in-out infinite; color: #32CD32; font-size: 42px; font-weight: bold; text-shadow: 0 0 30px #006400; text-align: center; }
 
-    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .galaxy-popup, .pumpkin-king-popup, .ghost-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup {
+    .monster-popup, .holy-popup, .smith-popup, .angel-popup, .archangel-popup, .time-popup, .gravity-collapse-popup, .blackhole-universe-popup, .galaxy-popup, .pumpkin-king-popup, .ghost-popup, .rift-spin-green-popup, .abyss-popup, .comet-popup {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
-    .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
-    .gold-popup { color: #FFF700; text-shadow: 0px 0px 30px #8B6508; }
-    .diamond-popup { color: #E0FFFF; text-shadow: 0px 0px 30px #00008B; }
     .smith-popup { color: #FFD700; text-shadow: 0px 0px 30px #FF4500; font-size: 38px; }
     .angel-popup { color: #FFFACD; text-shadow: 0px 0px 40px #FFD700; font-size: 38px; }
     .archangel-popup { color: #FFFFFF; text-shadow: 0px 0px 50px #FFD700; font-size: 40px; }
@@ -148,7 +140,6 @@ TIERS = [
     ("일반", 0.8999899890845, "#A9A9A9"),
 ]
 
-# 유령 확률을 0.01%로 수정 및 나머지 확률 재조정
 HALLOWEEN_TIERS = [
     ("호박왕", 0.000001, "#FF8C00"),
     ("유령", 0.01, "#E0FFFF"),
@@ -166,7 +157,6 @@ HALLOWEEN_BOX_TIERS = [
     ("좀비", 50.00, "#7FFF00"),
 ]
 
-# 호박왕 가격 1억 코인으로 수정
 HALLOWEEN_PRICES = {
     "호박왕": 100000000.0,
     "유령": 10000.0,
@@ -241,17 +231,6 @@ TIER_CAPS = {
 }
 
 
-def check_mutation():
-    r = random.random()
-    if r < 0.001:
-        return "오염"
-    elif r < 0.01:
-        return "다이아"
-    elif r < 0.1:
-        return "골드"
-    return None
-
-
 def gacha_roll(multiplier=1.0):
     normal_tiers = [t for t in TIERS if t[0] not in ["헤파이스토스", "수호천사", "대천사"]]
     base_dict = {name: prob for name, prob, color in normal_tiers}
@@ -283,8 +262,8 @@ def gacha_roll(multiplier=1.0):
     for name, prob, color in adjusted:
         cum += prob
         if rand_v <= cum:
-            return name, color, check_mutation()
-    return adjusted[-1][0], adjusted[-1][2], check_mutation()
+            return name, color
+    return adjusted[-1][0], adjusted[-1][2]
 
 
 def halloween_roll():
@@ -315,12 +294,8 @@ defaults = {
     "history": [],
     "stats": {t[0]: 0 for t in ALL_EXISTING_TIERS},
     "inventory": {t[0]: 0 for t in ALL_EXISTING_TIERS},
-    "mutation_stats": {"골드": 0, "다이아": 0, "오염": 0},
     "unlocked": {
         t[0]: t[0] in ["일반", "희귀", "영웅", "전설", "사탕", "박쥐"] for t in ALL_EXISTING_TIERS
-    },
-    "mutation_unlocked": {
-        t[0]: {"골드": False, "다이아": False, "오염": False} for t in ALL_EXISTING_TIERS
     },
     "special_inventory": {
         "할로윈 뽑기권": 0,
@@ -343,7 +318,6 @@ defaults = {
     "active_multiplier": 1.0,
     "active_multiplier_count": 0,
     "effect_type": None,
-    "pending_mutation_effect": None,
     "skip_cutscenes_map": {t: False for t in HIGH_TIERS if t not in ["수호천사", "대천사"]},
 }
 
@@ -355,12 +329,6 @@ for t in ALL_EXISTING_TIERS:
     t_name = t[0]
     if t_name not in st.session_state.inventory:
         st.session_state.inventory[t_name] = 0
-    if t_name not in st.session_state.mutation_unlocked:
-        st.session_state.mutation_unlocked[t_name] = {
-            "골드": False,
-            "다이아": False,
-            "오염": False,
-        }
 
 for sp_key, sp_val in defaults["special_inventory"].items():
     if sp_key not in st.session_state.special_inventory:
@@ -397,9 +365,6 @@ if eff:
         "holy": '<div class="effect-overlay holy-fade"><div class="holy-popup">✨ [신성한] 등급 강림!</div></div>',
         "secret": '<div class="effect-overlay dark-fade"><div class="monster-popup">💖 [비밀] 등급 획득!</div></div>',
         "dokebi": '<div class="effect-overlay dark-fade"><div class="monster-popup">👹 [도깨비] 출현!</div></div>',
-        "pollution": '<div class="effect-overlay green-fade"><div class="green-popup">☣️ [오염 돌연변이] 발현!! ☣️</div></div>',
-        "gold": '<div class="effect-overlay gold-fade"><div class="gold-popup">🪙 [골드 돌연변이] 발현!! 🪙</div></div>',
-        "diamond": '<div class="effect-overlay diamond-fade"><div class="diamond-popup">💎 [다이아 돌연변이] 발현!! 💎</div></div>',
     }
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
@@ -453,22 +418,8 @@ def get_base_name(name):
     return mapping.get(name, name)
 
 
-def get_display_name(name, mutation=None):
-    if not st.session_state.unlocked.get(name, False):
-        return "❓ ??"
-    base = get_base_name(name)
-    if mutation == "골드":
-        return f"{base}(골드)"
-    elif mutation == "다이아":
-        return f"{base}(다이아)"
-    elif mutation == "오염":
-        return f"{base}(오염)"
-    return base
-
-
 def execute_rolls(count):
     highest = None
-    mutation_hit = None
 
     for _ in range(count):
         mult = (
@@ -481,19 +432,13 @@ def execute_rolls(count):
             if st.session_state.active_multiplier_count == 0:
                 st.session_state.active_multiplier = 1.0
 
-        name, _, mutation = gacha_roll(mult)
+        name, _ = gacha_roll(mult)
         is_first_time = not st.session_state.unlocked.get(name, False)
 
-        st.session_state.history.append((name, mutation))
+        st.session_state.history.append((name, None))
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
         st.session_state.unlocked[name] = True
-
-        if mutation:
-            st.session_state.mutation_stats[mutation] += 1
-            st.session_state.mutation_unlocked[name][mutation] = True
-            if name in HIGH_TIERS:
-                mutation_hit = mutation
 
         if (
             is_first_time
@@ -505,7 +450,7 @@ def execute_rolls(count):
             ):
                 highest = name
 
-    return highest, mutation_hit
+    return highest
 
 
 def execute_halloween_rolls(count):
@@ -578,17 +523,13 @@ with tabs[0]:
                 if st.session_state.active_multiplier_count == 0:
                     st.session_state.active_multiplier = 1.0
             
-            name, color, mutation = gacha_roll(mult)
+            name, color = gacha_roll(mult)
             is_first_time = not st.session_state.unlocked.get(name, False)
 
-            st.session_state.history.append((name, mutation))
+            st.session_state.history.append((name, None))
             st.session_state.stats[name] += 1
             st.session_state.inventory[name] += 1
             st.session_state.unlocked[name] = True
-
-            if mutation:
-                st.session_state.mutation_stats[mutation] += 1
-                st.session_state.mutation_unlocked[name][mutation] = True
 
             mapping = {
                 "은하": "galaxy_phase1",
@@ -601,11 +542,6 @@ with tabs[0]:
                 "신성한": "holy",
                 "도깨비": "dokebi",
                 "비밀": "secret",
-            }
-            mutation_map = {
-                "골드": "gold",
-                "다이아": "diamond",
-                "오염": "pollution",
             }
 
             if (
@@ -614,20 +550,15 @@ with tabs[0]:
                 and not st.session_state.skip_cutscenes_map.get(name, False)
             ):
                 st.session_state.effect_type = mapping[name]
-                if mutation in mutation_map:
-                    st.session_state.pending_mutation_effect = mutation_map[mutation]
-                st.rerun()
-            elif mutation in mutation_map and name in HIGH_TIERS:
-                st.session_state.effect_type = mutation_map[mutation]
                 st.rerun()
 
             st.success(
-                f"🎉 **[1회]** 당첨: **:{color}[{get_display_name(name, mutation)}]**"
+                f"🎉 **[1회]** 당첨: **:{color}[{get_base_name(name)}]**"
             )
 
     with c2:
         if st.button("🚀 10연차!", use_container_width=True):
-            hit, mutation_hit = execute_rolls(10)
+            hit = execute_rolls(10)
             mapping = {
                 "은하": "galaxy_phase1",
                 "중력": "gravity",
@@ -640,18 +571,8 @@ with tabs[0]:
                 "도깨비": "dokebi",
                 "비밀": "secret",
             }
-            mutation_map = {
-                "골드": "gold",
-                "다이아": "diamond",
-                "오염": "pollution",
-            }
             if hit and not st.session_state.skip_cutscenes_map.get(hit, False):
                 st.session_state.effect_type = mapping[hit]
-                if mutation_hit in mutation_map:
-                    st.session_state.pending_mutation_effect = mutation_map[mutation_hit]
-                st.rerun()
-            elif mutation_hit in mutation_map:
-                st.session_state.effect_type = mutation_map[mutation_hit]
                 st.rerun()
             st.success("✨ 10연차 완료!")
 
@@ -669,7 +590,7 @@ with tabs[0]:
         for idx, (lbl, cnt) in enumerate(active_rolls):
             with cols[idx]:
                 if st.button(lbl, use_container_width=True, type="primary"):
-                    hit, mutation_hit = execute_rolls(cnt)
+                    hit = execute_rolls(cnt)
                     mapping = {
                         "은하": "galaxy_phase1",
                         "중력": "gravity",
@@ -682,20 +603,10 @@ with tabs[0]:
                         "도깨비": "dokebi",
                         "비밀": "secret",
                     }
-                    mutation_map = {
-                        "골드": "gold",
-                        "다이아": "diamond",
-                        "오염": "pollution",
-                    }
                     if hit and not st.session_state.skip_cutscenes_map.get(
                         hit, False
                     ):
                         st.session_state.effect_type = mapping[hit]
-                        if mutation_hit in mutation_map:
-                            st.session_state.pending_mutation_effect = mutation_map[mutation_hit]
-                        st.rerun()
-                    elif mutation_hit in mutation_map:
-                        st.session_state.effect_type = mutation_map[mutation_hit]
                         st.rerun()
                     st.success(f"🎉 {cnt}연차 완료!")
 
@@ -1129,20 +1040,6 @@ with tabs[6]:
                 f"<div class='pokedex-title'>:<span style='color:{color}'>{disp}</span> | 확률: <code>{prob_str}</code> | 가격: <code>{price}</code></div>",
                 unsafe_allow_html=True,
             )
-            if unlocked:
-                m_dict = st.session_state.mutation_unlocked.get(t_name, {})
-                g_u = "🪙골드(O)" if m_dict.get("골드") else "🪙골드(X)"
-                d_u = "💎다이아(O)" if m_dict.get("다이아") else "💎다이아(X)"
-                p_u = "☣️오염(O)" if m_dict.get("오염") else "☣️오염(X)"
-                st.markdown(
-                    f"<div class='pokedex-sub'>돌연변이: {g_u} | {d_u} | {p_u}</div>",
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.markdown(
-                    "<div class='pokedex-sub'>돌연변이: 🔒 미해금</div>",
-                    unsafe_allow_html=True,
-                )
 
         with c2:
             if unlocked and t_name in mapping_cutscene:
@@ -1195,21 +1092,6 @@ with tabs[7]:
                 get_base_name(t), f"{format_currency(st.session_state.stats.get(t, 0))}회"
             )
 
-        st.markdown("### 🧪 돌연변이 발견 통계")
-        m_cols = st.columns(3)
-        m_cols[0].metric(
-            "🪙 골드 돌연변이",
-            f"{format_currency(st.session_state.get('mutation_stats', {}).get('골드', 0))}회",
-        )
-        m_cols[1].metric(
-            "💎 다이아 돌연변이",
-            f"{format_currency(st.session_state.get('mutation_stats', {}).get('다이아', 0))}회",
-        )
-        m_cols[2].metric(
-            "☣️ 오염 돌연변이",
-            f"{format_currency(st.session_state.get('mutation_stats', {}).get('오염', 0))}회",
-        )
-
         if st.button("🗑️ 초기화"):
             for k in list(st.session_state.keys()):
                 del st.session_state[k]
@@ -1228,8 +1110,6 @@ with tabs[8]:
                 "history",
                 "stats",
                 "inventory",
-                "mutation_stats",
-                "mutation_unlocked",
                 "special_inventory",
                 "unlocked",
                 "has_100_roll",
