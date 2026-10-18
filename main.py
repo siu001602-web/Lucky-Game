@@ -509,7 +509,6 @@ with tabs[5]:
             disabled=(cnt < use_qty),
             key=f"use_{name}",
         ):
-            st.session_state.special_inventory[name] -= yn = use_qty
             st.session_state.special_inventory[name] -= use_qty
             if st.session_state.active_multiplier == mult:
                 st.session_state.active_multiplier_count += use_qty
