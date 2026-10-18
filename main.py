@@ -9,7 +9,6 @@ st.set_page_config(
     layout="centered",
 )
 
-# 애니메이션 CSS (초록 화면 포함)
 st.markdown(
     """
     <style>
@@ -100,11 +99,11 @@ TICKET_DEFS = [
 def check_mutation():
     r = random.random()
     if r < 0.001:
-        return "오염"  # 1/1000
+        return "오염"
     elif r < 0.01:
-        return "다이아"  # 1/100
+        return "다이아"
     elif r < 0.1:
-        return "골드"  # 1/10
+        return "골드"
     return None
 
 
@@ -133,8 +132,7 @@ def gacha_roll(multiplier=1.0):
     for name, prob, color in adjusted:
         cum += prob
         if rand_v <= cum:
-            mutation = check_mutation()
-            return name, color, mutation
+            return name, color, check_mutation()
     return adjusted[-1][0], adjusted[-1][2], check_mutation()
 
 
@@ -144,6 +142,7 @@ defaults = {
     "stats": {t[0]: 0 for t in TIERS},
     "inventory": {t: 0 for t, _, _ in TIERS},
     "mutation_stats": {"골드": 0, "다이아": 0, "오염": 0},
+    "mutation_unlocked": {"골드": False, "다이아": False, "오염": False},
     "special_inventory": {
         "행운의 주사위": 0,
         "만배 행운권": 0,
@@ -184,7 +183,7 @@ for sp_key, sp_val in defaults["special_inventory"].items():
     if sp_key not in st.session_state.special_inventory:
         st.session_state.special_inventory[sp_key] = sp_val
 
-# 컷씬 처리 (오염 돌연변이는 일반 컷씬 뒤에 처리되도록 pending 확인)
+# 컷씬 처리
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -203,8 +202,6 @@ if eff:
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
         time.sleep(2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0)
-
-        # 기존 컷씬이 끝난 후 오염 돌연변이 대기열이 있으면 실행
         if (
             eff != "pollution"
             and st.session_state.pending_mutation_effect == "pollution"
@@ -247,9 +244,12 @@ def execute_rolls(count):
     pollution_hit = False
 
     for _ in range(count):
-        mult = 1.0
-        if st.session_state.active_multiplier_count > 0:
-            mult = st.session_state.active_multiplier
+        mult = (
+            st.session_state.active_multiplier
+            if st.session_state.active_multiplier_count > 0
+            else 1.0
+        )
+        if mult > 1.0:
             st.session_state.active_multiplier_count -= 1
             if st.session_state.active_multiplier_count == 0:
                 st.session_state.active_multiplier = 1.0
@@ -262,6 +262,7 @@ def execute_rolls(count):
 
         if mutation:
             st.session_state.mutation_stats[mutation] += 1
+            st.session_state.mutation_unlocked[mutation] = True
             if mutation == "오염":
                 pollution_hit = True
 
@@ -340,6 +341,7 @@ with tabs[0]:
 
             if mutation:
                 st.session_state.mutation_stats[mutation] += 1
+                st.session_state.mutation_unlocked[mutation] = True
 
             mapping = {
                 "중력": "gravity",
@@ -364,8 +366,9 @@ with tabs[0]:
                 st.session_state.effect_type = "pollution"
                 st.rerun()
 
-            display_str = get_display_name(name, mutation)
-            st.success(f"🎉 **[1회]** 당첨: **:{color}[{display_str}]**")
+            st.success(
+                f"🎉 **[1회]** 당첨: **:{color}[{get_display_name(name, mutation)}]**"
+            )
 
     with c2:
         if st.button("🚀 10연차!", use_container_width=True):
@@ -519,6 +522,7 @@ with tabs[2]:
         st.session_state.unlocked[name] = True
         if mutation:
             st.session_state.mutation_stats[mutation] += 1
+            st.session_state.mutation_unlocked[mutation] = True
         st.success(f"당첨: {get_display_name(name, mutation)}")
         st.rerun()
 
@@ -542,7 +546,7 @@ with tabs[2]:
 
 # 4. 도감 탭
 with tabs[3]:
-    st.subheader("📕 도감")
+    st.subheader("📕 등급 도감")
     for t_name, prob, color in TIERS:
         unlocked = st.session_state.unlocked[t_name]
         disp = get_display_name(t_name)
@@ -550,6 +554,22 @@ with tabs[3]:
         st.markdown(
             f"### :{color}[{disp}] | 확률: `{prob*100:.11f}%` | 가격: `{price}`"
         )
+
+    st.divider()
+    st.subheader("🧪 돌연변이 도감")
+    mutations_info = [
+        ("🪙 골드 돌연변이", "골드", "확률 1/10"),
+        ("💎 다이아 돌연변이", "다이아", "확률 1/100"),
+        ("☣️ 오염 돌연변이", "오염", "확률 1/1000"),
+    ]
+    for title, m_key, desc in mutations_info:
+        is_m_unlocked = st.session_state.get("mutation_unlocked", {}).get(
+            m_key, False
+        )
+        if is_m_unlocked:
+            st.markdown(f"### {title} (`{desc}`) - `🔓 해금 완료`")
+        else:
+            st.markdown(f"### ❓ 미해금 돌연변이 (`{desc}`) - `🔒 미발견`")
 
 # 5. 통계 탭
 with tabs[4]:
@@ -595,6 +615,7 @@ with tabs[5]:
                 "stats",
                 "inventory",
                 "mutation_stats",
+                "mutation_unlocked",
                 "special_inventory",
                 "unlocked",
                 "has_100_roll",
