@@ -142,7 +142,12 @@ defaults = {
     "stats": {t[0]: 0 for t in TIERS},
     "inventory": {t: 0 for t, _, _ in TIERS},
     "mutation_stats": {"골드": 0, "다이아": 0, "오염": 0},
-    "mutation_unlocked": {"골드": False, "다이아": False, "오염": False},
+    "unlocked": {
+        t[0]: t[0] in ["일반", "희귀", "영웅", "전설"] for t in TIERS
+    },
+    "mutation_unlocked": {
+        t[0]: {"골드": False, "다이아": False, "오염": False} for t, _, _ in TIERS
+    },
     "special_inventory": {
         "행운의 주사위": 0,
         "만배 행운권": 0,
@@ -154,9 +159,6 @@ defaults = {
         "1000연차 기능권": 0,
         "3000연차 기능권": 0,
         "10000연차 기능권": 0,
-    },
-    "unlocked": {
-        t[0]: t[0] in ["일반", "희귀", "영웅", "전설"] for t in TIERS
     },
     "has_100_roll": False,
     "has_500_roll": False,
@@ -178,6 +180,12 @@ for k, v in defaults.items():
 for t, _, _ in TIERS:
     if t not in st.session_state.inventory:
         st.session_state.inventory[t] = 0
+    if t not in st.session_state.mutation_unlocked:
+        st.session_state.mutation_unlocked[t] = {
+            "골드": False,
+            "다이아": False,
+            "오염": False,
+        }
 
 for sp_key, sp_val in defaults["special_inventory"].items():
     if sp_key not in st.session_state.special_inventory:
@@ -211,9 +219,7 @@ if eff:
         st.rerun()
 
 
-def get_display_name(name, mutation=None):
-    if not st.session_state.unlocked.get(name, False):
-        return "❓ ??"
+def get_base_name(name):
     mapping = {
         "중력": "🍎 중력",
         "블랙홀": "🕳️ 블랙홀",
@@ -229,13 +235,19 @@ def get_display_name(name, mutation=None):
         "희귀": "🔵 희귀",
         "일반": "⚪ 일반",
     }
-    base = mapping.get(name, name)
+    return mapping.get(name, name)
+
+
+def get_display_name(name, mutation=None):
+    if not st.session_state.unlocked.get(name, False):
+        return "❓ ??"
+    base = get_base_name(name)
     if mutation == "골드":
-        return f"🪙 [골드] {base}"
+        return f"{base}(골드)"
     elif mutation == "다이아":
-        return f"💎 [다이아] {base}"
+        return f"{base}(다이아)"
     elif mutation == "오염":
-        return f"☣️ [오염] {base}"
+        return f"{base}(오염)"
     return base
 
 
@@ -262,7 +274,7 @@ def execute_rolls(count):
 
         if mutation:
             st.session_state.mutation_stats[mutation] += 1
-            st.session_state.mutation_unlocked[mutation] = True
+            st.session_state.mutation_unlocked[name][mutation] = True
             if mutation == "오염":
                 pollution_hit = True
 
@@ -307,7 +319,7 @@ if st.session_state.active_multiplier_count > 0:
 with st.expander("⚙️ 설정 (컷씬 스킵)"):
     for t in HIGH_TIERS:
         st.session_state.skip_cutscenes_map[t] = st.checkbox(
-            f"{get_display_name(t)} 스킵",
+            f"{get_base_name(t)} 스킵",
             value=st.session_state.skip_cutscenes_map[t],
             key=f"skip_setting_{t}",
         )
@@ -341,7 +353,7 @@ with tabs[0]:
 
             if mutation:
                 st.session_state.mutation_stats[mutation] += 1
-                st.session_state.mutation_unlocked[mutation] = True
+                st.session_state.mutation_unlocked[name][mutation] = True
 
             mapping = {
                 "중력": "gravity",
@@ -442,7 +454,7 @@ with tabs[1]:
     for i, (t_name, _, _) in enumerate(TIERS):
         with cols[i % 3]:
             sell_sel[t_name] = st.checkbox(
-                f"{get_display_name(t_name)} ({st.session_state.inventory.get(t_name, 0)}개)",
+                f"{get_base_name(t_name)} ({st.session_state.inventory.get(t_name, 0)}개)",
                 key=f"sell_{t_name}",
             )
 
@@ -522,7 +534,7 @@ with tabs[2]:
         st.session_state.unlocked[name] = True
         if mutation:
             st.session_state.mutation_stats[mutation] += 1
-            st.session_state.mutation_unlocked[mutation] = True
+            st.session_state.mutation_unlocked[name][mutation] = True
         st.success(f"당첨: {get_display_name(name, mutation)}")
         st.rerun()
 
@@ -546,30 +558,28 @@ with tabs[2]:
 
 # 4. 도감 탭
 with tabs[3]:
-    st.subheader("📕 등급 도감")
+    st.subheader("📕 도감")
     for t_name, prob, color in TIERS:
         unlocked = st.session_state.unlocked[t_name]
-        disp = get_display_name(t_name)
+        disp = get_base_name(t_name)
         price = SELL_PRICES[t_name] if unlocked else "???"
         st.markdown(
             f"### :{color}[{disp}] | 확률: `{prob*100:.11f}%` | 가격: `{price}`"
         )
-
-    st.divider()
-    st.subheader("🧪 돌연변이 도감")
-    mutations_info = [
-        ("🪙 골드 돌연변이", "골드", "확률 1/10"),
-        ("💎 다이아 돌연변이", "다이아", "확률 1/100"),
-        ("☣️ 오염 돌연변이", "오염", "확률 1/1000"),
-    ]
-    for title, m_key, desc in mutations_info:
-        is_m_unlocked = st.session_state.get("mutation_unlocked", {}).get(
-            m_key, False
-        )
-        if is_m_unlocked:
-            st.markdown(f"### {title} (`{desc}`) - `🔓 해금 완료`")
+        if unlocked:
+            m_dict = st.session_state.mutation_unlocked.get(t_name, {})
+            g_unlocked = "🪙 골드 (해금)" if m_dict.get("골드") else "🪙 골드 (미발견)"
+            d_unlocked = (
+                "💎 다이아 (해금)" if m_dict.get("다이아") else "💎 다이아 (미발견)"
+            )
+            p_unlocked = (
+                "☣️ 오염 (해금)" if m_dict.get("오염") else "☣️ 오염 (미발견)"
+            )
+            st.caption(
+                f"돌연변이 현황: {g_unlocked} | {d_unlocked} | {p_unlocked}"
+            )
         else:
-            st.markdown(f"### ❓ 미해금 돌연변이 (`{desc}`) - `🔒 미발견`")
+            st.caption("돌연변이 현황: 🔒 미해금")
 
 # 5. 통계 탭
 with tabs[4]:
@@ -578,7 +588,7 @@ with tabs[4]:
         cols = st.columns(4)
         for idx, t in enumerate(HIGH_TIERS + ["전설", "영웅", "희귀", "일반"]):
             cols[idx % 4].metric(
-                get_display_name(t), f"{st.session_state.stats.get(t, 0)}회"
+                get_base_name(t), f"{st.session_state.stats.get(t, 0)}회"
             )
 
         st.markdown("### 🧪 돌연변이 발견 통계")
