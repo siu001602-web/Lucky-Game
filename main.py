@@ -9,12 +9,14 @@ st.set_page_config(
     layout="centered",
 )
 
+# 애니메이션 CSS (초록 화면 포함)
 st.markdown(
     """
     <style>
     @keyframes fadeDark { 0% { background-color: rgba(0,0,0,0); } 25%, 75% { background-color: rgba(0,0,0,0.98); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes monsterJump { 0% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1.0); opacity: 1; } }
     @keyframes holyFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(0,0,0,0); } }
+    @keyframes greenFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(0,255,0,0.9); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
     @keyframes earthquake { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
@@ -26,6 +28,7 @@ st.markdown(
     .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; justify-content: center; align-items: center; pointer-events: none; }
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
     .holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
+    .green-fade { animation: greenFlash 2.5s ease-in-out forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
     .rift-fade { animation: earthquake 5.0s ease-in-out forwards; }
@@ -33,9 +36,10 @@ st.markdown(
     .gravity-fade { animation: sunsetGravity 6.0s ease-in-out forwards; }
     .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
         font-size: 45px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
+    .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
     .falling-apple { font-size: 100px; animation: appleFall 2.0s ease-in forwards; }
     </style>
 """,
@@ -93,6 +97,17 @@ TICKET_DEFS = [
 ]
 
 
+def check_mutation():
+    r = random.random()
+    if r < 0.001:
+        return "오염"  # 1/1000
+    elif r < 0.01:
+        return "다이아"  # 1/100
+    elif r < 0.1:
+        return "골드"  # 1/10
+    return None
+
+
 def gacha_roll(multiplier=1.0):
     base_dict = {name: prob for name, prob, color in TIERS}
     color_dict = {name: color for name, prob, color in TIERS}
@@ -118,16 +133,17 @@ def gacha_roll(multiplier=1.0):
     for name, prob, color in adjusted:
         cum += prob
         if rand_v <= cum:
-            return name, color
-    return adjusted[-1][0], adjusted[-1][2]
+            mutation = check_mutation()
+            return name, color, mutation
+    return adjusted[-1][0], adjusted[-1][2], check_mutation()
 
 
-# 세션 상태 기본값 정의
 defaults = {
     "coins": 0.0,
     "history": [],
     "stats": {t[0]: 0 for t in TIERS},
     "inventory": {t: 0 for t, _, _ in TIERS},
+    "mutation_stats": {"골드": 0, "다이아": 0, "오염": 0},
     "special_inventory": {
         "행운의 주사위": 0,
         "만배 행운권": 0,
@@ -152,6 +168,7 @@ defaults = {
     "active_multiplier_count": 0,
     "balloons_shown": False,
     "effect_type": None,
+    "pending_mutation_effect": None,
     "skip_cutscenes_map": {t: False for t in HIGH_TIERS},
 }
 
@@ -159,7 +176,6 @@ for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# 누락된 인벤토리 및 특수 인벤토리 키 안전 보정
 for t, _, _ in TIERS:
     if t not in st.session_state.inventory:
         st.session_state.inventory[t] = 0
@@ -168,7 +184,7 @@ for sp_key, sp_val in defaults["special_inventory"].items():
     if sp_key not in st.session_state.special_inventory:
         st.session_state.special_inventory[sp_key] = sp_val
 
-# 컷씬 처리
+# 컷씬 처리 (오염 돌연변이는 일반 컷씬 뒤에 처리되도록 pending 확인)
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -182,14 +198,23 @@ if eff:
         "holy": '<div class="effect-overlay holy-fade"><div class="holy-popup">✨ [신성한] 등급 강림!</div></div>',
         "secret": '<div class="effect-overlay dark-fade"><div class="monster-popup">💖 [비밀] 등급 획득!</div></div>',
         "dokebi": '<div class="effect-overlay dark-fade"><div class="monster-popup">👹 [도깨비] 출현!</div></div>',
+        "pollution": '<div class="effect-overlay green-fade"><div class="green-popup">☣️ [오염 돌연변이] 발현!! ☣️</div></div>',
     }
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
         time.sleep(2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0)
+
+        # 기존 컷씬이 끝난 후 오염 돌연변이 대기열이 있으면 실행
+        if (
+            eff != "pollution"
+            and st.session_state.pending_mutation_effect == "pollution"
+        ):
+            st.session_state.pending_mutation_effect = None
+            st.session_state.effect_type = "pollution"
         st.rerun()
 
 
-def get_display_name(name):
+def get_display_name(name, mutation=None):
     if not st.session_state.unlocked.get(name, False):
         return "❓ ??"
     mapping = {
@@ -207,11 +232,20 @@ def get_display_name(name):
         "희귀": "🔵 희귀",
         "일반": "⚪ 일반",
     }
-    return mapping.get(name, name)
+    base = mapping.get(name, name)
+    if mutation == "골드":
+        return f"🪙 [골드] {base}"
+    elif mutation == "다이아":
+        return f"💎 [다이아] {base}"
+    elif mutation == "오염":
+        return f"☣️ [오염] {base}"
+    return base
 
 
 def execute_rolls(count):
     highest = None
+    pollution_hit = False
+
     for _ in range(count):
         mult = 1.0
         if st.session_state.active_multiplier_count > 0:
@@ -220,11 +254,16 @@ def execute_rolls(count):
             if st.session_state.active_multiplier_count == 0:
                 st.session_state.active_multiplier = 1.0
 
-        name, _ = gacha_roll(mult)
-        st.session_state.history.append(name)
+        name, _, mutation = gacha_roll(mult)
+        st.session_state.history.append((name, mutation))
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
         st.session_state.unlocked[name] = True
+
+        if mutation:
+            st.session_state.mutation_stats[mutation] += 1
+            if mutation == "오염":
+                pollution_hit = True
 
         if (
             name in HIGH_TIERS
@@ -234,7 +273,8 @@ def execute_rolls(count):
                 highest
             ):
                 highest = name
-    return highest
+
+    return highest, pollution_hit
 
 
 def check_all():
@@ -292,11 +332,14 @@ with tabs[0]:
                 st.session_state.active_multiplier_count -= 1
                 if st.session_state.active_multiplier_count == 0:
                     st.session_state.active_multiplier = 1.0
-            name, color = gacha_roll(mult)
-            st.session_state.history.append(name)
+            name, color, mutation = gacha_roll(mult)
+            st.session_state.history.append((name, mutation))
             st.session_state.stats[name] += 1
             st.session_state.inventory[name] += 1
             st.session_state.unlocked[name] = True
+
+            if mutation:
+                st.session_state.mutation_stats[mutation] += 1
 
             mapping = {
                 "중력": "gravity",
@@ -314,12 +357,19 @@ with tabs[0]:
                 and not st.session_state.skip_cutscenes_map.get(name, False)
             ):
                 st.session_state.effect_type = mapping[name]
+                if mutation == "오염":
+                    st.session_state.pending_mutation_effect = "pollution"
                 st.rerun()
-            st.success(f"🎉 **[1회]** 당첨: **:{color}[{get_display_name(name)}]**")
+            elif mutation == "오염":
+                st.session_state.effect_type = "pollution"
+                st.rerun()
+
+            display_str = get_display_name(name, mutation)
+            st.success(f"🎉 **[1회]** 당첨: **:{color}[{display_str}]**")
 
     with c2:
         if st.button("🚀 10연차!", use_container_width=True):
-            hit = execute_rolls(10)
+            hit, pollution_hit = execute_rolls(10)
             mapping = {
                 "중력": "gravity",
                 "블랙홀": "blackhole",
@@ -333,6 +383,11 @@ with tabs[0]:
             }
             if hit and not st.session_state.skip_cutscenes_map.get(hit, False):
                 st.session_state.effect_type = mapping[hit]
+                if pollution_hit:
+                    st.session_state.pending_mutation_effect = "pollution"
+                st.rerun()
+            elif pollution_hit:
+                st.session_state.effect_type = "pollution"
                 st.rerun()
             st.success("✨ 10연차 완료!")
 
@@ -350,7 +405,30 @@ with tabs[0]:
         for idx, (lbl, cnt) in enumerate(active_rolls):
             with cols[idx]:
                 if st.button(lbl, use_container_width=True, type="primary"):
-                    execute_rolls(cnt)
+                    hit, pollution_hit = execute_rolls(cnt)
+                    mapping = {
+                        "중력": "gravity",
+                        "블랙홀": "blackhole",
+                        "시간의 지배자": "rift",
+                        "균열자": "rift",
+                        "혜성": "comet",
+                        "어비스": "abyss",
+                        "신성한": "holy",
+                        "도깨비": "dokebi",
+                        "비밀": "secret",
+                    }
+                    if hit and not st.session_state.skip_cutscenes_map.get(
+                        hit, False
+                    ):
+                        st.session_state.effect_type = mapping[hit]
+                        if pollution_hit:
+                            st.session_state.pending_mutation_effect = (
+                                "pollution"
+                            )
+                        st.rerun()
+                    elif pollution_hit:
+                        st.session_state.effect_type = "pollution"
+                        st.rerun()
                     st.success(f"🎉 {cnt}연차 완료!")
 
 # 2. 상점 탭
@@ -403,7 +481,6 @@ with tabs[1]:
             else:
                 st.error("코인 부족!")
 
-    # 연차 상점
     st.markdown("### 🎫 연차 해금 상점")
     t_shop = [
         ("has_100_roll", "💥 100연차", 500, "100연차 기능권"),
@@ -435,12 +512,14 @@ with tabs[2]:
     dice_c = st.session_state.special_inventory.get("행운의 주사위", 0)
     if st.button(f"🎲 주사위 사용 (보유: {dice_c}개)", disabled=(dice_c == 0)):
         st.session_state.special_inventory["행운의 주사위"] -= 1
-        name, color = lucky_dice_roll()
-        st.session_state.history.append(f"주사위:{name}")
+        name, color, mutation = gacha_roll(1.0)
+        st.session_state.history.append((name, mutation))
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
         st.session_state.unlocked[name] = True
-        st.success(f"당첨: {get_display_name(name)}")
+        if mutation:
+            st.session_state.mutation_stats[mutation] += 1
+        st.success(f"당첨: {get_display_name(name, mutation)}")
         st.rerun()
 
     st.markdown("---")
@@ -481,6 +560,22 @@ with tabs[4]:
             cols[idx % 4].metric(
                 get_display_name(t), f"{st.session_state.stats.get(t, 0)}회"
             )
+
+        st.markdown("### 🧪 돌연변이 발견 통계")
+        m_cols = st.columns(3)
+        m_cols[0].metric(
+            "🪙 골드 돌연변이",
+            f"{st.session_state.get('mutation_stats', {}).get('골드', 0)}회",
+        )
+        m_cols[1].metric(
+            "💎 다이아 돌연변이",
+            f"{st.session_state.get('mutation_stats', {}).get('다이아', 0)}회",
+        )
+        m_cols[2].metric(
+            "☣️ 오염 돌연변이",
+            f"{st.session_state.get('mutation_stats', {}).get('오염', 0)}회",
+        )
+
         if st.button("🗑️ 초기화"):
             for k in list(st.session_state.keys()):
                 del st.session_state[k]
@@ -499,6 +594,7 @@ with tabs[5]:
                 "history",
                 "stats",
                 "inventory",
+                "mutation_stats",
                 "special_inventory",
                 "unlocked",
                 "has_100_roll",
