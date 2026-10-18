@@ -727,25 +727,32 @@ with tabs[2]:
                 result_msg += f"- 🛡️ 무효(재료반환): **{format_currency(refund_count)}회**\n"
             st.success(result_msg)
 
-# 4. 개발자 기부 탭 (수호천사 & 대천사 기부)
+# 4. 개발자 기부 탭 (수호천사 & 대천사 확률 계산 정상화)
 with tabs[3]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
     
+    # 누적 기부금 계산 버그 수정 (정확한 기부 단계 확률 매핑)
     if total_d >= 30000000.0:
-        current_angel_prob = 0.01
-        angel_prob_str = "0.01% (3천만 코인 달성 보너스!)"
+        curr_angel_p = 1.0
+        curr_arch_p = 0.01
+        angel_p_str = "1.0% (3천만 코인 달성 보너스!)"
+        arch_p_str = "0.01% (3천만 코인 달성 보너스!)"
     elif total_d >= 5000000.0:
-        current_angel_prob = 0.001
-        angel_prob_str = "0.001% (5백만 코인 달성 보너스!)"
+        curr_angel_p = 0.1
+        curr_arch_p = 0.001
+        angel_p_str = "0.1% (5백만 코인 달성 보너스!)"
+        arch_p_str = "0.001% (5백만 코인 달성 보너스!)"
     else:
-        current_angel_prob = 0.0001
-        angel_prob_str = "0.0001% (기본 확률)"
+        curr_angel_p = 0.01
+        curr_arch_p = 0.0001
+        angel_p_str = "0.01% (기본 확률)"
+        arch_p_str = "0.0001% (기본 확률)"
 
     display_angel_name = get_base_name("수호천사")
     display_archangel_name = get_base_name("대천사")
 
-    st.info(f"💡 개발자에게 1회 **1만 코인**을 기부합니다.\n- 현재 누적 기부금: **{format_currency(total_d)} 코인**\n- [{display_angel_name}] 획득 확률: **{angel_prob_str}**\n- [{display_archangel_name}] 획득 확률: **고정 0.0001%**")
+    st.info(f"💡 개발자에게 1회 **1만 코인**을 기부합니다.\n- 현재 누적 기부금: **{format_currency(total_d)} 코인**\n- [{display_angel_name}] 획득 확률: **{angel_p_str}**\n- [{display_archangel_name}] 획득 확률: **{arch_p_str}**")
 
     donation_counts = [1, 10, 100]
     d_cols = st.columns(len(donation_counts))
@@ -762,10 +769,10 @@ with tabs[3]:
                     for _ in range(d_cnt):
                         r_arch = random.random() * 100
                         r_ang = random.random() * 100
-                        if r_arch < 0.0001:
+                        if r_arch < curr_arch_p:
                             hit_type = "archangel"
                             break
-                        elif r_ang < current_angel_prob:
+                        elif r_ang < curr_angel_p:
                             hit_type = "angel"
                             break
                     
@@ -780,7 +787,7 @@ with tabs[3]:
                         st.session_state.effect_type = "angel"
                         st.rerun()
                     else:
-                        st.warning(f"💸 총 {format_currency(d_cnt)}회({format_currency(cost_total)}코인) 기부 완료! (아쉽게도 이번 기부는 꽝입니다!)")
+                        st.warning(f"💸 총 {format_currency(d_cnt)}회({format_currency(cost_total)}코인) 기부 완료! (아쉽게도 이번엔 천사가 나오지 않았습니다!)")
                 else:
                     st.error("❌ 보유 코인이 부족합니다!")
 
