@@ -16,6 +16,8 @@ st.markdown(
     @keyframes monsterJump { 0% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1.0); opacity: 1; } }
     @keyframes holyFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes greenFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(0,255,0,0.9); } 100% { background-color: rgba(0,0,0,0); } }
+    @keyframes goldFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,215,0,0.95); } 100% { background-color: rgba(0,0,0,0); } }
+    @keyframes diamondFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(30,144,255,0.95); } 100% { background-color: rgba(0,0,0,0); } }
     @keyframes smithSpark { 0% { background-color: rgba(255,69,0,0); transform: scale(0.9); } 20% { background-color: rgba(255,140,0,0.9); transform: scale(1.1); } 40% { background-color: rgba(255,215,0,1); transform: scale(1.0); } 70% { background-color: rgba(255,69,0,0.8); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
     @keyframes abyssWhirlpool { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: rotate(180deg) scale(1); } 100% { opacity: 0; transform: scale(1.2); } }
     @keyframes cometMeteor { 0% { opacity: 0; } 30%, 70% { opacity: 1; } 100% { opacity: 0; } }
@@ -29,6 +31,8 @@ st.markdown(
     .dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
     .holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
     .green-fade { animation: greenFlash 2.5s ease-in-out forwards; }
+    .gold-fade { animation: goldFlash 2.5s ease-in-out forwards; }
+    .diamond-fade { animation: diamondFlash 2.5s ease-in-out forwards; }
     .smith-fade { animation: smithSpark 10.0s ease-in-out forwards; }
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
@@ -37,28 +41,17 @@ st.markdown(
     .gravity-fade { animation: sunsetGravity 6.0s ease-in-out forwards; }
     .ending-fade { animation: endingFade 8.0s ease-in-out forwards; background-color: #000; }
 
-    .monster-popup, .holy-popup, .green-popup, .smith-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
+    .monster-popup, .holy-popup, .green-popup, .gold-popup, .diamond-popup, .smith-popup, .abyss-popup, .comet-popup, .rift-popup, .blackhole-popup, .gravity-text, .ending-text {
         font-size: 40px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards;
     }
+    .green-popup { color: #00FF00; text-shadow: 0px 0px 30px #000; }
+    .gold-popup { color: #FFF700; text-shadow: 0px 0px 30px #8B6508; }
+    .diamond-popup { color: #E0FFFF; text-shadow: 0px 0px 30px #00008B; }
     .smith-popup { color: #FFD700; text-shadow: 0px 0px 30px #FF4500; font-size: 38px; }
     .falling-apple { font-size: 100px; animation: appleFall 2.0s ease-in forwards; }
     
-    /* 도감 UI 사이즈 압축 스타일 */
-    .pokedex-item {
-        padding: 6px 12px;
-        margin-bottom: 4px;
-        border-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .pokedex-title {
-        font-size: 16px;
-        font-weight: bold;
-    }
-    .pokedex-sub {
-        font-size: 12px;
-        color: #888;
-    }
+    .pokedex-title { font-size: 16px; font-weight: bold; }
+    .pokedex-sub { font-size: 12px; color: #888; }
     </style>
 """,
     unsafe_allow_html=True,
@@ -216,7 +209,7 @@ for sp_key, sp_val in defaults["special_inventory"].items():
     if sp_key not in st.session_state.special_inventory:
         st.session_state.special_inventory[sp_key] = sp_val
 
-# 컷씬 처리
+# 컷씬 연출 처리
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
@@ -232,17 +225,18 @@ if eff:
         "secret": '<div class="effect-overlay dark-fade"><div class="monster-popup">💖 [비밀] 등급 획득!</div></div>',
         "dokebi": '<div class="effect-overlay dark-fade"><div class="monster-popup">👹 [도깨비] 출현!</div></div>',
         "pollution": '<div class="effect-overlay green-fade"><div class="green-popup">☣️ [오염 돌연변이] 발현!! ☣️</div></div>',
+        "gold": '<div class="effect-overlay gold-fade"><div class="gold-popup">🪙 [골드 돌연변이] 발현!! 🪙</div></div>',
+        "diamond": '<div class="effect-overlay diamond-fade"><div class="diamond-popup">💎 [다이아 돌연변이] 발현!! 💎</div></div>',
     }
     if eff in effects_html:
         st.markdown(effects_html[eff], unsafe_allow_html=True)
         time.sleep(10.0 if eff == "hephaestus" else (2.0 if eff not in ["gravity", "abyss", "rift"] else 6.0))
-        if (
-            eff != "pollution"
-            and st.session_state.pending_mutation_effect == "pollution"
-        ):
+        
+        # 기본 컷씬 종료 후 대기 중인 돌연변이 컷씬 연쇄 실행
+        if eff not in ["pollution", "gold", "diamond"] and st.session_state.pending_mutation_effect:
+            st.session_state.effect_type = st.session_state.pending_mutation_effect
             st.session_state.pending_mutation_effect = None
-            st.session_state.effect_type = "pollution"
-        st.rerun()
+            st.rerun()
 
 
 def get_base_name(name):
@@ -282,7 +276,7 @@ def get_display_name(name, mutation=None):
 
 def execute_rolls(count):
     highest = None
-    pollution_hit = False
+    mutation_hit = None
 
     for _ in range(count):
         mult = (
@@ -304,8 +298,8 @@ def execute_rolls(count):
         if mutation:
             st.session_state.mutation_stats[mutation] += 1
             st.session_state.mutation_unlocked[name][mutation] = True
-            if mutation == "오염":
-                pollution_hit = True
+            if name in HIGH_TIERS:
+                mutation_hit = mutation
 
         if (
             name in HIGH_TIERS
@@ -316,7 +310,7 @@ def execute_rolls(count):
             ):
                 highest = name
 
-    return highest, pollution_hit
+    return highest, mutation_hit
 
 
 def check_all():
@@ -395,16 +389,22 @@ with tabs[0]:
                 "도깨비": "dokebi",
                 "비밀": "secret",
             }
+            mutation_map = {
+                "골드": "gold",
+                "다이아": "diamond",
+                "오염": "pollution",
+            }
+
             if (
                 name in mapping
                 and not st.session_state.skip_cutscenes_map.get(name, False)
             ):
                 st.session_state.effect_type = mapping[name]
-                if mutation == "오염":
-                    st.session_state.pending_mutation_effect = "pollution"
+                if mutation in mutation_map:
+                    st.session_state.pending_mutation_effect = mutation_map[mutation]
                 st.rerun()
-            elif mutation == "오염":
-                st.session_state.effect_type = "pollution"
+            elif mutation in mutation_map and name in HIGH_TIERS:
+                st.session_state.effect_type = mutation_map[mutation]
                 st.rerun()
 
             st.success(
@@ -413,7 +413,7 @@ with tabs[0]:
 
     with c2:
         if st.button("🚀 10연차!", use_container_width=True):
-            hit, pollution_hit = execute_rolls(10)
+            hit, mutation_hit = execute_rolls(10)
             mapping = {
                 "중력": "gravity",
                 "블랙홀": "blackhole",
@@ -425,13 +425,18 @@ with tabs[0]:
                 "도깨비": "dokebi",
                 "비밀": "secret",
             }
+            mutation_map = {
+                "골드": "gold",
+                "다이아": "diamond",
+                "오염": "pollution",
+            }
             if hit and not st.session_state.skip_cutscenes_map.get(hit, False):
                 st.session_state.effect_type = mapping[hit]
-                if pollution_hit:
-                    st.session_state.pending_mutation_effect = "pollution"
+                if mutation_hit in mutation_map:
+                    st.session_state.pending_mutation_effect = mutation_map[mutation_hit]
                 st.rerun()
-            elif pollution_hit:
-                st.session_state.effect_type = "pollution"
+            elif mutation_hit in mutation_map:
+                st.session_state.effect_type = mutation_map[mutation_hit]
                 st.rerun()
             st.success("✨ 10연차 완료!")
 
@@ -449,7 +454,7 @@ with tabs[0]:
         for idx, (lbl, cnt) in enumerate(active_rolls):
             with cols[idx]:
                 if st.button(lbl, use_container_width=True, type="primary"):
-                    hit, pollution_hit = execute_rolls(cnt)
+                    hit, mutation_hit = execute_rolls(cnt)
                     mapping = {
                         "중력": "gravity",
                         "블랙홀": "blackhole",
@@ -461,17 +466,20 @@ with tabs[0]:
                         "도깨비": "dokebi",
                         "비밀": "secret",
                     }
+                    mutation_map = {
+                        "골드": "gold",
+                        "다이아": "diamond",
+                        "오염": "pollution",
+                    }
                     if hit and not st.session_state.skip_cutscenes_map.get(
                         hit, False
                     ):
                         st.session_state.effect_type = mapping[hit]
-                        if pollution_hit:
-                            st.session_state.pending_mutation_effect = (
-                                "pollution"
-                            )
+                        if mutation_hit in mutation_map:
+                            st.session_state.pending_mutation_effect = mutation_map[mutation_hit]
                         st.rerun()
-                    elif pollution_hit:
-                        st.session_state.effect_type = "pollution"
+                    elif mutation_hit in mutation_map:
+                        st.session_state.effect_type = mutation_map[mutation_hit]
                         st.rerun()
                     st.success(f"🎉 {cnt}연차 완료!")
 
@@ -631,7 +639,7 @@ with tabs[3]:
             st.success(f"{name} {use_qty}장 적용!")
             st.rerun()
 
-# 5. 도감 탭 (슬림/컴팩트 사이즈 적용)
+# 5. 도감 탭
 with tabs[4]:
     st.subheader("📕 도감")
     mapping_cutscene = {
@@ -653,7 +661,6 @@ with tabs[4]:
         price = SELL_PRICES[t_name] if unlocked else "???"
         prob_str = f"{prob*100:.11f}%" if prob > 0 else "대장간 전용"
 
-        # 컴팩트 1줄 레이아웃 구성
         c1, c2 = st.columns([3.2, 1.0])
         with c1:
             st.markdown(
