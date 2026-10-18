@@ -5,38 +5,52 @@ import streamlit as st
 
 st.set_page_config(page_title="두근두근 뽑기 & 상점", page_icon="🎲", layout="centered")
 
+# 공통 애니메이션 및 컷씬 스타일 정의 (pointer-events: auto로 터치/클릭 완전 차단)
 st.markdown("""
 <style>
 @keyframes fadeDark { 0% { background-color: rgba(0,0,0,0); } 25%, 75% { background-color: rgba(0,0,0,0.98); } 100% { background-color: rgba(0,0,0,0); } }
 @keyframes monsterJump { 0% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1.0); opacity: 1; } }
-@keyframes purpleHold { 0%, 100% { background-color: rgba(75, 0, 130, 0.95); } }
-@keyframes zombieAnim { 0% { transform: translateY(50px) scale(0.5); opacity: 0; } 50% { transform: translateY(0) scale(1.1) rotate(-3deg); opacity: 1; } 100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; } }
-@keyframes thunderAnim { 0% { background-color: #fff; transform: scale(1.2); } 20% { background-color: #220033; transform: scale(0.9); } 40% { background-color: #fff; transform: scale(1.1); } 100% { background-color: rgba(75,0,130,0.95); transform: scale(1); } }
-@keyframes potionAnim { 0% { transform: translateY(-300px); opacity: 0; } 60% { transform: translateY(0); opacity: 1; background-color: rgba(0, 255, 0, 0.8); } 100% { opacity: 1; background-color: rgba(75,0,130,0.95); } }
-@keyframes vampireAnim { 0% { transform: translateX(300px); background-color: rgba(255,0,0,0.9); opacity: 0; } 50% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(0); opacity: 1; } }
-@keyframes jiangshiAnim { 0% { transform: scale(0.8) translateX(-50px); opacity: 0; } 40% { transform: scale(1.2) translateX(40px); opacity: 1; } 100% { transform: scale(1) translateX(0); opacity: 1; } }
-@keyframes frankAnim { 0% { transform: rotate(0deg) scale(0.8); opacity: 0; } 50% { transform: rotate(15deg) scale(1.1); opacity: 1; } 100% { transform: rotate(0deg) scale(1); opacity: 1; } }
+@keyframes holyFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,255,255,1); } 100% { background-color: rgba(0,0,0,0); } }
+@keyframes greenFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(0,255,0,0.9); } 100% { background-color: rgba(0,0,0,0); } }
+@keyframes goldFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(255,215,0,0.95); } 100% { background-color: rgba(0,0,0,0); } }
+@keyframes diamondFlash { 0% { background-color: rgba(0,0,0,0); } 40%, 80% { background-color: rgba(30,144,255,0.95); } 100% { background-color: rgba(0,0,0,0); } }
+@keyframes smithSpark { 0% { background-color: rgba(255,69,0,0); transform: scale(0.9); } 40% { background-color: rgba(255,215,0,1); transform: scale(1.0); } 100% { background-color: rgba(0,0,0,0.95); } }
+@keyframes angelOpen { 0% { background-color: rgba(255,255,255,0); transform: scale(0.9); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0); } }
+@keyframes archangelRing { 0% { background-color: rgba(255,255,255,0); transform: scale(0.8); } 100% { background-color: rgba(0,0,0,0.95); transform: scale(1.0) rotate(360deg); } }
+@keyframes timeDistortion { 0% { background-color: rgba(0,0,0,0); } 50% { background-color: rgba(75,0,130,0.9); } 100% { background-color: rgba(0,0,0,0.98); } }
+@keyframes gravityCollapse { 0% { background-color: rgba(139,0,0,0); } 100% { background-color: rgba(0,0,0,0.98); } }
+@keyframes blackholeUniverse { 0% { background-color: rgba(255,255,255,1); transform: scale(0.2); } 100% { background-color: rgba(0,0,0,1); transform: scale(1.0); } }
+@keyframes galaxyAbsorbPulse { 0%, 100% { transform: scale(1); background: radial-gradient(circle, #000 0%, #0a001a 100%); } 50% { transform: scale(1.3); background: radial-gradient(circle, #8a2be2 70%, #000 100%); } }
+@keyframes pumpkinKingAnim { 0% { background-color: rgba(0,0,0,0.95); } 100% { background-color: rgba(10,0,20,0.98); } }
+@keyframes ghostSurprise { 0%, 60% { opacity: 0; } 100% { opacity: 1; background-color: rgba(0,0,0,0.95); } }
 @keyframes moonDrop { 0% { transform: translateY(-150px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 @keyframes pumpkinPop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes ghostPop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes appleRain { 0% { transform: translateY(-400px); opacity: 0; } 100% { transform: translateY(300px); opacity: 0.9; } }
 @keyframes endingFade { 0%, 100% { opacity: 0; background-color: rgba(0,0,0,0); } 50% { opacity: 1; background-color: #000; } }
 
 .effect-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; user-select: none; }
-.purple-hold-fade { animation: purpleHold 3.0s ease-in-out forwards; background-color: rgba(75, 0, 130, 0.95); }
-.zombie-fade { animation: zombieAnim 1.5s ease-in-out forwards; }
-.thunder-fade { animation: thunderAnim 1.5s ease-in-out forwards; }
-.potion-fade { animation: potionAnim 1.5s ease-in-out forwards; }
-.vampire-fade { animation: vampireAnim 1.5s ease-in-out forwards; }
-.jiangshi-fade { animation: jiangshiAnim 1.5s ease-in-out forwards; }
-.frank-fade { animation: frankAnim 2.0s ease-in-out forwards; }
-.pumpkin-king-fade { animation: fadeDark 3s ease-in-out forwards; }
-.ghost-fade { animation: fadeDark 3s ease-in-out forwards; }
+.dark-fade { animation: fadeDark 2.5s ease-in-out forwards; }
+.holy-fade { animation: holyFlash 2.5s ease-in-out forwards; }
+.green-fade { animation: greenFlash 2.5s ease-in-out forwards; }
+.gold-fade { animation: goldFlash 2.5s ease-in-out forwards; }
+.diamond-fade { animation: diamondFlash 2.5s ease-in-out forwards; }
+.smith-fade { animation: smithSpark 5.0s ease-in-out forwards; }
+.angel-fade { animation: angelOpen 4.0s ease-in-out forwards; }
+.archangel-fade { animation: archangelRing 4.0s ease-in-out forwards; }
+.time-fade { animation: timeDistortion 5.0s ease-in-out forwards; }
+.gravity-collapse-fade { animation: gravityCollapse 5.0s ease-in-out forwards; }
+.blackhole-universe-fade { animation: blackholeUniverse 5.0s ease-in-out forwards; }
+.galaxy-pulse-fade { animation: galaxyAbsorbPulse 5.0s ease-in-out infinite; }
+.pumpkin-king-fade { animation: pumpkinKingAnim 5.0s ease-in-out forwards; }
+.ghost-fade { animation: ghostSurprise 4.0s ease-in-out forwards; }
 .ending-fade { animation: endingFade 6.0s ease-in-out forwards; background-color: #000; }
 
 .popup-text { font-size: 38px; font-weight: bold; text-align: center; text-shadow: 0px 0px 20px #000; color: #FFF; animation: monsterJump 0.8s ease-out forwards; }
 .moon-icon { font-size: 90px; animation: moonDrop 1.5s ease-out forwards; margin-bottom: 15px; }
 .pumpkin-icon { font-size: 120px; animation: pumpkinPop 1.5s ease-out forwards; margin-bottom: 15px; }
 .ghost-icon { font-size: 130px; animation: ghostPop 1.5s ease-out forwards; margin-bottom: 15px; }
+.rain-apple { position: absolute; font-size: 90px; animation: appleRain 1.5s ease-in infinite; }
 .pokedex-title { font-size: 16px; font-weight: bold; }
 .pokedex-sub { font-size: 12px; color: #888; }
 </style>
@@ -69,38 +83,9 @@ HALLOWEEN_DATA = [
     ("박쥐", 99.899899, "#8A2BE2", 1.0),
 ]
 
-HALLOWEEN_BOX_DATA = [
-    ("프랑켄슈타인", 0.05, "#32CD32", 0.0),
-    ("강시", 0.25, "#FF4500", 0.0),
-    ("뱀파이어", 0.7, "#DC143C", 0.0),
-    ("마녀", 4.0, "#8A2BE2", 0.0),
-    ("잭오랜턴", 15.0, "#FF8C00", 0.0),
-    ("스켈레톤", 30.0, "#F5F5F5", 0.0),
-    ("좀비", 50.0, "#556B2F", 0.0),
-]
-
-ALL_TIERS = TIERS_DATA + HALLOWEEN_DATA + HALLOWEEN_BOX_DATA
+ALL_TIERS = TIERS_DATA + HALLOWEEN_DATA
 SELL_PRICES = {t[0]: t[3] for t in ALL_TIERS}
-HIGH_TIERS = ["은하", "대천사", "수호천사", "헤파이스토스", "중력", "블랙홀", "시간의 지배자", "균열자", "혜성", "어비스", "신성한", "도깨비", "비밀", "호박왕", "유령", "프랑켄슈타인", "강시", "뱀파이어", "마녀", "잭오랜턴", "스켈레톤", "좀비"]
-TICKET_DEFS = [
-    ("만배 행운권", 10000.0, 100),
-    ("십만배 행운권", 100000.0, 1000),
-    ("백만배 행운권", 1000000.0, 10000),
-    ("천만배 행운권", 10000000.0, 30000),
-]
-
-ROLL_DEFS = [
-    ("100연차 기능권", 50000.0, 100),
-    ("500연차 기능권", 250000.0, 500),
-    ("1000연차 기능권", 500000.0, 1000),
-    ("3000연차 기능권", 1500000.0, 3000),
-    ("10000연차 기능권", 5000000.0, 10000),
-]
-
-TIER_CAPS = {
-    "비밀": 0.20, "도깨비": 0.18, "신성한": 0.15, "어비스": 0.12, "혜성": 0.08,
-    "균열자": 0.05, "시간의 지배자": 0.02, "블랙홀": 0.005, "중력": 0.001, "은하": 0.00001
-}
+HIGH_TIERS = ["은하", "대천사", "수호천사", "헤파이스토스", "중력", "블랙홀", "시간의 지배자", "균열자", "혜성", "어비스", "신성한", "도깨비", "비밀", "호박왕", "유령"]
 
 def format_currency(val):
     if val >= 100000000:
@@ -117,9 +102,7 @@ def get_base_name(name):
         "중력": "🍎 중력", "블랙홀": "🕳️ 블랙홀", "시간의 지배자": "⏳ 시간의 지배자", "균열자": "🌀 균열자",
         "혜성": "☄️ 혜성", "어비스": "🌊 어비스", "신성한": "👼 신성한", "도깨비": "👹 도깨비",
         "비밀": "💖 비밀", "전설": "🟡 전설", "영웅": "🟣 영웅", "희귀": "🔵 희귀", "일반": "⚪ 일반",
-        "호박왕": "🎃 호박왕", "유령": "👻 유령", "사탕": "🍬 사탕", "박쥐": "🦇 박쥐",
-        "프랑켄슈타인": "⚡ 프랑켄슈타인", "강시": "🧟‍♂️ 강시", "뱀파이어": "🧛 뱀파이어",
-        "마녀": "🧙 마녀", "잭오랜턴": "🎃 잭오랜턴", "스켈레톤": "💀 스켈레톤", "좀비": "🧟 좀비"
+        "호박왕": "🎃 호박왕", "유령": "👻 유령", "사탕": "🍬 사탕", "박쥐": "🦇 박쥐"
     }
     return mapping.get(name, name)
 
@@ -128,6 +111,7 @@ def get_display_name(name, mutation=None):
     base = get_base_name(name)
     return f"{base}({mutation})" if mutation else base
 
+# 세션 상태 초기화
 defaults = {
     "coins": 0.0, "total_donated": 0.0, "history": [],
     "stats": {t[0]: 0 for t in ALL_TIERS}, "inventory": {t[0]: 0 for t in ALL_TIERS},
@@ -137,54 +121,50 @@ defaults = {
     "special_inventory": {"행운의 주사위": 0, "할로윈 뽑기권": 0, "만배 행운권": 0, "십만배 행운권": 0, "백만배 행운권": 0, "천만배 행운권": 0, "100연차 기능권": 0, "500연차 기능권": 0, "1000연차 기능권": 0, "3000연차 기능권": 0, "10000연차 기능권": 0},
     "has_100_roll": False, "has_500_roll": False, "has_1000_roll": False, "has_3000_roll": False, "has_10000_roll": False,
     "active_multiplier": 1.0, "active_multiplier_count": 0, "balloons_shown": False, "effect_type": None,
-    "pending_mutation_info": None,
     "skip_cutscenes_map": {t: False for t in HIGH_TIERS if t not in ["수호천사", "대천사"]}
 }
 for k, v in defaults.items():
     if k not in st.session_state: st.session_state[k] = v
 
+# 컷씬 처리 (터치 방지 오버레이 적용)
 eff = st.session_state.effect_type
 if eff:
     st.session_state.effect_type = None
-    mut_info = st.session_state.get("pending_mutation_info", "")
-    st.session_state["pending_mutation_info"] = None
-
     effects_map = {
         "ending": ('ending-fade', '<div class="popup-text">✨ 플레이해주셔서 감사합니다! ✨</div>'),
-        "archangel_phase1": ('purple-hold-fade', '<div class="popup-text">🕊️ 하늘의 문이 열립니다!<br>[수호천사] 강림!!</div>'),
-        "archangel_phase2": ('purple-hold-fade', '<div class="popup-text">🕊️✨ 천상의 문이 열리고...<br>[대천사] 강림!!</div>'),
-        "galaxy_phase1": ('purple-hold-fade', '<div class="popup-text">🕳️ 사건의 지평선 붕괴<br>✨ 공허가 태동합니다... ✨</div>'),
-        "galaxy_phase2": ('purple-hold-fade', '<div class="popup-text">🌌 시공간 맥동 및 방출<br>[은하] 강림!!</div>'),
+        "archangel_phase1": ('angel-fade', '<div class="popup-text">🕊️ 하늘의 문이 열립니다!<br>[수호천사] 강림!!</div>'),
+        "archangel_phase2": ('archangel-fade', '<div class="popup-text">🕊️✨ 천상의 문이 열리고...<br>[대천사] 강림!!</div>'),
+        "galaxy_phase1": ('blackhole-universe-fade', '<div class="popup-text">🕳️ 사건의 지평선 붕괴<br>✨ 공허가 태동합니다... ✨</div>'),
+        "galaxy_phase2": ('galaxy-pulse-fade', '<div class="popup-text">🌌 시공간 맥동 및 방출<br>[은하] 강림!!</div>'),
         "pumpkin_king": ('pumpkin-king-fade', '<div class="moon-icon">🌕</div><div class="pumpkin-icon">🎃</div><div class="popup-text">🎃 어두운 밤하늘, 집 위로 달이 내려앉고... 🎃<br>🌕 거대한 호박왕 강림!! 🌕</div>'),
         "ghost": ('ghost-fade', '<div class="ghost-icon">👻</div><div class="popup-text">👻 ...스스스 ...👻<br>💥 기괴한 유령 출현!! 💥</div>'),
-        "zombie": ('zombie-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">🧟 무덤이 갈라지며 화면이 흔들린다!<br>[좀비] 출현!!</div></div>'),
-        "skeleton": ('thunder-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">⚡ 하늘에서 벼락이 치며 해골이 강림한다!<br>[스켈레톤] 등장!!</div></div>'),
-        "jackolantern": ('pumpkin-king-fade', '<div class="purple-hold-fade effect-overlay"><div class="pumpkin-icon">🎃</div><div class="popup-text">✨ 호박이 튀어나와 반짝인다!<br>[잭오랜턴] 등장!!</div></div>'),
-        "witch": ('potion-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">🧪 초록색 포션이 위에서부터 뿌려진다!<br>[마녀] 등장!!</div></div>'),
-        "vampire": ('vampire-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">🧛 붉은 피의 물결과 날카로운 이빨!<br>[뱀파이어] 강림!!</div></div>'),
-        "jiangshi": ('jiangshi-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">🧟‍♂️ 쿵쿵! 화면이 밀려났다 돌아온다!<br>[강시] 출현!!</div></div>'),
-        "frankestein": ('frank-fade', '<div class="purple-hold-fade effect-overlay"><div class="popup-text">⚡ 번개와 유령들이 뒤덮는 공포!<br>[프랑켄슈타인] 강림!!</div></div>'),
-        "pollution": ('purple-hold-fade', f'<div class="popup-text">☣️ [오염 돌연변이] 발현!!<br><span style="font-size:24px; color:#00FF00;">{mut_info}</span></div>'),
-        "gold": ('purple-hold-fade', f'<div class="popup-text">🪙 [골드 돌연변이] 발현!!<br><span style="font-size:24px; color:#FFD700;">{mut_info}</span></div>'),
-        "diamond": ('purple-hold-fade', f'<div class="popup-text">💎 [다이아 돌연변이] 발현!!<br><span style="font-size:24px; color:#1E90FF;">{mut_info}</span></div>'),
-        "angel": ('purple-hold-fade', '<div class="popup-text">🕊️ [수호천사] 강림!!</div>'),
-        "hephaestus": ('purple-hold-fade', '<div class="popup-text">🔥 대장간의 신 강림!<br>[헤파이스토스] 득템!!</div>'),
-        "gravity": ('purple-hold-fade', '<div class="popup-text">🍎 중력장 붕괴!<br>[중력] 등급 획득!!</div>'),
-        "blackhole": ('purple-hold-fade', '<div class="popup-text">🕳️ [블랙홀] 강림!!</div>'),
-        "time_ruler": ('purple-hold-fade', '<div class="popup-text">⏳ [시간의 지배자] 일그러짐!</div>'),
-        "rift": ('purple-hold-fade', '<div class="popup-text">⚡ [균열자] 강림!!</div>'),
-        "comet": ('purple-hold-fade', '<div class="popup-text">☄️ [혜성] 우주 강림!</div>'),
-        "abyss": ('purple-hold-fade', '<div class="popup-text">🌊 [어비스] 소용돌이!</div>'),
-        "holy": ('purple-hold-fade', '<div class="popup-text">✨ [신성한] 등급 강림!</div>'),
-        "secret": ('purple-hold-fade', '<div class="popup-text">💖 [비밀] 등급 획득!</div>'),
-        "dokebi": ('purple-hold-fade', '<div class="popup-text">👹 [도깨비] 출현!</div>'),
+        "angel": ('angel-fade', '<div class="popup-text">🕊️ [수호천사] 강림!!</div>'),
+        "hephaestus": ('smith-fade', '<div class="popup-text">🔥 대장간의 신 강림!<br>[헤파이스토스] 득템!!</div>'),
+        "gravity": ('gravity-collapse-fade', '<div class="popup-text">🍎 중력장 붕괴!<br>[중력] 등급 획득!!</div><div class="rain-apple" style="left:20%;">🍎</div><div class="rain-apple" style="left:60%;">🍎</div>'),
+        "blackhole": ('blackhole-universe-fade', '<div class="popup-text">🕳️ [블랙홀] 강림!!</div>'),
+        "time_ruler": ('time-fade', '<div class="popup-text">⏳ [시간의 지배자] 일그러짐!</div>'),
+        "rift": ('rift-spin-green-fade', '<div class="popup-text">⚡ [균열자] 강림!!</div>'),
+        "comet": ('comet-fade', '<div class="popup-text">☄️ [혜성] 우주 강림!</div>'),
+        "abyss": ('abyss-fade', '<div class="popup-text">🌊 [어비스] 소용돌이!</div>'),
+        "holy": ('holy-fade', '<div class="popup-text">✨ [신성한] 등급 강림!</div>'),
+        "secret": ('dark-fade', '<div class="popup-text">💖 [비밀] 등급 획득!</div>'),
+        "dokebi": ('dark-fade', '<div class="popup-text">👹 [도깨비] 출현!</div>'),
+        "pollution": ('green-fade', '<div class="popup-text">☣️ [오염 돌연변이] 발현!!</div>'),
+        "gold": ('gold-fade', '<div class="popup-text">🪙 [골드 돌연변이] 발현!!</div>'),
+        "diamond": ('diamond-fade', '<div class="popup-text">💎 [다이아 돌연변이] 발현!!</div>'),
     }
     if eff in effects_map:
         cls, html = effects_map[eff]
         st.markdown(f'<div class="effect-overlay {cls}">{html}</div>', unsafe_allow_html=True)
-        time.sleep(3.0)
+        if eff == "archangel_phase1":
+            time.sleep(4.0); st.session_state.effect_type = "archangel_phase2"
+        elif eff == "galaxy_phase1":
+            time.sleep(4.0); st.session_state.effect_type = "galaxy_phase2"
+        else:
+            time.sleep(4.0)
         st.rerun()
 
+# 뽑기 및 돌연변이 로직
 def check_mutation():
     r = random.random()
     return "오염" if r < 0.001 else ("다이아" if r < 0.01 else ("골드" if r < 0.1 else None))
@@ -195,50 +175,14 @@ def gacha_roll(multiplier=1.0):
     if multiplier > 1.0:
         for name in HIGH_TIERS:
             if name in ["헤파이스토스", "수호천사", "대천사", "호박왕", "유령"]: continue
-            orig = b_dict.get(name, 0.0)
-            boosted = orig * multiplier
-            cap = TIER_CAPS.get(name, 1.0)
-            b_dict[name] = min(boosted, cap)
+            if name in b_dict: b_dict[name] = min(b_dict[name]*multiplier, 0.2)
     total_p = sum(b_dict.values())
     rand_v = random.random() * total_p
     cum = 0.0
-    for name, prob, color, price in normal:
+    for name, prob, color in normal:
         cum += b_dict[name]
         if rand_v <= cum: return name, color, check_mutation()
     return normal[-1][0], normal[-1][2], check_mutation()
-
-def execute_bulk_roll(count):
-    highest, mut_hit, mut_item_name = None, None, None
-    for _ in range(count):
-        mult = st.session_state.active_multiplier if st.session_state.active_multiplier_count > 0 else 1.0
-        if mult > 1.0:
-            st.session_state.active_multiplier_count -= 1
-            if st.session_state.active_multiplier_count == 0: st.session_state.active_multiplier = 1.0
-        name, _, mut = gacha_roll(mult)
-        st.session_state.history.append((name, mut))
-        st.session_state.stats[name] += 1
-        st.session_state.inventory[name] += 1
-        st.session_state.unlocked[name] = True
-        if mut:
-            st.session_state.mutation_stats[mut] += 1
-            st.session_state.mutation_unlocked[name][mut] = True
-            if name in HIGH_TIERS:
-                mut_hit = mut
-                mut_item_name = name
-        if name in HIGH_TIERS: highest = name
-
-    mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
-    mut_map = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}
-
-    if highest and not st.session_state.skip_cutscenes_map.get(highest, False):
-        st.session_state.effect_type = mapping[highest]
-        st.rerun()
-    elif mut_hit and mut_hit in mut_map:
-        st.session_state.pending_mutation_info = f"당첨 아이템: {get_base_name(mut_item_name)}"
-        st.session_state.effect_type = mut_map[mut_hit]
-        st.rerun()
-    else:
-        st.success(f"✨ {count}연차 완료!")
 
 def halloween_roll():
     rand_v = random.random() * 100.0
@@ -248,14 +192,7 @@ def halloween_roll():
         if rand_v <= cum: return name, color
     return HALLOWEEN_DATA[-1][0], HALLOWEEN_DATA[-1][2]
 
-def halloween_box_roll():
-    rand_v = random.random() * 100.0
-    cum = 0.0
-    for name, prob, color in HALLOWEEN_BOX_DATA:
-        cum += prob
-        if rand_v <= cum: return name, color
-    return HALLOWEEN_BOX_DATA[-1][0], HALLOWEEN_BOX_DATA[-1][2]
-
+# UI 메인
 st.title("🎲 뽑기 & 상점 시뮬레이터")
 st.metric("💰 보유 코인", f"{format_currency(st.session_state.coins)} 코인")
 
@@ -292,35 +229,33 @@ with tabs[0]:
             name, color, mut = gacha_roll(mult)
             st.session_state.history.append((name, mut))
             st.session_state.stats[name] += 1; st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
+            if mut: st.session_state.mutation_stats[mut] += 1; st.session_state.mutation_unlocked[name][mut] = True
             
             mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
             if name in mapping and not st.session_state.skip_cutscenes_map.get(name, False):
                 st.session_state.effect_type = mapping[name]; st.rerun()
+            elif mut and name in HIGH_TIERS:
+                st.session_state.effect_type = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}[mut]; st.rerun()
             st.success(f"🎉 당첨: **:{color}[{get_display_name(name, mut)}]**")
     with c2:
         if st.button("🚀 10연차!", use_container_width=True):
-            execute_bulk_roll(10)
+            highest, mut_hit = None, None
+            for _ in range(10):
+                name, _, mut = gacha_roll(1.0)
+                st.session_state.history.append((name, mut))
+                st.session_state.stats[name] += 1; st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
+                if mut: st.session_state.mutation_stats[mut] += 1; st.session_state.mutation_unlocked[name][mut] = True; mut_hit = mut
+                if name in HIGH_TIERS: highest = name
+            mapping = {"은하": "galaxy_phase1", "중력": "gravity", "블랙홀": "blackhole", "시간의 지배자": "time_ruler", "균열자": "rift", "혜성": "comet", "어비스": "abyss", "신성한": "holy", "도깨비": "dokebi", "비밀": "secret"}
+            if highest and not st.session_state.skip_cutscenes_map.get(highest, False):
+                st.session_state.effect_type = mapping[highest]; st.rerun()
+            elif mut_hit:
+                st.session_state.effect_type = {"골드": "gold", "다이아": "diamond", "오염": "pollution"}[mut_hit]; st.rerun()
+            st.success("✨ 10연차 완료!")
 
-    st.markdown("---")
-    st.markdown("### ⚡ 활성화된 대규모 연차 버튼")
-    r_cols = st.columns(5)
-    roll_configs = [("100연차", 100, "has_100_roll"), ("500연차", 500, "has_500_roll"), ("1000연차", 1000, "has_1000_roll"), ("3000연차", 3000, "has_3000_roll"), ("10000연차", 10000, "has_10000_roll")]
-    for idx, (label, count, flag_key) in enumerate(roll_configs):
-        with r_cols[idx]:
-            is_unlocked = st.session_state.special_inventory.get(f"{label} 기능권", 0) > 0 or st.session_state.get(flag_key, False)
-            if st.button(f"🚀 {label}", disabled=not is_unlocked, use_container_width=True):
-                execute_bulk_roll(count)
-
-# 2. 할로윈 탭
+# 2. 할로윈 탭 (첫 획득 시에만 컷씬 재생)
 with tabs[1]:
-    st.subheader("🎃 할로윈 한정 뽑기 & 합성")
-    
-    st.markdown("""
-        <audio autoplay loop>
-          <source src="https://actions.google.com/sounds/v1/ambiences/creepy_wind.ogg" type="audio/ogg">
-        </audio>
-    """, unsafe_allow_html=True)
-
+    st.subheader("🎃 할로윈 한정 뽑기")
     h_tickets = st.session_state.special_inventory.get("할로윈 뽑기권", 0)
     st.info(f"🎟️ 보유 할로윈 뽑기권: **{format_currency(h_tickets)}장**")
     if st.button("🎃 할로윈 1회 뽑기", disabled=(h_tickets < 1), use_container_width=True):
@@ -334,50 +269,18 @@ with tabs[1]:
 
         if is_first_time and not st.session_state.skip_cutscenes_map.get(name, False):
             if name == "호박왕":
-                st.session_state.effect_type = "pumpkin_king"; st.rerun()
+                st.session_state.effect_type = "pumpkin_king"
+                st.rerun()
             elif name == "유령":
-                st.session_state.effect_type = "ghost"; st.rerun()
+                st.session_state.effect_type = "ghost"
+                st.rerun()
 
         st.success(f"🎉 할로윈 당첨: [{get_base_name(name)}]")
-
-    st.divider()
-    st.markdown("### 📦 할로윈 상자 전용 합성 시스템")
-    st.info("재료: **유령 1개 + 사탕 1개 + 박쥐 1개**를 소모하여 할로윈 상자를 엽니다! (상점 판매 불가 등급 획득 가능)")
-
-    g_cnt = st.session_state.inventory.get("유령", 0)
-    c_cnt = st.session_state.inventory.get("사탕", 0)
-    b_cnt = st.session_state.inventory.get("박쥐", 0)
-    can_box_craft = (g_cnt >= 1 and c_cnt >= 1 and b_cnt >= 1)
-
-    st.write(f"현재 재료 보유량 - 유령: {format_currency(g_cnt)}개 | 사탕: {format_currency(c_cnt)}개 | 박쥐: {format_currency(b_cnt)}개")
-
-    if st.button("🎁 할로윈 상자 열기 (합성)", type="primary", disabled=not can_box_craft, use_container_width=True):
-        st.session_state.inventory["유령"] -= 1
-        st.session_state.inventory["사탕"] -= 1
-        st.session_state.inventory["박쥐"] -= 1
-
-        box_name, _ = halloween_box_roll()
-        is_first = not st.session_state.unlocked.get(box_name, False)
-        st.session_state.stats[box_name] += 1
-        st.session_state.inventory[box_name] += 1
-        st.session_state.unlocked[box_name] = True
-
-        box_cutscene_map = {
-            "좀비": "zombie", "스켈레톤": "skeleton", "잭오랜턴": "jackolantern",
-            "마녀": "witch", "뱀파이어": "vampire", "강시": "jiangshi", "프랑켄슈타인": "frankestein"
-        }
-
-        if is_first and box_name in box_cutscene_map and not st.session_state.skip_cutscenes_map.get(box_name, False):
-            st.session_state.effect_type = box_cutscene_map[box_name]
-            st.rerun()
-        else:
-            st.success(f"📦 할로윈 상자 개봉 결과: **[{get_base_name(box_name)}]** 획득!")
 
 # 3. 상점 탭
 with tabs[2]:
     st.subheader("💵 판매소 및 Special 상점")
-    sellable_items = [t for t in ALL_TIERS if t[0] not in [hb[0] for hb in HALLOWEEN_BOX_DATA]]
-    sell_sel = {t[0]: st.checkbox(f"{get_base_name(t[0])} ({format_currency(st.session_state.inventory.get(t[0], 0))}개)", key=f"sell_check_{t[0]}") for t in sellable_items}
+    sell_sel = {t[0]: st.checkbox(f"{get_base_name(t[0])} ({format_currency(st.session_state.inventory.get(t[0], 0))}개)", key=f"sell_check_{t[0]}") for t in ALL_TIERS}
     if st.button("💰 선택 아이템 판매", type="primary"):
         earned = sum(st.session_state.inventory[t] * SELL_PRICES[t] for t, sel in sell_sel.items() if sel)
         for t, sel in sell_sel.items():
@@ -386,8 +289,6 @@ with tabs[2]:
             st.session_state.coins += earned; st.success(f"🎉 {format_currency(earned)} 코인 획득!"); st.rerun()
     
     st.divider()
-    st.markdown("### 🛒 Special 상점 (연차 기능권 & 행운권 구매)")
-    
     h_buy_qty = st.number_input("할로윈 뽑기권 구매 (장당 100코인, 최대 1백만)", 1, 1000000, 1)
     if st.button("🎟️ 할로윈 뽑기권 구매", type="primary"):
         cost = h_buy_qty * 100.0
@@ -395,31 +296,6 @@ with tabs[2]:
             st.session_state.coins -= cost; st.session_state.special_inventory["할로윈 뽑기권"] += h_buy_qty
             st.success("구매 완료!"); st.rerun()
         else: st.error("코인 부족!")
-
-    st.markdown("---")
-    st.markdown("#### ⚡ 연차 기능권 구매")
-    for name, price, _ in ROLL_DEFS:
-        if st.button(f"🛒 {name} 구매 ({format_currency(price)} 코인)", key=f"buy_roll_{name}"):
-            if st.session_state.coins >= price:
-                st.session_state.coins -= price
-                st.session_state.special_inventory[name] += 1
-                st.success(f"{name} 구매 완료!")
-                st.rerun()
-            else:
-                st.error("코인 부족!")
-
-    st.markdown("---")
-    buy_qty = st.number_input("행운권 일괄 구매 수량", 1, 100000, 1, key="buy_ticket_qty")
-    for name, _, price in TICKET_DEFS:
-        cost = price * buy_qty
-        if st.button(f"🎟️ {name} {format_currency(buy_qty)}장 ({format_currency(cost)}코인)", key=f"buy_{name}"):
-            if st.session_state.coins >= cost:
-                st.session_state.coins -= cost
-                st.session_state.special_inventory[name] += buy_qty
-                st.success("구매 완료!")
-                st.rerun()
-            else:
-                st.error("코인 부족!")
 
 # 4. 대장간 탭
 with tabs[3]:
@@ -449,78 +325,25 @@ with tabs[3]:
 with tabs[4]:
     st.subheader("🎁 개발자 기부 시스템")
     total_d = st.session_state.get("total_donated", 0.0)
-    
-    if total_d >= 30000000.0:
-        p_angel, p_arch = 1.0, 0.01
-        str_angel = "1.0% (3천만 코인 달성 보너스!)"
-        str_arch = "0.01% (3천만 코인 달성 보너스!)"
-    elif total_d >= 5000000.0:
-        p_angel, p_arch = 0.1, 0.001
-        str_angel = "0.1% (5백만 코인 달성 보너스!)"
-        str_arch = "0.001% (5백만 코인 달성 보너스!)"
-    else:
-        p_angel, p_arch = 0.01, 0.0001
-        str_angel = "0.01% (기본 확률)"
-        str_arch = "0.0001% (기본 확률)"
-
-    st.info(f"""
-    💡 **개발자 기부 안내**
-    - 1회 기부 금액: **10,000 코인**
-    - 현재 누적 기부금: **{format_currency(total_d)} 코인**
-    
-    📊 **현재 적용 중인 획득 확률표 (1회당)**
-    - [{get_base_name('수호천사')}]: **{str_angel}**
-    - [{get_base_name('대천사')}]: **{str_arch}**
-    """)
-
-    donation_counts = [1, 10, 100]
-    d_cols = st.columns(len(donation_counts))
-    
-    for idx, d_cnt in enumerate(donation_counts):
-        cost_total = d_cnt * 10000.0
-        with d_cols[idx]:
-            if st.button(f"💖 {d_cnt}회 기부\n({format_currency(cost_total)}코인)", use_container_width=True, type="primary", key=f"donate_btn_{d_cnt}"):
-                if st.session_state.coins >= cost_total:
-                    st.session_state.coins -= cost_total
-                    st.session_state.total_donated += cost_total
-                    
-                    hit_archangel = False
-                    hit_angel = False
-                    angel_count = 0
-                    archangel_count = 0
-
-                    for _ in range(d_cnt):
-                        if random.random() * 100 < p_arch:
-                            st.session_state.inventory["대천사"] += 1
-                            st.session_state.unlocked["대천사"] = True
-                            hit_archangel = True
-                            archangel_count += 1
-                        elif random.random() * 100 < p_angel:
-                            st.session_state.inventory["수호천사"] += 1
-                            st.session_state.unlocked["수호천사"] = True
-                            hit_angel = True
-                            angel_count += 1
-
-                    if hit_archangel:
-                        st.session_state.effect_type = "archangel_phase1"
-                        st.rerun()
-                    elif hit_angel and angel_count == 1 and not st.session_state.unlocked.get("수호천사", False):
-                        st.session_state.effect_type = "angel"
-                        st.rerun()
-                    else:
-                        msg = f"💸 {d_cnt}회 기부 완료! ({format_currency(cost_total)}코인 소모)\n"
-                        if archangel_count > 0 or angel_count > 0:
-                            msg += f"- [{get_base_name('대천사')}]: {archangel_count}회 획득!\n"
-                            msg += f"- [{get_base_name('수호천사')}]: {angel_count}회 획득!\n"
-                            st.success(msg)
-                        else:
-                            st.warning(f"💸 총 {d_cnt}회 기부 완료! (아쉽게도 이번엔 천사가 응답하지 않았습니다.)")
-                else:
-                    st.error("❌ 보유 코인이 부족합니다!")
+    p_angel = 1.0 if total_d >= 3e7 else (0.1 if total_d >= 5e6 else 0.01)
+    p_arch = 0.01 if total_d >= 3e7 else (0.001 if total_d >= 5e6 else 0.0001)
+    if st.button("💖 1만 코인 기부", type="primary"):
+        if st.session_state.coins >= 10000.0:
+            st.session_state.coins -= 10000.0; st.session_state.total_donated += 10000.0
+            if random.random() * 100 < p_arch:
+                st.session_state.inventory["대천사"] += 1; st.session_state.unlocked["대천사"] = True
+                st.session_state.effect_type = "archangel_phase1"; st.rerun()
+            elif random.random() * 100 < p_angel:
+                st.session_state.inventory["수호천사"] += 1
+                if not st.session_state.unlocked.get("수호천사", False):
+                    st.session_state.unlocked["수호천사"] = True; st.session_state.effect_type = "angel"; st.rerun()
+                st.success("🕊️ 수호천사 획득!")
+            else: st.warning("아쉽게도 천사가 응답하지 않았습니다.")
+        else: st.error("코인 부족!")
 
 # 6. 배낭 탭
 with tabs[5]:
-    st.subheader("🎒 배낭 (아이템 사용)")
+    st.subheader("🎒 배낭")
     dice = st.session_state.special_inventory.get("행운의 주사위", 0)
     if st.button(f"🎲 주사위 사용 (보유: {dice}개)", disabled=(dice == 0)):
         st.session_state.special_inventory["행운의 주사위"] -= 1
@@ -528,53 +351,10 @@ with tabs[5]:
         st.session_state.inventory[name] += 1; st.session_state.unlocked[name] = True
         st.success(f"당첨: {get_display_name(name, mut)}"); st.rerun()
 
-    st.markdown("---")
-    st.markdown("#### ⚡ 연차 기능권 활성화")
-    for name, _, _ in ROLL_DEFS:
-        cnt = st.session_state.special_inventory.get(name, 0)
-        flag_key = f"has_{name.split('연차')[0]}_roll"
-        if st.button(f"🎟️ {name} 사용 (보유: {cnt}개)", disabled=(cnt < 1), key=f"use_roll_{name}"):
-            st.session_state.special_inventory[name] -= 1
-            if name == "100연차 기능권": st.session_state.has_100_roll = True
-            elif name == "500연차 기능권": st.session_state.has_500_roll = True
-            elif name == "1000연차 기능권": st.session_state.has_1000_roll = True
-            elif name == "3000연차 기능권": st.session_state.has_3000_roll = True
-            elif name == "10000연차 기능권": st.session_state.has_10000_roll = True
-            st.success(f"✨ {name}이 활성화되었습니다!")
-            st.rerun()
-
-    st.markdown("---")
-    use_qty = st.number_input("행운권 일괄 사용 수량", 1, 100000, 1, key="u_qty")
-    for name, mult, _ in TICKET_DEFS:
-        cnt = st.session_state.special_inventory.get(name, 0)
-        if st.button(
-            f"🎟️ {name} {format_currency(use_qty)}장 사용 (보유: {format_currency(cnt)}개)",
-            disabled=(cnt < use_qty),
-            key=f"use_{name}",
-        ):
-            st.session_state.special_inventory[name] -= use_qty
-            if st.session_state.active_multiplier == mult:
-                st.session_state.active_multiplier_count += use_qty
-            else:
-                st.session_state.active_multiplier = mult
-                st.session_state.active_multiplier_count = use_qty
-            st.success(f"{name} {format_currency(use_qty)}장 적용!")
-            st.rerun()
-
 # 7. 도감 탭
 with tabs[6]:
     st.subheader("📕 도감")
-    st.markdown("### 🎃 할로윈 전용 도감")
-    halloween_all_list = HALLOWEEN_DATA + HALLOWEEN_BOX_DATA
-    for t_name, prob, color, _ in halloween_all_list:
-        unlocked = st.session_state.unlocked.get(t_name, False)
-        disp = get_base_name(t_name)
-        st.markdown(f"<div class='pokedex-title'>:<span style='color:{color}'>{disp}</span> (확률: {prob}%)</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='pokedex-sub'>상태: {'해금됨' if unlocked else '🔒 미해금 (??)'}</div>", unsafe_allow_html=True)
-        st.markdown("<hr style='margin: 4px 0px; border-color: rgba(255,255,255,0.08);'>", unsafe_allow_html=True)
-
-    st.markdown("### 🎲 일반 / 특수 도감")
-    for t_name, prob, color, _ in TIERS_DATA:
+    for t_name, prob, color, _ in ALL_TIERS:
         unlocked = st.session_state.unlocked.get(t_name, False)
         disp = get_base_name(t_name)
         st.markdown(f"<div class='pokedex-title'>:<span style='color:{color}'>{disp}</span></div>", unsafe_allow_html=True)
@@ -590,7 +370,7 @@ with tabs[7]:
 # 9. 세이브 탭
 with tabs[8]:
     st.subheader("💾 세이브 / 로드")
-    data = json.dumps({k: st.session_state[k] for k in ["coins", "total_donated", "inventory", "unlocked", "special_inventory", "has_100_roll", "has_500_roll", "has_1000_roll", "has_3000_roll", "has_10000_roll"]}, ensure_ascii=False)
+    data = json.dumps({k: st.session_state[k] for k in ["coins", "total_donated", "inventory", "unlocked", "special_inventory"]}, ensure_ascii=False)
     st.download_button("📥 다운로드", data, "save.json", "application/json")
     up = st.file_uploader("로드", type=["json"])
     if up and st.button("🔄 불러오기"):
@@ -603,4 +383,4 @@ with tabs[9]:
     if st.text_input("비밀번호", type="password") == "090925":
         add = st.number_input("지급 코인", value=10000.0, step=1000.0)
         if st.button("💰 지급 받기", type="primary"):
-            st.session_state.coins += add; st.success(f"🎉 성공적으로 {format_currency(add)} 코인이 지급되었습니다!"); st.rerun()
+            st.session_state.coins += add; st.success("지급 완료!"); st.rerun()
