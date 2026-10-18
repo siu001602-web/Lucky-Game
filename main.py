@@ -177,34 +177,43 @@ SELL_PRICES = {
     "중력": 30000000.0,
 }
 
+HIGH_TIERS = [
+    "비밀",
+    "도깨비",
+    "신성한",
+    "어비스",
+    "혜성",
+    "균열자",
+    "시간의 지배자",
+    "블랙홀",
+    "중력",
+]
 
-def gacha_roll(exclude_common_rare=False):
-    if exclude_common_rare:
-        filtered_tiers = [
-            t for t in TIERS if t[0] not in ["일반", "희귀"]
-        ]
-        excluded_prob_sum = sum(
-            t[1] for t in TIERS if t[0] in ["일반", "희귀"]
-        )
 
-        epic_legend_pool = ["영웅", "전설"]
-        pool_78 = excluded_prob_sum * (7 / 8)
-        bonus_epic_legend = pool_78 / len(epic_legend_pool)
+def gacha_roll(multiplier=1.0):
+    if multiplier > 1.0:
+        base_dict = {name: prob for name, prob, color in TIERS}
+        color_dict = {name: color for name, prob, color in TIERS}
 
-        target_sub_pool = ["신성한", "도깨비", "비밀"]
-        pool_18 = excluded_prob_sum * (1 / 8)
-        bonus_sub = pool_18 / len(target_sub_pool)
+        total_increase = 0.0
+        for name in HIGH_TIERS:
+            orig = base_dict[name]
+            new_prob = orig * multiplier
+            total_increase += new_prob - orig
+            base_dict[name] = new_prob
 
-        adjusted_tiers = []
-        for name, prob, color in filtered_tiers:
-            if name in epic_legend_pool:
-                adjusted_tiers.append((name, prob + bonus_epic_legend, color))
-            elif name in target_sub_pool:
-                adjusted_tiers.append((name, prob + bonus_sub, color))
-            else:
-                adjusted_tiers.append((name, prob, color))
+        # 일반, 희귀 등급 비율에 맞게 증가한 확률 차감
+        common_rare_sum = base_dict["일반"] + base_dict["희귀"]
+        if common_rare_sum > 0:
+            decrease_ratio = max(
+                0.0, (common_rare_sum - total_increase) / common_rare_sum
+            )
+            base_dict["일반"] *= decrease_ratio
+            base_dict["희귀"] *= decrease_ratio
 
+        adjusted_tiers = [(n, base_dict[n], color_dict[n]) for n, _, _ in TIERS]
         total_prob = sum(t[1] for t in adjusted_tiers)
+
         rand_val = random.random() * total_prob
         cumulative = 0.0
         for name, prob, color in adjusted_tiers:
@@ -244,7 +253,10 @@ if "inventory" not in st.session_state:
 if "special_inventory" not in st.session_state:
     st.session_state.special_inventory = {
         "행운의 주사위": 0,
-        "일반&희귀 제외권": 0,
+        "10배 행운권": 0,
+        "100배 행운권": 0,
+        "1000배 행운권": 0,
+        "백만배 행운권": 0,
         "100연차 기능권": 0,
         "500연차 기능권": 0,
         "1000연차 기능권": 0,
@@ -267,8 +279,10 @@ if "has_3000_roll" not in st.session_state:
 if "has_10000_roll" not in st.session_state:
     st.session_state.has_10000_roll = False
 
-if "filter_buff_count" not in st.session_state:
-    st.session_state.filter_buff_count = 0
+if "active_multiplier" not in st.session_state:
+    st.session_state.active_multiplier = 1.0
+if "active_multiplier_count" not in st.session_state:
+    st.session_state.active_multiplier_count = 0
 
 if "balloons_shown" not in st.session_state:
     st.session_state.balloons_shown = False
@@ -418,11 +432,14 @@ def execute_rolls(count):
     highest_special = None
 
     for _ in range(count):
-        use_buff = st.session_state.filter_buff_count > 0
-        if use_buff:
-            st.session_state.filter_buff_count -= 1
+        mult = 1.0
+        if st.session_state.active_multiplier_count > 0:
+            mult = st.session_state.active_multiplier
+            st.session_state.active_multiplier_count -= 1
+            if st.session_state.active_multiplier_count == 0:
+                st.session_state.active_multiplier = 1.0
 
-        name, color = gacha_roll(exclude_common_rare=use_buff)
+        name, color = gacha_roll(multiplier=mult)
         st.session_state.history.append(name)
         st.session_state.stats[name] += 1
         st.session_state.inventory[name] += 1
@@ -462,9 +479,13 @@ if check_all_unlocked():
         st.session_state.effect_type = "ending"
         st.rerun()
 
-if st.session_state.filter_buff_count > 0:
+if st.session_state.active_multiplier_count > 0:
+    m_val = st.session_state.active_multiplier
+    m_str = (
+        f"{int(m_val):,}배" if m_val >= 1 else f"{m_val}배"
+    )
     st.info(
-        f"🚫 **[일반&희귀 제외권] 버프 활성화 중!** (남은 적용 횟수: **{st.session_state.filter_buff_count}회**)"
+        f"🎟️ **[{m_str} 행운 버프] 활성화 중!** (비밀 이상 등급 확률 {m_str} 상승 | 남은 횟수: **{st.session_state.active_multiplier_count}회**)"
     )
 
 with st.expander("⚙️ 게임 설정 (등급별 컷씬 스킵)"):
@@ -498,11 +519,14 @@ with tab1:
 
     with col1:
         if st.button("🎰 1회 뽑기", use_container_width=True):
-            use_buff = st.session_state.filter_buff_count > 0
-            if use_buff:
-                st.session_state.filter_buff_count -= 1
+            mult = 1.0
+            if st.session_state.active_multiplier_count > 0:
+                mult = st.session_state.active_multiplier
+                st.session_state.active_multiplier_count -= 1
+                if st.session_state.active_multiplier_count == 0:
+                    st.session_state.active_multiplier = 1.0
 
-            name, color = gacha_roll(exclude_common_rare=use_buff)
+            name, color = gacha_roll(multiplier=mult)
 
             st.session_state.history.append(name)
             st.session_state.stats[name] += 1
@@ -645,55 +669,78 @@ with tab2:
     st.divider()
 
     st.subheader("🛒 Special 상점")
-    s_col1, s_col2 = st.columns(2)
 
-    with s_col1:
-        st.markdown("### 🎲 행운의 주사위")
-        st.write("가격: **800 코인**")
-        secret_prob_str = (
-            "비밀 20%" if st.session_state.unlocked.get("비밀") else "❓ ??"
-        )
-        dokebi_prob_str = (
-            "도깨비 10%" if st.session_state.unlocked.get("도깨비") else "❓ ??"
-        )
-        st.write(f"확률: **전설 70% | {secret_prob_str} | {dokebi_prob_str}**")
+    st.markdown("### 🎲 행운의 주사위")
+    st.write("가격: **800 코인**")
+    secret_prob_str = (
+        "비밀 20%" if st.session_state.unlocked.get("비밀") else "❓ ??"
+    )
+    dokebi_prob_str = (
+        "도깨비 10%" if st.session_state.unlocked.get("도깨비") else "❓ ??"
+    )
+    st.write(f"확률: **전설 70% | {secret_prob_str} | {dokebi_prob_str}**")
 
-        if st.button("🎲 주사위 구매"):
-            if st.session_state.coins >= 800:
-                st.session_state.coins -= 800
-                st.session_state.special_inventory["행운의 주사위"] += 1
-                st.success("✨ '행운의 주사위'를 배낭에 넣었습니다!")
+    if st.button("🎲 주사위 구매"):
+        if st.session_state.coins >= 800:
+            st.session_state.coins -= 800
+            st.session_state.special_inventory["행운의 주사위"] += 1
+            st.success("✨ '행운의 주사위'를 배낭에 넣었습니다!")
+        else:
+            st.error("코인이 부족합니다! (800 코인 필요)")
+
+    st.markdown("---")
+    st.markdown("### 🎟️ 배율 행운권 상점")
+    st.caption(
+        "사용 시 비밀 이상 상위 등급의 등장 확률이 지정된 배수만큼 상향됩니다."
+    )
+
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+
+    with m_col1:
+        st.markdown("#### 🎟️ 10배 행운권")
+        st.write("가격: **100 코인**")
+        if st.button("10배 구매", key="buy_10x"):
+            if st.session_state.coins >= 100:
+                st.session_state.coins -= 100
+                st.session_state.special_inventory["10배 행운권"] += 1
+                st.success("✨ '10배 행운권' 구매 완료!")
             else:
-                st.error("코인이 부족합니다! (800 코인 필요)")
+                st.error("코인 부족 (100 필요)")
 
-    with s_col2:
-        st.markdown("### 🚫 일반&희귀 제외권")
-        st.write("개당 가격: **1,000 코인**")
-        st.write(
-            "효과: **제외된 확률의 7/8은 영웅/전설에, 1/8은 신성한 등급까지만 분배 (대량 구매 가능)**"
-        )
-
-        buy_count = st.number_input(
-            "구매 수량", min_value=1, max_value=1000, value=1, key="buy_filter_cnt"
-        )
-        total_cost = buy_count * 1000
-
-        if st.button(
-            f"🚫 제외권 {buy_count}개 구매 ({total_cost:,} 코인)"
-        ):
-            if st.session_state.coins >= total_cost:
-                st.session_state.coins -= total_cost
-                st.session_state.special_inventory["일반&희귀 제외권"] += (
-                    buy_count
-                )
-                st.success(
-                    f"✨ '일반&희귀 제외권' {buy_count}개를 배낭에 넣었습니다!"
-                )
+    with m_col2:
+        st.markdown("#### 🎟️ 100배 행운권")
+        st.write("가격: **1,000 코인**")
+        if st.button("100배 구매", key="buy_100x"):
+            if st.session_state.coins >= 1000:
+                st.session_state.coins -= 1000
+                st.session_state.special_inventory["100배 행운권"] += 1
+                st.success("✨ '100배 행운권' 구매 완료!")
             else:
-                st.error(
-                    f"코인이 부족합니다! ({total_cost:,} 코인 필요)"
-                )
+                st.error("코인 부족 (1,000 필요)")
 
+    with m_col3:
+        st.markdown("#### 🎟️ 1000배 행운권")
+        st.write("가격: **10,000 코인**")
+        if st.button("1000배 구매", key="buy_1000x"):
+            if st.session_state.coins >= 10000:
+                st.session_state.coins -= 10000
+                st.session_state.special_inventory["1000배 행운권"] += 1
+                st.success("✨ '1000배 행운권' 구매 완료!")
+            else:
+                st.error("코인 부족 (10,000 필요)")
+
+    with m_col4:
+        st.markdown("#### 🌟 백만배 행운권")
+        st.write("가격: **100,000 코인**")
+        if st.button("백만배 구매", key="buy_1000000x"):
+            if st.session_state.coins >= 100000:
+                st.session_state.coins -= 100000
+                st.session_state.special_inventory["백만배 행운권"] += 1
+                st.success("✨ '백만배 행운권' 구매 완료!")
+            else:
+                st.error("코인 부족 (100,000 필요)")
+
+    st.markdown("---")
     st.markdown("### 🎫 연차 기능 해금 상점")
     t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
 
@@ -791,59 +838,77 @@ with tab2:
 with tab3:
     st.subheader("🎒 특수 아이템 배낭")
 
-    b_col1, b_col2 = st.columns(2)
+    st.markdown("### 🎲 행운의 주사위")
+    dice_count = st.session_state.special_inventory.get("행운의 주사위", 0)
+    st.write(f"보유: **{dice_count}개**")
+    if st.button("주사위 사용", disabled=(dice_count == 0)):
+        st.session_state.special_inventory["행운의 주사위"] -= 1
+        name, color = lucky_dice_roll()
+        st.session_state.history.append(f"주사위사용:{name}")
+        st.session_state.stats[name] += 1
+        st.session_state.inventory[name] += 1
 
-    with b_col1:
-        st.markdown("### 🎲 행운의 주사위")
-        dice_count = st.session_state.special_inventory["행운의 주사위"]
-        st.write(f"보유: **{dice_count}개**")
-        if st.button("주사위 사용", disabled=(dice_count == 0)):
-            st.session_state.special_inventory["행운의 주사위"] -= 1
-            name, color = lucky_dice_roll()
-            st.session_state.history.append(f"주사위사용:{name}")
-            st.session_state.stats[name] += 1
-            st.session_state.inventory[name] += 1
+        st.session_state.unlocked[name] = True
 
-            st.session_state.unlocked[name] = True
-
-            if name in ["도깨비", "비밀"]:
-                if not st.session_state.skip_cutscenes_map.get(name, False):
-                    st.session_state.effect_type = (
-                        "dokebi" if name == "도깨비" else "secret"
-                    )
-                    st.rerun()
-
-            display_name = get_display_name(name)
-            st.success(f"🎲 결과: **:{color}[{display_name}]** 당첨!")
-            st.rerun()
-
-    with b_col2:
-        st.markdown("### 🚫 일반&희귀 제외권")
-        filter_count = st.session_state.special_inventory.get(
-            "일반&희귀 제외권", 0
-        )
-        st.write(f"보유: **{filter_count}개**")
-
-        use_filter_cnt = st.number_input(
-            "사용할 수량",
-            min_value=1,
-            max_value=max(1, filter_count),
-            value=1,
-            key="use_filter_cnt",
-        )
-
-        if st.button(
-            f"제외권 {use_filter_cnt}개 사용", disabled=(filter_count == 0)
-        ):
-            if filter_count >= use_filter_cnt:
-                st.session_state.special_inventory["일반&희귀 제외권"] -= (
-                    use_filter_cnt
-                )
-                st.session_state.filter_buff_count += use_filter_cnt
-                st.success(
-                    f"🎉 제외권 {use_filter_cnt}개 적용 완료! (총 누적 횟수: {st.session_state.filter_buff_count}회)"
+        if name in ["도깨비", "비밀"]:
+            if not st.session_state.skip_cutscenes_map.get(name, False):
+                st.session_state.effect_type = (
+                    "dokebi" if name == "도깨비" else "secret"
                 )
                 st.rerun()
+
+        display_name = get_display_name(name)
+        st.success(f"🎲 결과: **:{color}[{display_name}]** 당첨!")
+        st.rerun()
+
+    st.markdown("---")
+    st.markdown("### 🎟️ 배율 행운권 사용 (다음 1회 뽑기 적용)")
+
+    u_col1, u_col2, u_col3, u_col4 = st.columns(4)
+
+    with u_col1:
+        st.markdown("#### 🎟️ 10배")
+        cnt_10 = st.session_state.special_inventory.get("10배 행운권", 0)
+        st.write(f"보유: **{cnt_10}개**")
+        if st.button("10배 사용", disabled=(cnt_10 == 0), key="use_10x"):
+            st.session_state.special_inventory["10배 행운권"] -= 1
+            st.session_state.active_multiplier = 10.0
+            st.session_state.active_multiplier_count += 1
+            st.success("🎉 다음 뽑기에 '10배 확률' 적용!")
+            st.rerun()
+
+    with u_col2:
+        st.markdown("#### 🎟️ 100배")
+        cnt_100 = st.session_state.special_inventory.get("100배 행운권", 0)
+        st.write(f"보유: **{cnt_100}개**")
+        if st.button("100배 사용", disabled=(cnt_100 == 0), key="use_100x"):
+            st.session_state.special_inventory["100배 행운권"] -= 1
+            st.session_state.active_multiplier = 100.0
+            st.session_state.active_multiplier_count += 1
+            st.success("🎉 다음 뽑기에 '100배 확률' 적용!")
+            st.rerun()
+
+    with u_col3:
+        st.markdown("#### 🎟️ 1000배")
+        cnt_1000 = st.session_state.special_inventory.get("1000배 행운권", 0)
+        st.write(f"보유: **{cnt_1000}개**")
+        if st.button("1000배 사용", disabled=(cnt_1000 == 0), key="use_1000x"):
+            st.session_state.special_inventory["1000배 행운권"] -= 1
+            st.session_state.active_multiplier = 1000.0
+            st.session_state.active_multiplier_count += 1
+            st.success("🎉 다음 뽑기에 '1000배 확률' 적용!")
+            st.rerun()
+
+    with u_col4:
+        st.markdown("#### 🌟 백만배")
+        cnt_1m = st.session_state.special_inventory.get("백만배 행운권", 0)
+        st.write(f"보유: **{cnt_1m}개**")
+        if st.button("백만배 사용", disabled=(cnt_1m == 0), key="use_1000000x"):
+            st.session_state.special_inventory["백만배 행운권"] -= 1
+            st.session_state.active_multiplier = 1000000.0
+            st.session_state.active_multiplier_count += 1
+            st.success("🎉 다음 뽑기에 '백만배 확률' 적용!")
+            st.rerun()
 
     st.markdown("---")
     st.markdown("### 🎫 연차 기능권 사용")
@@ -985,7 +1050,10 @@ with tab5:
             st.session_state.inventory = {t[0]: 0 for t in TIERS}
             st.session_state.special_inventory = {
                 "행운의 주사위": 0,
-                "일반&희귀 제외권": 0,
+                "10배 행운권": 0,
+                "100배 행운권": 0,
+                "1000배 행운권": 0,
+                "백만배 행운권": 0,
                 "100연차 기능권": 0,
                 "500연차 기능권": 0,
                 "1000연차 기능권": 0,
@@ -1000,7 +1068,8 @@ with tab5:
             st.session_state.has_1000_roll = False
             st.session_state.has_3000_roll = False
             st.session_state.has_10000_roll = False
-            st.session_state.filter_buff_count = 0
+            st.session_state.active_multiplier = 1.0
+            st.session_state.active_multiplier_count = 0
             st.session_state.balloons_shown = False
             st.session_state.skip_cutscenes_map = {
                 t: False for t in CUTSCENE_TIERS
@@ -1025,7 +1094,8 @@ with tab6:
         "has_1000_roll": st.session_state.has_1000_roll,
         "has_3000_roll": st.session_state.has_3000_roll,
         "has_10000_roll": st.session_state.has_10000_roll,
-        "filter_buff_count": st.session_state.filter_buff_count,
+        "active_multiplier": st.session_state.active_multiplier,
+        "active_multiplier_count": st.session_state.active_multiplier_count,
         "balloons_shown": st.session_state.balloons_shown,
         "skip_cutscenes_map": st.session_state.skip_cutscenes_map,
     }
@@ -1040,7 +1110,9 @@ with tab6:
 
     st.markdown("---")
     st.markdown("### 📱 폰에서 다운로드가 안 될 때 (텍스트 백업)")
-    st.caption("아래 상자의 내용을 전체 복사하여 메모장에 붙여넣고 `gacha_save.json`으로 저장하세요.")
+    st.caption(
+        "아래 상자의 내용을 전체 복사하여 메모장에 붙여넣고 `gacha_save.json`으로 저장하세요."
+    )
     st.text_area("세이브 백업용 텍스트", json_data, height=150)
 
     st.divider()
@@ -1072,7 +1144,10 @@ with tab6:
 
                 default_special = {
                     "행운의 주사위": 0,
-                    "일반&희귀 제외권": 0,
+                    "10배 행운권": 0,
+                    "100배 행운권": 0,
+                    "1000배 행운권": 0,
+                    "백만배 행운권": 0,
                     "100연차 기능권": 0,
                     "500연차 기능권": 0,
                     "1000연차 기능권": 0,
@@ -1107,8 +1182,11 @@ with tab6:
                 st.session_state.has_10000_roll = loaded_data.get(
                     "has_10000_roll", False
                 )
-                st.session_state.filter_buff_count = loaded_data.get(
-                    "filter_buff_count", 0
+                st.session_state.active_multiplier = loaded_data.get(
+                    "active_multiplier", 1.0
+                )
+                st.session_state.active_multiplier_count = loaded_data.get(
+                    "active_multiplier_count", 0
                 )
                 st.session_state.balloons_shown = loaded_data.get(
                     "balloons_shown", False
