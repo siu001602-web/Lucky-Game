@@ -710,7 +710,7 @@ with tabs[1]:
 
     st.write("---")
     h_tickets = st.session_state.special_inventory.get("할로윈 뽑기권", 0)
-    st.info(f"🎟️ 보유 할로윈 뽑기권: **{format_currency(h_tickets)}장** (상점에서 1장당 100코인 구매 가능)")
+    st.info(f"🎟️ 보유 할로윈 뽑기권: **{format_currency(h_tickets)}장** (상점에서 1장당 1코인 구매 가능)")
 
     hc1, hc2 = st.columns(2)
     with hc1:
@@ -731,7 +731,6 @@ with tabs[1]:
             st.success("✨ 할로윈 10연차 완료!")
             st.rerun()
 
-    # 할로윈 1만 연차 버튼 추가 (해금된 경우에만 활성화)
     if st.session_state.special_inventory.get("할로윈 10000연차 해금", False):
         if st.button("🌌 할로윈 10000연차!", use_container_width=True, type="primary", disabled=(h_tickets < 10000)):
             cutscene = execute_halloween_rolls(10000)
@@ -825,9 +824,10 @@ with tabs[2]:
     st.divider()
     st.subheader("🛒 Special 상점")
     
-    st.markdown("#### 🎃 할로윈 전용 뽑기권 (장당 100코인)")
+    # 할로윈 전용 뽑기권 가격 1장당 1코인으로 변경
+    st.markdown("#### 🎃 할로윈 전용 뽑기권 (장당 1코인)")
     h_buy_qty = st.number_input("할로윈 뽑기권 구매 수량 (최대 1,000,000장)", min_value=1, max_value=1000000, value=1)
-    h_cost = h_buy_qty * 100.0
+    h_cost = h_buy_qty * 1.0
     if st.button(f"🎟️ 할로윈 뽑기권 {format_currency(h_buy_qty)}장 구매 ({format_currency(h_cost)}코인)", type="primary"):
         if st.session_state.coins >= h_cost:
             st.session_state.coins -= h_cost
@@ -875,7 +875,6 @@ with tabs[2]:
                     else:
                         st.error("부족")
 
-    # 할로윈 1만 연차 해금 상품 (200만 코인)
     st.markdown("---")
     st.markdown("#### 🎃 할로윈 10000연차 해금권")
     if st.session_state.special_inventory.get("할로윈 10000연차 해금", False):
