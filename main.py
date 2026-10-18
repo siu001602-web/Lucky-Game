@@ -64,7 +64,6 @@ st.markdown(
     .abyss-fade { animation: abyssWhirlpool 8.0s ease-in-out forwards; }
     .comet-fade { animation: cometMeteor 6.0s ease-in-out forwards; }
 
-    /* 할로윈 상자 전용 3초 컷씬 클래스 */
     .hw-base-fade { animation: hwBaseIntro 3.0s ease-in-out forwards; }
     .zombie-cutscene { animation: zombieAnim 3.0s ease-in-out infinite; color: #7FFF00; font-size: 42px; font-weight: bold; text-shadow: 0 0 20px #000; text-align: center; }
     .skeleton-cutscene { animation: skeletonAnim 3.0s ease-in-out infinite; color: #FFFFFF; font-size: 42px; font-weight: bold; text-shadow: 0 0 20px #000; text-align: center; }
@@ -157,7 +156,6 @@ HALLOWEEN_TIERS = [
     ("박쥐", 99.899899, "#8A2BE2"),
 ]
 
-# 할로윈 상자 전용 등급 정의 (판매 불가: 판매 가격 없음 또는 0.0)
 HALLOWEEN_BOX_TIERS = [
     ("프랑켄슈타인", 0.05, "#32CD32"),
     ("강시", 0.25, "#FFD700"),
@@ -173,7 +171,6 @@ HALLOWEEN_PRICES = {
     "유령": 10000.0,
     "사탕": 100.0,
     "박쥐": 1.0,
-    # 할로윈 상자 등급은 판매 불가이므로 가격 미포함 (0원 혹은 판매 불가 처리)
 }
 
 SELL_PRICES = {
@@ -309,7 +306,6 @@ def open_halloween_box():
     return HALLOWEEN_BOX_TIERS[-1][0], HALLOWEEN_BOX_TIERS[-1][2]
 
 
-# 모든 등급 합산 (일반 + 할로윈 + 할로윈 상자 전용)
 ALL_EXISTING_TIERS = TIERS + HALLOWEEN_TIERS + HALLOWEEN_BOX_TIERS
 
 defaults = {
@@ -381,7 +377,6 @@ if eff:
         "galaxy_phase2": '<div class="effect-overlay galaxy-pulse-fade"><div class="galaxy-popup">🌌 공허의 시공간 맥동! 🌌<br>✨ 차원 흡수 및 폭발적 방출 ✨<br>[은하] 강림!!</div></div>',
         "pumpkin_king": '<div class="effect-overlay pumpkin-king-fade"><div class="moon-icon">🌕</div><div class="pumpkin-icon">🎃</div><div class="pumpkin-king-popup">🎃 어두운 밤하늘, 집 위로 달이 내려앉고... 🎃<br>🌕 거대한 호박왕 강림!! 🌕</div></div>',
         "ghost": '<div class="effect-overlay ghost-fade"><div class="ghost-icon">👻</div><div class="ghost-popup">👻 ...스스스 ...👻<br>💥 기괴한 유령 출현!! 💥</div></div>',
-        # 할로윈 상자 전용 7종 3초 컷씬
         "zombie": '<div class="effect-overlay hw-base-fade"><div class="zombie-cutscene">🧟 무덤이 갈라지며 대지가 흔들린다! 🧟<br>[좀비] 출현!!</div></div>',
         "skeleton": '<div class="effect-overlay hw-base-fade"><div class="skeleton-cutscene">⚡ 하늘에서 벼락이 내리치고 해골이 부활한다! ⚡<br>[스켈레톤] 강림!!</div></div>',
         "jack": '<div class="effect-overlay hw-base-fade"><div class="jack-cutscene">🎃 호박이 갑자기 튀어나와 눈부시게 반짝인다! 🎃<br>[잭오랜턴] 등장!!</div></div>',
@@ -389,7 +384,6 @@ if eff:
         "vampire": '<div class="effect-overlay hw-base-fade"><div class="vamp-cutscene">🩸 붉은 장막이 좌우로 스치며 날카로운 송곳니가 드러난다! 🩸<br>[뱀파이어] 각성!!</div></div>',
         "jiangshi": '<div class="effect-overlay hw-base-fade"><div class="jiangshi-cutscene">🥋 쿵! 쿵! 화면이 밀려났다 돌아오며 부적이 빛난다! 🥋<br>[강시] 등장!!</div></div>',
         "franken": '<div class="effect-overlay hw-base-fade"><div class="frank-cutscene">⚡ 번개가 치며 사방에서 유령들이 몰려와 화면이 회전한다! ⚡<br>[프랑켄슈타인] 탄생!!</div></div>',
-        
         "angel": '<div class="effect-overlay angel-fade"><div class="angel-popup">🕊️ 하늘의 문이 열립니다! 🕊️<br>✨ 천사들이 반겨줍니다 ✨<br>[수호천사] 강림!!</div></div>',
         "hephaestus": '<div class="effect-overlay smith-fade"><div class="smith-popup">🔥 대장간의 신 스파크 폭발! 🔥<br>🏛️ 그리스 아테네 신전 강림 🏛️<br>[헤파이스토스] 득템!!</div></div>',
         "gravity": '<div class="effect-overlay gravity-collapse-fade"><div class="gravity-collapse-popup">🍎 중력장 붕괴! 🍎<br>사과 폭풍우 강림!!<br>[중력] 등급 획득!!</div><div class="rain-apple-1">🍎</div><div class="rain-apple-2">🍎</div><div class="rain-apple-3">🍎</div><div class="rain-apple-4">🍎</div></div>',
@@ -414,7 +408,6 @@ if eff:
             time.sleep(4.0)
             st.session_state.effect_type = "galaxy_phase2"
         else:
-            # 할로윈 상자 7종은 정확히 3초 컷씬 유지
             if eff in ["zombie", "skeleton", "jack", "witch", "vampire", "jiangshi", "franken"]:
                 time.sleep(3.0)
             else:
@@ -487,7 +480,6 @@ def execute_rolls(count):
                 st.session_state.active_multiplier = 1.0
 
         name, _, mutation = gacha_roll(mult)
-        
         is_first_time = not st.session_state.unlocked.get(name, False)
 
         st.session_state.history.append((name, mutation))
@@ -700,9 +692,13 @@ with tabs[0]:
 with tabs[1]:
     st.subheader("🎃 할로윈 한정 뽑기 & 상자 합성")
     
-    # 할로윈 관련 배경 음악(오디오) 재생 추가
-    st.markdown("🎵 **할로윈 분위기 음악 재생**")
-    st.audio("https://actions.google.com/sounds/v1/ambiences/halloween_wind_and_owls.ogg", format="audio/ogg", loop=True)
+    st.markdown("🎵 **할로윈 분위기 배경 음악**")
+    st.audio(
+        "https://actions.google.com/sounds/v1/ambiences/halloween_wind_and_owls.ogg", 
+        format="audio/ogg", 
+        loop=True, 
+        autoplay=False
+    )
 
     st.write("---")
     h_tickets = st.session_state.special_inventory.get("할로윈 뽑기권", 0)
@@ -736,7 +732,7 @@ with tabs[1]:
     bat_cnt = st.session_state.inventory.get("박쥐", 0)
     max_box_craft = min(ghost_cnt, candy_cnt, bat_cnt)
 
-    st.write(f"현재 보유 재료 - 유령: **{format_currency(ghost_cnt)}개** | 사탕: **{format_currency(candy_cnt)}개** | 박쥐: **{format_currency(bat_cnt)}개** (합성 가능: **{format_currency(max_box_craft)}개**) 야호!")
+    st.write(f"현재 보유 재료 - 유령: **{format_currency(ghost_cnt)}개** | 사탕: **{format_currency(candy_cnt)}개** | 박쥐: **{format_currency(bat_cnt)}개** (합성 가능: **{format_currency(max_box_craft)}개**)")
 
     box_craft_qty = st.number_input("할로윈 상자 개봉 횟수 선택", min_value=1, max_value=max(1, max_box_craft), value=1)
 
@@ -786,7 +782,6 @@ with tabs[2]:
     
     sell_sel = {}
     cols = st.columns(3)
-    # 할로윈 상자 전용 등급은 판매 목록에서 제외
     all_sell_items = TIERS + HALLOWEEN_TIERS
     for i, (t_name, _, _) in enumerate(all_sell_items):
         with cols[i % 3]:
@@ -1126,7 +1121,6 @@ with tabs[6]:
 
     st.markdown("### 🎃 할로윈 도감 (한정 뽑기 & 상자 전용)")
     
-    # 할로윈 한정 및 할로윈 상자 전용 등급 통합 도감 표시
     all_halloween_section = HALLOWEEN_TIERS + HALLOWEEN_BOX_TIERS
     for t_name, prob, color in all_halloween_section:
         unlocked = st.session_state.unlocked.get(t_name, False)
@@ -1152,7 +1146,6 @@ with tabs[7]:
     if st.session_state.history:
         cols = st.columns(4)
         stat_targets = HIGH_TIERS + ["전설", "영웅", "희귀", "일반", "사탕", "박쥐", "프랑켄슈타인", "강시", "뱀파이어", "마녀", "잭오랜턴", "스켈레톤", "좀비"]
-        # 중복 제거 및 리스트 정리
         stat_targets = list(dict.fromkeys(stat_targets))
         
         for idx, t in enumerate(stat_targets):
@@ -1233,3 +1226,4 @@ with tabs[9]:
         st.error("❌ 비밀번호가 틀렸습니다!")
     else:
         st.info("🔒 접근하려면 올바른 비밀번호를 입력하세요.")
+
