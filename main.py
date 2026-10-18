@@ -61,8 +61,8 @@ st.markdown(
 )
 
 TIERS = [
-    ("수호천사", 0.0, "#FFF8DC"),  # 기부 전용 특수 등급
-    ("헤파이스토스", 0.0, "#FF8C00"),  # 대장간 전용 특수 등급
+    ("수호천사", 0.0, "#FFF8DC"),
+    ("헤파이스토스", 0.0, "#FF8C00"),
     ("중력", 0.0000000000005, "#FF4500"),
     ("블랙홀", 0.0000000000015, "#AA00FF"),
     ("시간의 지배자", 0.0000000000080, "#FFD700"),
@@ -177,7 +177,7 @@ def gacha_roll(multiplier=1.0):
 
 defaults = {
     "coins": 0.0,
-    "total_donated": 0.0,  # 누적 기부금
+    "total_donated": 0.0,
     "history": [],
     "stats": {t[0]: 0 for t in TIERS},
     "inventory": {t: 0 for t, _, _ in TIERS},
@@ -659,13 +659,12 @@ with tabs[2]:
         if hephaestus_hit:
             st.rerun()
 
-# 4. 개발자 기부 탭 (신규)
+# 4. 개발자 기부 탭 (수호천사 은폐 반영)
 with tabs[3]:
-    st.subheader("🕊️ 개발자 기부 시스템")
+    st.subheader("🎁 개발자 기부 시스템")
     
     total_d = st.session_state.get("total_donated", 0.0)
     
-    # 현재 기부금에 따른 확률 계산
     if total_d >= 30000000.0:
         current_angel_prob = 1.0  # 1%
         prob_tier_str = "1.0% (3천만 코인 달성 보너스!)"
@@ -676,14 +675,16 @@ with tabs[3]:
         current_angel_prob = 0.01  # 0.01%
         prob_tier_str = "0.01% (기본 확률)"
 
-    st.info(f"💡 개발자에게 1회 **10,000 코인**을 기부할 수 있습니다.\n- 현재 누적 기부금: **{total_d:,.0f} 코인**\n- 현재 [수호천사] 획득 확률: **{prob_tier_str}**")
+    # 미해금 상태일 경우 이름을 ❓ ?? 로 숨김 처리
+    display_reward_name = get_base_name("수호천사")
+
+    st.info(f"💡 개발자에게 1회 **10,000 코인**을 기부할 수 있습니다.\n- 현재 누적 기부금: **{total_d:,.0f} 코인**\n- 현재 [{display_reward_name}] 획득 확률: **{prob_tier_str}**")
 
     if st.button("💖 개발자에게 10,000 코인 기부하기", type="primary"):
         if st.session_state.coins >= 10000.0:
             st.session_state.coins -= 10000.0
             st.session_state.total_donated += 10000.0
             
-            # 수호천사 확률 판정 (0 ~ 100)
             roll_v = random.random() * 100
             if roll_v < current_angel_prob:
                 st.session_state.inventory["수호천사"] += 1
