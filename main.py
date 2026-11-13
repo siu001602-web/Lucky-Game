@@ -10,6 +10,10 @@ st.set_page_config(
 
 # 등급 리스트 정의 (희귀도 높은 순)
 items = [
+    "바운디드",
+    "재즈",
+    "스펙터",
+    "와트",
     "힘",
     "석영",
     "시데리움",
@@ -22,28 +26,36 @@ items = [
     "일반",
 ]
 
-# 각 분수 확률에 따른 가중치 설정 (기준: 16,384)
-weights = [1, 2, 4, 8, 128, 256, 1024, 2048, 4096, 8192]
+# 각 분수 확률에 따른 가중치 설정 (기준: 200,000)
+weights = [1, 1, 1, 6, 12, 24, 48, 97, 781, 1562, 12500, 25000, 50000, 100000]
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
+    "바운디드": "1 in 200,000",
+    "재즈": "1 in 160,000",
+    "스펙터": "1 in 140,000",
+    "와트": "1 in 32,768",
     "힘": "1 in 16,384",
     "석영": "1 in 8,192",
     "시데리움": "1 in 4,096",
     "자력": "1 in 2,048",
-    "분노": "1 in 128",
-    "결정화": "1 in 64",
+    "분노": "1 in 256",
+    "결정화": "1 in 128",
     "레어": "1 in 16",
     "자연": "1 in 8",
     "희귀": "1 in 4",
     "일반": "1 in 2",
 }
 
-# 컷씬이 존재하는 아우라 목록
-cutscene_auras = ["힘", "석영", "시데리움"]
+# 컷씬이 존재하는 아우라 목록 (최상위 등급들)
+cutscene_auras = ["바운디드", "재즈", "스펙터", "와트", "힘", "석영", "시데리움"]
 
 # 등급별 이모티콘 매핑
 icons = {
+    "바운디드": "🌌👑",
+    "재즈": "🎶🎷",
+    "스펙터": "👻🔮",
+    "와트": "⚡👑⚡",
     "힘": "⚡🔥",
     "석영": "💎✨",
     "시데리움": "🌟🛡️",
@@ -58,6 +70,10 @@ icons = {
 
 # 등급별 테두리 색상
 border_colors = {
+    "바운디드": "#9900ff",
+    "재즈": "#ff00aa",
+    "스펙터": "#00ff88",
+    "와트": "#00FFFF",
     "힘": "#FF0000",
     "석영": "#FF4500",
     "시데리움": "#FFD700",
@@ -70,7 +86,7 @@ border_colors = {
     "일반": "#555555",
 }
 
-# 모든 등급 아우라 이미지 경로 매핑
+# 모든 등급 아우라 이미지 경로 매핑 (신규 3종 추가 완료)
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
     "희귀": "images/SmartSelect_20261113_115402_NAVER.jpg",
@@ -82,6 +98,10 @@ aura_images = {
     "시데리움": "images/SmartSelect_20261113_123957_Chrome.jpg",
     "석영": "images/SmartSelect_20261113_124024_Chrome.jpg",
     "힘": "images/SmartSelect_20261113_124048_Chrome.jpg",
+    "와트": "images/SmartSelect_20261113_125018_NAVER.jpg",
+    "스펙터": "images/SmartSelect_20261113_125325_Chrome.jpg",
+    "재즈": "images/SmartSelect_20261113_125353_Chrome.jpg",
+    "바운디드": "images/SmartSelect_20261113_125424_Chrome.jpg",
 }
 
 # 세션 상태 초기화
@@ -107,11 +127,80 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [힘 전용 특수 연출] 별이 돌아가다가 와장창 깨지는 컷씬 함수
-def play_power_shatter_cutscene():
+# ✨ [초특급 신규 아우라 전용 연출] 와장창 깨지는 화려한 컷씬
+def play_ultimate_shatter_cutscene(aura_name):
   placeholder = st.empty()
 
-  # 1단계: 별이 회전하며 에너지를 모으는 연출
+  stages = [
+      (
+          "🌌⚡🌌",
+          f"초희귀 등급 [{aura_name}] 반응 감지!",
+          "시공간이 심하게 뒤틀립니다!",
+          "#1a0033",
+      ),
+      (
+          "🌀💥🌀",
+          "차원의 결계가 견디지 못합니다!",
+          "강력한 에너지가 폭발 직전!",
+          "#4d001a",
+      ),
+      (
+          "💥🔨🧊",
+          "CRASH!! 차원의 벽이 완전히 박살났습니다!",
+          f"초전설 아우라 [{aura_name}] 강림!",
+          "#330033",
+      ),
+  ]
+
+  for emoji, title, desc, bg_color in stages:
+    with placeholder.container():
+      st.markdown(
+          f"""
+            <div style="text-align: center; padding: 70px 20px; background: {bg_color}; border-radius: 15px; border: 4px solid #ff00ff; color: white; box-shadow: 0 0 50px rgba(255, 0, 255, 0.8);">
+                <div style="font-size: 80px; margin-bottom: 10px;">{emoji}</div>
+                <h1 style="color: #ff00ff; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">{title}</h1>
+                <p style="color: #ffccff; font-size: 20px; font-weight: bold; margin-top: 15px;">{desc}</p>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+    time.sleep(0.8)
+
+  placeholder.empty()
+
+
+# ✨ [와트 전용 컷씬]
+def play_watt_shatter_cutscene():
+  placeholder = st.empty()
+  stages = [
+      ("⚡⚡⚡", "차원의 핵이 과부하됩니다...", "전설적인 에너지가 요동칩니다!", "#001a33"),
+      ("🌌🌀⚡", "현실의 경계선이 붕괴 직전!", "에너지 밀도 극대화 중...", "#003366"),
+      (
+          "💥🔨🧊",
+          "CRASH!! 현실이 완전히 박살났습니다!",
+          "초전설 등급 [와트] 강림!",
+          "#4a0048",
+      ),
+  ]
+  for emoji, title, desc, bg_color in stages:
+    with placeholder.container():
+      st.markdown(
+          f"""
+            <div style="text-align: center; padding: 70px 20px; background: {bg_color}; border-radius: 15px; border: 4px solid #00ffff; color: white; box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);">
+                <div style="font-size: 80px; margin-bottom: 10px;">{emoji}</div>
+                <h1 style="color: #00ffff; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">{title}</h1>
+                <p style="color: #e0ffff; font-size: 20px; font-weight: bold; margin-top: 15px;">{desc}</p>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+    time.sleep(0.8)
+  placeholder.empty()
+
+
+# ✨ [힘 전용 컷씬]
+def play_power_shatter_cutscene():
+  placeholder = st.empty()
   for emoji in ["💫 스타트...", "🌀 별이 회전합니다...", "⭐ 회전 가속 중!"]:
     with placeholder.container():
       st.markdown(
@@ -126,7 +215,6 @@ def play_power_shatter_cutscene():
       )
     time.sleep(0.6)
 
-  # 2단계: 와장창 깨지는 순간 연출
   with placeholder.container():
     st.markdown(
         """
@@ -142,7 +230,7 @@ def play_power_shatter_cutscene():
   placeholder.empty()
 
 
-# 일반 상위 아우라(석영, 시데리움) 컷씬 함수
+# 일반 상위 아우라 컷씬 함수
 def play_general_cutscene(aura_name):
   placeholder = st.empty()
   stages = [
@@ -168,7 +256,11 @@ def play_general_cutscene(aura_name):
 
 # 통합 컷씬 실행 관리자
 def play_cutscene(aura_name):
-  if aura_name == "힘":
+  if aura_name in ["바운디드", "재즈", "스펙터"]:
+    play_ultimate_shatter_cutscene(aura_name)
+  elif aura_name == "와트":
+    play_watt_shatter_cutscene()
+  elif aura_name == "힘":
     play_power_shatter_cutscene()
   else:
     play_general_cutscene(aura_name)
