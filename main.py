@@ -5,7 +5,6 @@ import json
 import os
 import random
 import sqlite3
-import threading
 import time
 import streamlit as st
 
@@ -310,7 +309,6 @@ def save_user_data_to_db():
       "equipped": st.session_state.get("equipped", None),
       "coins": st.session_state.get("coins", 0),
       "inventory_slots": st.session_state.get("inventory_slots", 50),
-      "auto_roll_unlocked": st.session_state.get("auto_roll_unlocked", False),
       "luck_buff_unlocked": st.session_state.get("luck_buff_unlocked", False),
       "triple_roll_unlocked": st.session_state.get(
           "triple_roll_unlocked", False
@@ -332,8 +330,6 @@ if "logged_in" not in st.session_state:
   st.session_state.logged_in = False
 if "username" not in st.session_state:
   st.session_state.username = ""
-if "state_lock" not in st.session_state:
-  st.session_state.state_lock = threading.Lock()
 
 
 # ==========================================
@@ -370,10 +366,6 @@ if not st.session_state.logged_in:
           st.session_state.inventory_slots = saved_data.get(
               "inventory_slots", 50
           )
-          st.session_state.auto_roll_unlocked = saved_data.get(
-              "auto_roll_unlocked", False
-          )
-          st.session_state.auto_roll_active = False
           st.session_state.luck_buff_unlocked = saved_data.get(
               "luck_buff_unlocked", False
           )
@@ -422,7 +414,6 @@ if not st.session_state.logged_in:
               "equipped": None,
               "coins": 0,
               "inventory_slots": 50,
-              "auto_roll_unlocked": False,
               "luck_buff_unlocked": False,
               "triple_roll_unlocked": False,
               "potions": {p: 0 for p in potion_items},
@@ -656,86 +647,68 @@ def play_cutscene(aura_name):
 
 # 1회 또는 다회 뽑기 실행 공통 함수
 def perform_rolls(roll_count=1):
-  with st.session_state.state_lock:
-    results = []
-    max_luck_applied = 1
-    coin_gain_per_roll = (
-        10 if st.session_state.get("equipped") == "스펙트라플로우" else 5
-    )
-    is_day, _ = get_world_time_status()
+  results = []
+  max_luck_applied = 1
+  coin_gain_per_roll = (
+      10 if st.session_state.get("equipped") == "스펙트라플로우" else 5
+  )
+  is_day, _ = get_world_time_status()
 
-    for _ in range(roll_count):
-      next_pull = sum(st.session_state.counts.values()) + 1
-      luck_mult = get_current_luck_multiplier(next_pull)
-      max_luck_applied = max(max_luck_applied, luck_mult)
+  for _ in range(roll_count):
+    next_pull = sum(st.session_state.counts.values()) + 1
+    luck_mult = get_current_luck_multiplier(next_pull)
+    max_luck_applied = max(max_luck_applied, luck_mult)
 
-      if st.session_state.million_ticket_active:
-        st.session_state.million_ticket_active = False
+    if st.session_state.million_ticket_active:
+      st.session_state.million_ticket_active = False
 
-      current_weights = list(base_weights)
-      if is_day:
-        current_weights[items.index("태양")] *= 10
+    current_weights = list(base_weights)
+    if is_day:
+      current_weights[items.index("태양")] *= 10
+    else:
+      current_weights[items.index("달")] *= 10
+      current_weights[items.index("황혼")] *= 10
+      current_weights[items.index("자장가")] *= 10
+      current_weights[items.index("𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻")] *= 2
+
+    if luck_mult > 1:
+      eligible_indices = [
+          idx
+          for idx, item in enumerate(items)
+          if denominators[item] >= luck_mult
+      ]
+      if eligible_indices:
+        for idx in range(len(items)):
+          if idx not in eligible_indices:
+            current_weights[idx] = 0
+          else:
+            current_weights[idx] = current_weights[idx] * luck_mult
       else:
-        current_weights[items.index("달")] *= 10
-        current_weights[items.index("황혼")] *= 10
-        current_weights[items.index("자장가")] *= 10
-        current_weights[items.index("𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻")] *= 2
+        current_weights = [1] + [0] * (len(items) - 1)
 
-      if luck_mult > 1:
-        eligible_indices = [
-            idx
-            for idx, item in enumerate(items)
-            if denominators[item] >= luck_mult
-        ]
-        if eligible_indices:
-          for idx in range(len(items)):
-            if idx not in eligible_indices:
-              current_weights[idx] = 0
-            else:
-              current_weights[idx] = current_weights[idx] * luck_mult
-        else:
-          current_weights = [1] + [0] * (len(items) - 1)
+    if sum(current_weights) <= 0:
+      current_weights = [1] * len(items)
 
-      if sum(current_weights) <= 0:
-        current_weights = [1] * len(items)
+    result = random.choices(items, weights=current_weights, k=1)[0]
+    results.append(result)
 
-      result = random.choices(items, weights=current_weights, k=1)[0]
-      results.append(result)
+    st.session_state.counts[result] += 1
+    st.session_state.history.insert(0, result)
+    st.session_state.coins += coin_gain_per_roll
 
-      st.session_state.counts[result] += 1
-      st.session_state.history.insert(0, result)
-      st.session_state.coins += coin_gain_per_roll
+  cutscene_targets = [r for r in results if r in cutscene_auras]
+  if cutscene_targets:
+    rarest_aura = min(cutscene_targets, key=lambda x: items.index(x))
+    st.session_state.is_cutscene = True
+    play_cutscene(rarest_aura)
+    st.session_state.is_cutscene = False
+    st.balloons()
 
-    cutscene_targets = [r for r in results if r in cutscene_auras]
-    if cutscene_targets:
-      rarest_aura = min(cutscene_targets, key=lambda x: items.index(x))
-      st.session_state.is_cutscene = True
-      play_cutscene(rarest_aura)
-      st.session_state.is_cutscene = False
-      st.balloons()
+  st.session_state.last_results = results
+  st.session_state.last_luck_mult = max_luck_applied
 
-    st.session_state.last_results = results
-    st.session_state.last_luck_mult = max_luck_applied
-
-    save_user_data_to_db()
-    return results
-
-
-# 백그라운드 오토 스레드 오토 롤러 (지연 없는 1초 주기 실시간 백그라운드 자동화)
-def background_auto_roller():
-  while True:
-    time.sleep(1.0)
-    if st.session_state.get(
-        "auto_roll_active", False
-    ) and not st.session_state.get("is_cutscene", False):
-      roll_amt = 3 if st.session_state.get("triple_roll_unlocked", False) else 1
-      perform_rolls(roll_amt)
-
-
-if "background_thread_started" not in st.session_state:
-  st.session_state.background_thread_started = True
-  bg_thread = threading.Thread(target=background_auto_roller, daemon=True)
-  bg_thread.start()
+  save_user_data_to_db()
+  return results
 
 
 # ==========================================
@@ -918,13 +891,6 @@ with tab_gacha:
 
   st.write("")
 
-  if st.session_state.auto_roll_unlocked:
-    st.session_state.auto_roll_active = st.toggle(
-        "⚡ 오토 뽑기 활성화 (1초마다 자동 소환)",
-        value=st.session_state.auto_roll_active,
-        disabled=st.session_state.is_cutscene,
-    )
-
   if st.session_state.triple_roll_unlocked:
     col_b1, col_b2 = st.columns(2)
     with col_b1:
@@ -932,7 +898,7 @@ with tab_gacha:
           "🎲 1회 무료 뽑기",
           type="secondary",
           use_container_width=True,
-          disabled=st.session_state.is_cutscene,
+          disabled=st.session_state.get("is_cutscene", False),
       ):
         perform_rolls(1)
         st.rerun()
@@ -944,7 +910,7 @@ with tab_gacha:
           f"🔥 3회 연속 뽑기 (+{triple_bonus_coins} G)",
           type="primary",
           use_container_width=True,
-          disabled=st.session_state.is_cutscene,
+          disabled=st.session_state.get("is_cutscene", False),
       ):
         perform_rolls(3)
         st.rerun()
@@ -953,7 +919,7 @@ with tab_gacha:
         "🎲 1회 무료 뽑기",
         type="primary",
         use_container_width=True,
-        disabled=st.session_state.is_cutscene,
+        disabled=st.session_state.get("is_cutscene", False),
     ):
       perform_rolls(1)
       st.rerun()
@@ -990,7 +956,7 @@ with tab_gacha:
     )
 
   st.divider()
-  st.subheader("📜 실시간 최근 뽑기 기록")
+  st.subheader("📜 최근 뽑기 기록")
   if st.session_state.history:
     recent = st.session_state.history[:8]
     for i, res in enumerate(recent):
@@ -999,11 +965,6 @@ with tab_gacha:
       )
   else:
     st.text("아직 뽑기 기록이 없습니다.")
-
-  # 오토 뽑기가 켜져 있을 때 실시간 화면 갱신을 위해 짧은 주기(1초)로 rerun 유도
-  if st.session_state.get("auto_roll_active", False):
-    time.sleep(1.0)
-    st.rerun()
 
 with tab_inventory:
   owned_items = [
@@ -1233,27 +1194,6 @@ with tab_shop:
             st.error("코인이 부족합니다!")
 
   with st.container(border=True):
-    col_a1, col_a2 = st.columns([2, 1])
-    with col_a1:
-      st.markdown("### ⚡ 오토 뽑기 기능 (영구)")
-      st.write("1초마다 자동으로 아우라를 뽑아주는 편리한 기능입니다.")
-    with col_a2:
-      st.write("")
-      if st.session_state.auto_roll_unlocked:
-        st.button("보유 완료", disabled=True, use_container_width=True)
-      else:
-        if st.button("구매 (100 G)", key="buy_autoroll", use_container_width=True):
-          if st.session_state.coins >= 100:
-            st.session_state.coins -= 100
-            st.session_state.auto_roll_unlocked = True
-            st.session_state.auto_roll_active = True
-            save_user_data_to_db()
-            st.success("오토 뽑기 기능이 해금되었습니다!")
-            st.rerun()
-          else:
-            st.error("코인이 부족합니다!")
-
-  with st.container(border=True):
     col_s1, col_s2 = st.columns([2, 1])
     with col_s1:
       st.markdown("### 🎒 아우라 가방 확장권")
@@ -1304,8 +1244,6 @@ with tab_shop:
     st.session_state.equipped = None
     st.session_state.coins = 0
     st.session_state.inventory_slots = 50
-    st.session_state.auto_roll_unlocked = False
-    st.session_state.auto_roll_active = False
     st.session_state.luck_buff_unlocked = False
     st.session_state.triple_roll_unlocked = False
     st.session_state.potions = {p: 0 for p in potion_items}
