@@ -47,7 +47,7 @@ fractions = {
     "일반": "1 in 2",
 }
 
-# 컷씬이 존재하는 아우라 목록 (최상위 등급들)
+# 컷씬이 존재하는 아우라 목록
 cutscene_auras = ["바운디드", "재즈", "스펙터", "와트", "힘", "석영", "시데리움"]
 
 # 등급별 이모티콘 매핑
@@ -86,7 +86,7 @@ border_colors = {
     "일반": "#555555",
 }
 
-# 모든 등급 아우라 이미지 경로 매핑 (신규 3종 추가 완료)
+# 모든 등급 아우라 이미지 경로 매핑
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
     "희귀": "images/SmartSelect_20261113_115402_NAVER.jpg",
@@ -127,143 +127,109 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [초특급 신규 아우라 전용 연출] 와장창 깨지는 화려한 컷씬
-def play_ultimate_shatter_cutscene(aura_name):
+# ✨ [10만 이하 초희귀 3종 전용] 화면 전체 풀스크린 컷씬 (별 회전 -> 멘트 -> 아우라 등장)
+def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  stages = [
+  # 아우라별 개성 있는 별 색상 및 멘트 설정
+  if aura_name == "바운디드":
+    star_color = "#bf00ff"
+    bg_gradient = "linear-gradient(135deg, #1a0033, #000000)"
+    ment = "시공간의 경계가 무너지고 영원한 심판이 시작됩니다..."
+  elif aura_name == "재즈":
+    star_color = "#ff007f"
+    bg_gradient = "linear-gradient(135deg, #33001a, #000000)"
+    ment = "화려한 선율과 함께 온 우주를 매료시킬 리듬이 깨어납니다..."
+  elif aura_name == "스펙터":
+    star_color = "#00ffcc"
+    bg_gradient = "linear-gradient(135deg, #003322, #000000)"
+    ment = "차가운 영혼의 안개가 걷히고 전설의 유령이 눈을 뜹니다..."
+  else:
+    star_color = "#ffff00"
+    bg_gradient = "linear-gradient(135deg, #222200, #000000)"
+    ment = "알 수 없는 거대한 에너지가 수면 위로 떠오릅니다..."
+
+  # 1단계: 별이 화면 전체에서 개성 있게 회전하는 연출
+  steps = [
       (
-          "🌌⚡🌌",
-          f"초희귀 등급 [{aura_name}] 반응 감지!",
-          "시공간이 심하게 뒤틀립니다!",
-          "#1a0033",
+          f"<div style='font-size: 100px; color: {star_color}; animation: spin 1s infinite;'>⭐</div>",
+          "차원의 별이 강렬하게 회전합니다...",
+          "에너지를 모으는 중...",
       ),
       (
-          "🌀💥🌀",
-          "차원의 결계가 견디지 못합니다!",
-          "강력한 에너지가 폭발 직전!",
-          "#4d001a",
+          f"<div style='font-size: 120px; color: {star_color};'>🌟💫🌟</div>",
+          "별의 회전 속도가 한계에 달했습니다!",
+          ment,
       ),
       (
-          "💥🔨🧊",
-          "CRASH!! 차원의 벽이 완전히 박살났습니다!",
-          f"초전설 아우라 [{aura_name}] 강림!",
-          "#330033",
-      ),
-  ]
-
-  for emoji, title, desc, bg_color in stages:
-    with placeholder.container():
-      st.markdown(
-          f"""
-            <div style="text-align: center; padding: 70px 20px; background: {bg_color}; border-radius: 15px; border: 4px solid #ff00ff; color: white; box-shadow: 0 0 50px rgba(255, 0, 255, 0.8);">
-                <div style="font-size: 80px; margin-bottom: 10px;">{emoji}</div>
-                <h1 style="color: #ff00ff; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">{title}</h1>
-                <p style="color: #ffccff; font-size: 20px; font-weight: bold; margin-top: 15px;">{desc}</p>
-            </div>
-            """,
-          unsafe_allow_html=True,
-      )
-    time.sleep(0.8)
-
-  placeholder.empty()
-
-
-# ✨ [와트 전용 컷씬]
-def play_watt_shatter_cutscene():
-  placeholder = st.empty()
-  stages = [
-      ("⚡⚡⚡", "차원의 핵이 과부하됩니다...", "전설적인 에너지가 요동칩니다!", "#001a33"),
-      ("🌌🌀⚡", "현실의 경계선이 붕괴 직전!", "에너지 밀도 극대화 중...", "#003366"),
-      (
-          "💥🔨🧊",
-          "CRASH!! 현실이 완전히 박살났습니다!",
-          "초전설 등급 [와트] 강림!",
-          "#4a0048",
+          f"<div style='font-size: 140px; color: {star_color};'>💥👑💥</div>",
+          f"초희귀 등급 [{aura_name}] 강림!",
+          "현실의 문이 완전히 열렸습니다!",
       ),
   ]
-  for emoji, title, desc, bg_color in stages:
+
+  for star_html, title_text, desc_text in steps:
     with placeholder.container():
       st.markdown(
           f"""
-            <div style="text-align: center; padding: 70px 20px; background: {bg_color}; border-radius: 15px; border: 4px solid #00ffff; color: white; box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);">
-                <div style="font-size: 80px; margin-bottom: 10px;">{emoji}</div>
-                <h1 style="color: #00ffff; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">{title}</h1>
-                <p style="color: #e0ffff; font-size: 20px; font-weight: bold; margin-top: 15px;">{desc}</p>
+            <div style="
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background: {bg_gradient};
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 99999;
+                color: white;
+                text-align: center;
+                padding: 20px;
+            ">
+                {star_html}
+                <h1 style="color: {star_color}; margin-top: 20px; text-shadow: 0 0 20px {star_color}; font-size: 36px;">{title_text}</h1>
+                <p style="font-size: 22px; color: #ffeb3b; margin-top: 10px; font-weight: bold;">{desc_text}</p>
             </div>
             """,
           unsafe_allow_html=True,
       )
-    time.sleep(0.8)
+    time.sleep(1.0)
+
   placeholder.empty()
 
 
-# ✨ [힘 전용 컷씬]
-def play_power_shatter_cutscene():
-  placeholder = st.empty()
-  for emoji in ["💫 스타트...", "🌀 별이 회전합니다...", "⭐ 회전 가속 중!"]:
-    with placeholder.container():
-      st.markdown(
-          f"""
-            <div style="text-align: center; padding: 60px 20px; background: #0b0b1a; border-radius: 15px; border: 3px solid #00f0ff; color: white;">
-                <div style="font-size: 70px;">🌟💫</div>
-                <h2 style="color: #00f0ff; margin-top: 15px;">{emoji}</h2>
-                <p style="color: #aaa;">차원의 경계가 흔들립니다!</p>
-            </div>
-            """,
-          unsafe_allow_html=True,
-      )
-    time.sleep(0.6)
-
-  with placeholder.container():
-    st.markdown(
-        """
-        <div style="text-align: center; padding: 70px 20px; background: linear-gradient(135deg, #500, #000); border-radius: 15px; border: 4px solid #ff0055; color: white; box-shadow: 0 0 30px rgba(255, 0, 85, 0.8);">
-            <div style="font-size: 80px;">💥🔨🧊</div>
-            <h1 style="color: #ff0055; margin-top: 15px; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">CRASH!! 와장창!</h1>
-            <p style="color: #ffcccc; font-size: 20px; font-weight: bold;">현실의 벽이 산산조각 났습니다!</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-  time.sleep(1.2)
-  placeholder.empty()
-
-
-# 일반 상위 아우라 컷씬 함수
-def play_general_cutscene(aura_name):
-  placeholder = st.empty()
-  stages = [
-      ("🌌", "차원의 결계가 흔들립니다...", "알 수 없는 에너지가 모여듭니다.", "#111"),
-      ("⚡🌀⚡", "공간이 일그러지는 중...", "강력한 파동 감지!", "#2b0057"),
-      ("🌟🔥👑", f"전설적인 아우라 [{aura_name}] 임박!", "운명의 기운 폭발!", "#4a0000"),
-  ]
-  for emoji, title, desc, bg_color in stages:
-    with placeholder.container():
-      st.markdown(
-          f"""
-            <div style="text-align: center; padding: 60px 20px; background: {bg_color}; border-radius: 15px; border: 3px solid #ffd700; color: white;">
-                <div style="font-size: 70px; margin-bottom: 10px;">{emoji}</div>
-                <h2 style="color: #ffd700;">{title}</h2>
-                <p style="color: #ffccd5; font-size: 18px; margin-top: 10px;">{desc}</p>
-            </div>
-            """,
-          unsafe_allow_html=True,
-      )
-    time.sleep(0.8)
-  placeholder.empty()
-
-
-# 통합 컷씬 실행 관리자
+# 기타 상위 등급 컷씬 관리자
 def play_cutscene(aura_name):
   if aura_name in ["바운디드", "재즈", "스펙터"]:
-    play_ultimate_shatter_cutscene(aura_name)
+    play_fullscreen_star_cutscene(aura_name)
   elif aura_name == "와트":
-    play_watt_shatter_cutscene()
-  elif aura_name == "힘":
-    play_power_shatter_cutscene()
+    # 와트 전용 간소화 컷씬
+    placeholder = st.empty()
+    with placeholder.container():
+      st.markdown(
+          """
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #001a33; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; color: white;">
+                <div style="font-size: 100px;">⚡👑⚡</div>
+                <h1 style="color: #00ffff; margin-top: 20px;">초전설 [와트] 과부하 발동!</h1>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+    time.sleep(1.5)
+    placeholder.empty()
   else:
-    play_general_cutscene(aura_name)
+    placeholder = st.empty()
+    with placeholder.container():
+      st.markdown(
+          f"""
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2b0057; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; color: white;">
+                <div style="font-size: 100px;">🌟</div>
+                <h1 style="color: #ffd700; margin-top: 20px;">전설적인 아우라 [{aura_name}] 임박!</h1>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+    time.sleep(1.2)
+    placeholder.empty()
 
 
 # 1회 뽑기 실행 공통 함수
@@ -533,7 +499,7 @@ with tab_codex:
         )
 
 # ------------------------------------------
-# [탭 4] 상점 (개발자 비번 인증 추가)
+# [탭 4] 상점 (개발자 비번 인증)
 # ------------------------------------------
 with tab_shop:
   st.subheader("🛒 상점")
