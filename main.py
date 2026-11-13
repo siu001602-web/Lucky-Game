@@ -299,19 +299,6 @@ def hash_password(password):
   return hashlib.sha256(password.encode()).hexdigest()
 
 
-def load_user_data(username):
-  conn = sqlite3.connect("users.db", check_same_thread=False)
-  cursor = conn.cursor()
-  cursor.execute(
-      "SELECT data FROM users WHERE username = ?", (username,)
-  )
-  row = cursor.fetchone()
-  conn.close()
-  if row:
-    return json.loads(row[0])
-  return None
-
-
 def save_user_data_to_db():
   if not st.session_state.get("logged_in", False):
     return
@@ -370,7 +357,6 @@ if not st.session_state.logged_in:
         if row and row[0] == hash_password(l_pass):
           st.session_state.logged_in = True
           st.session_state.username = l_user
-          # 데이터 불러오기
           saved_data = json.loads(row[1])
           st.session_state.history = saved_data.get("history", [])
           st.session_state.counts = {
@@ -427,7 +413,7 @@ if not st.session_state.logged_in:
           conn.close()
           st.error("이미 존재하는 아이디입니다.")
         else:
-          # 초기 유저 데이터 생성
+          # 초기 유저 데이터 구조 정의
           init_data = {
               "history": [],
               "counts": {item: 0 for item in items},
@@ -451,7 +437,7 @@ if not st.session_state.logged_in:
       else:
         st.warning("아이디와 비밀번호를 모두 입력해주세요.")
 
-  st.stop()  # 로그인 전에는 아래 게임 코드를 실행하지 않음
+  st.stop()
 
 
 # ==========================================
@@ -513,7 +499,6 @@ def get_current_luck_multiplier(next_pull_number):
   if st.session_state.luck_buff_unlocked and (next_pull_number % 10 == 0):
     mult *= 2
 
-  # 𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻 장착 시 밤 시간대 행운 100배 버프
   is_day, _ = get_world_time_status()
   if not is_day and st.session_state.equipped == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
     mult *= 100
@@ -663,7 +648,7 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수 (DB 자동 저장 포함)
+# 1회 또는 다회 뽑기 실행 공통 함수
 def perform_rolls(roll_count=1):
   with st.session_state.state_lock:
     results = []
@@ -726,7 +711,6 @@ def perform_rolls(roll_count=1):
     st.session_state.last_results = results
     st.session_state.last_luck_mult = max_luck_applied
 
-    # 뽑기 완료 후 DB에 자동 영구 저장
     save_user_data_to_db()
     return results
 
@@ -753,7 +737,6 @@ if "background_thread_started" not in st.session_state:
 # ==========================================
 st.title("✨ 아우라 가챠 & 도감 시스템")
 
-# 상단 유저 정보 및 로그아웃 바
 c_u1, c_u2 = st.columns([4, 1])
 with c_u1:
   st.markdown(
@@ -767,7 +750,6 @@ with c_u2:
     st.session_state.username = ""
     st.rerun()
 
-# ☀️🌙 월드 시간 상태바 (3분마다 낮/밤 교체)
 is_day_now, rem_seconds_now = get_world_time_status()
 m_rem = rem_seconds_now // 60
 s_rem = rem_seconds_now % 60
@@ -797,7 +779,6 @@ else:
       unsafe_allow_html=True,
   )
 
-# 🌟 [항상 상단 고정] 현재 장착 중인 아우라 영역
 with st.container(border=True):
   st.markdown("### 👤 현재 장착 중인 아우라")
   equipped_aura = st.session_state.equipped
@@ -846,7 +827,6 @@ with st.container(border=True):
         " 장착해보세요!"
     )
 
-# 상단 재화 정보
 col_c1, col_c2 = st.columns(2)
 with col_c1:
   st.metric(label="💰 보유 코인", value=f"{st.session_state.coins} G")
@@ -856,16 +836,10 @@ with col_c2:
 
 st.divider()
 
-# ==========================================
-# 🗂️ 카테고리 탭 구성
-# ==========================================
 tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
     ["🎲 아우라 뽑기", "🎒 스토리지", "📖 도감 (Codex)", "🛒 상점"]
 )
 
-# ------------------------------------------
-# [탭 1] 아우라 뽑기
-# ------------------------------------------
 with tab_gacha:
   roll_coin_label = (
       "1회당 +10 G (스펙트라플로우 효과)"
@@ -1018,9 +992,6 @@ with tab_gacha:
   else:
     st.text("아직 뽑기 기록이 없습니다.")
 
-# ------------------------------------------
-# [탭 2] 스토리지 (인벤토리)
-# ------------------------------------------
 with tab_inventory:
   owned_items = [
       item
@@ -1088,9 +1059,6 @@ with tab_inventory:
         unsafe_allow_html=True,
     )
 
-# ------------------------------------------
-# [탭 3] 도감 (Codex)
-# ------------------------------------------
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
   st.write(
@@ -1156,9 +1124,6 @@ with tab_codex:
             unsafe_allow_html=True,
         )
 
-# ------------------------------------------
-# [탭 4] 상점 (업그레이드, 행운권 상자, 데이터 초기화)
-# ------------------------------------------
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 관리")
 
