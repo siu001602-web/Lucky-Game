@@ -654,7 +654,6 @@ def perform_rolls(roll_count=1):
   )
   is_day, _ = get_world_time_status()
 
-  # 이번 뽑기 직전의 보유 상태 백업 (최초 획득 판정용)
   prior_counts = {item: st.session_state.counts.get(item, 0) for item in items}
 
   for _ in range(roll_count):
@@ -699,7 +698,6 @@ def perform_rolls(roll_count=1):
     st.session_state.history.insert(0, result)
     st.session_state.coins += coin_gain_per_roll
 
-  # [수정됨] 이전에 보유한 적이 없는(최초 획득인) 컷씬 아우라만 컷씬 재생 대상에 포함
   new_cutscene_targets = [
       r
       for r in results
@@ -824,8 +822,8 @@ with col_c2:
 
 st.divider()
 
-tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
-    ["🎲 아우라 뽑기", "🎒 스토리지", "📖 도감 (Codex)", "🛒 상점"]
+tab_gacha, tab_inventory, tab_potions, tab_codex, tab_shop = st.tabs(
+    ["🎲 아우라 뽑기", "🎒 스토리지", "🧪 포션 인벤토리", "📖 도감 (Codex)", "🛒 상점"]
 )
 
 with tab_gacha:
@@ -863,27 +861,6 @@ with tab_gacha:
 
   if st.session_state.luck_buff_unlocked:
     st.success("🍀 [영구 버프 활성화됨] 매 10번째 뽑기마다 행운 2배 적용 중!")
-
-  owned_potions = {k: v for k, v in st.session_state.potions.items() if v > 0}
-  if owned_potions:
-    with st.container(border=True):
-      st.markdown("#### 🧪 보유 중인 행운 아이템 사용")
-      p_cols = st.columns(len(owned_potions))
-      for idx, (p_name, p_count) in enumerate(owned_potions.items()):
-        with p_cols[idx]:
-          st.markdown(f"**{p_name}**")
-          st.caption(f"보유: {p_count}개")
-          if st.button("사용하기", key=f"use_pot_{p_name}", use_container_width=True):
-            st.session_state.potions[p_name] -= 1
-            cfg = potion_config[p_name]
-            if cfg["type"] == "potion":
-              st.session_state.active_potion_mult = cfg["mult"]
-              st.session_state.active_potion_end = time.time() + cfg["duration"]
-              st.session_state.active_potion_name = p_name
-            elif cfg["type"] == "ticket":
-              st.session_state.million_ticket_active = True
-            save_user_data_to_db()
-            st.rerun()
 
   with st.expander("📋 등급별 기본 확률표 보기"):
     weights_sum = sum(base_weights)
@@ -1042,6 +1019,59 @@ with tab_inventory:
         unsafe_allow_html=True,
     )
 
+with tab_potions:
+  st.subheader("🧪 포션 인벤토리")
+  st.write("상점에서 구매한 행운 포션과 백만배 행운권을 확인하고 사용할 수 있습니다.")
+
+  all_potions_count = sum(st.session_state.potions.values())
+  if all_potions_count > 0:
+    p_cols_per_row = 3
+    p_rows = [
+        potion_items[i : i + p_cols_per_row]
+        for i in range(0, len(potion_items), p_cols_per_row)
+    ]
+
+    for row in p_rows:
+      cols = st.columns(p_cols_per_row)
+      for idx, p_name in enumerate(row):
+        count = st.session_state.potions.get(p_name, 0)
+        with cols[idx]:
+          st.markdown(
+              f"""
+              <div style="background-color: #222222; border: 2px solid #00b0ff; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 10px; min-height: 120px;">
+                  <div style="font-size: 28px;">🧪</div>
+                  <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 6px;">{p_name}</div>
+                  <div style="color: #66ffcc; font-size: 12px; margin-top: 4px;">보유: {count}개</div>
+              </div>
+              """,
+              unsafe_allow_html=True,
+          )
+          if count > 0:
+            if st.button("사용하기", key=f"tab_use_pot_{p_name}", use_container_width=True):
+              st.session_state.potions[p_name] -= 1
+              cfg = potion_config[p_name]
+              if cfg["type"] == "potion":
+                st.session_state.active_potion_mult = cfg["mult"]
+                st.session_state.active_potion_end = time.time() + cfg["duration"]
+                st.session_state.active_potion_name = p_name
+              elif cfg["type"] == "ticket":
+                st.session_state.million_ticket_active = True
+              save_user_data_to_db()
+              st.rerun()
+          else:
+            st.button("보유 없음", key=f"tab_none_pot_{p_name}", disabled=True, use_container_width=True)
+      st.write("")
+  else:
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 50px; color: #777;">
+            <h3>🧪 포션 인벤토리가 비어 있습니다!</h3>
+            <p>상점에서 행운권 상자를 구매하여 포션을 획득해보세요.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
   st.write(
@@ -1090,7 +1120,7 @@ with tab_codex:
         st.markdown("---")
 
         if sel in cutscene_auras:
-          st.info("이 아우らは 전용 연출 컷씬이 존재합니다!")
+          st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
           if st.button("🎬 컷씬 다시 보기", use_container_width=True):
             play_cutscene(sel)
         else:
