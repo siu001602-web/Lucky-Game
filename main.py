@@ -70,7 +70,7 @@ border_colors = {
     "일반": "#555555",
 }
 
-# 등급별 아우라 이미지 경로 매핑 (장착 프로필 및 도감 상세용)
+# 등급별 아우라 이미지 경로 매핑
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
     "희귀": "images/SmartSelect_20261113_115402_NAVER.jpg",
@@ -259,47 +259,47 @@ with tab_gacha:
     st.text("아직 뽑기 기록이 없습니다.")
 
 # ------------------------------------------
-# [탭 2] 스토리지 (인벤토리)
+# [탭 2] 스토리지 (인벤토리) - 보유한 아우라만 추가되는 방식
 # ------------------------------------------
 with tab_inventory:
+  owned_items = [
+      item for item in items if st.session_state.counts[item] > 0
+  ]
   st.subheader(
-      f"📦 아우라 스토리지 [보유 종류:"
-      f" {sum(1 for k in items if st.session_state.counts[k] > 0)} /"
-      f" {len(items)}]"
+      f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
   )
-  st.write("획득한 아우라의 장착 버튼을 눌러 장착할 수 있습니다.")
 
-  cols_per_row = 4
-  rows = [items[i : i + cols_per_row] for i in range(0, len(items), cols_per_row)]
+  if owned_items:
+    st.write("획득한 아우라를 확인하고 장착할 수 있습니다.")
+    cols_per_row = 4
+    rows = [
+        owned_items[i : i + cols_per_row]
+        for i in range(0, len(owned_items), cols_per_row)
+    ]
 
-  for row in rows:
-    cols = st.columns(cols_per_row)
-    for idx, item in enumerate(row):
-      with cols[idx]:
-        count = st.session_state.counts[item]
-        is_owned = count > 0
-        is_equipped = st.session_state.equipped == item
-        b_color = border_colors[item]
-        icon = icons[item]
+    for row in rows:
+      cols = st.columns(cols_per_row)
+      for idx, item in enumerate(row):
+        with cols[idx]:
+          count = st.session_state.counts[item]
+          is_equipped = st.session_state.equipped == item
+          b_color = border_colors[item]
+          icon = icons[item]
 
-        bg_color = (
-            "#222222" if not is_equipped else "#1b3a4b"
-        ) if is_owned else "#111111"
-        opacity = "1.0" if is_owned else "0.3"
+          bg_color = "#1b3a4b" if is_equipped else "#222222"
 
-        st.markdown(
-            f"""
-            <div style="background-color: {bg_color}; border: 2px solid {b_color}; border-radius: 8px; padding: 12px; text-align: center; opacity: {opacity}; margin-bottom: 10px; min-height: 110px;">
-                <div style="font-size: 24px;">{icon}</div>
-                <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 4px;">{item}</div>
-                <div style="color: #aaa; font-size: 11px; margin-top: 2px;">보유: {count}개</div>
-                {"<div style='color: #4da6ff; font-size: 11px; font-weight: bold; margin-top: 2px;'>[장착 중]</div>" if is_equipped else ""}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+          st.markdown(
+              f"""
+              <div style="background-color: {bg_color}; border: 2px solid {b_color}; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 10px; min-height: 110px;">
+                  <div style="font-size: 24px;">{icon}</div>
+                  <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 4px;">{item}</div>
+                  <div style="color: #aaa; font-size: 11px; margin-top: 2px;">보유: {count}개</div>
+                  {"<div style='color: #4da6ff; font-size: 11px; font-weight: bold; margin-top: 2px;'>[장착 중]</div>" if is_equipped else ""}
+              </div>
+              """,
+              unsafe_allow_html=True,
+          )
 
-        if is_owned:
           if is_equipped:
             st.button(
                 "장착중",
@@ -313,17 +313,20 @@ with tab_inventory:
             ):
               st.session_state.equipped = item
               st.rerun()
-        else:
-          st.button(
-              "잠김",
-              key=f"inv_lock_{item}",
-              disabled=True,
-              use_container_width=True,
-          )
-    st.write("")
+      st.write("")
+  else:
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 50px; color: #777;">
+            <h3>🎒 스토리지가 비어 있습니다!</h3>
+            <p>뽑기를 통해 첫 아우라를 획득해보세요.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # ------------------------------------------
-# [탭 3] 도감 (Codex) - 이미지 출력 지원
+# [탭 3] 도감 (Codex)
 # ------------------------------------------
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
@@ -356,7 +359,6 @@ with tab_codex:
 
     with st.container(border=True):
       if is_owned:
-        # 도감 상세 창에 이미지 출력 추가 (등록된 이미지가 있으면 이미지 표시)
         img_path = aura_images.get(sel)
         if img_path and os.path.exists(img_path):
           st.image(img_path, width=150)
