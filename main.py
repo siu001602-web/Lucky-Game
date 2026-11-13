@@ -107,37 +107,71 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ 이모티콘 기반 화려한 시네마틱 컷씬 연출 함수
-def play_cutscene(aura_name):
+# ✨ [힘 전용 특수 연출] 별이 돌아가다가 와장창 깨지는 컷씬 함수
+def play_power_shatter_cutscene():
   placeholder = st.empty()
 
-  # 단계별 이모티콘 연출 시퀀스 (긴장감 조성)
+  # 1단계: 별이 회전하며 에너지를 모으는 연출
+  for emoji in ["💫 스타트...", "🌀 별이 회전합니다...", "⭐ 회전 가속 중!"]:
+    with placeholder.container():
+      st.markdown(
+          f"""
+            <div style="text-align: center; padding: 60px 20px; background: #0b0b1a; border-radius: 15px; border: 3px solid #00f0ff; color: white;">
+                <div style="font-size: 70px;">🌟💫</div>
+                <h2 style="color: #00f0ff; margin-top: 15px;">{emoji}</h2>
+                <p style="color: #aaa;">차원의 경계가 흔들립니다!</p>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+    time.sleep(0.6)
+
+  # 2단계: 와장창 깨지는 순간 연출
+  with placeholder.container():
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 70px 20px; background: linear-gradient(135deg, #500, #000); border-radius: 15px; border: 4px solid #ff0055; color: white; box-shadow: 0 0 30px rgba(255, 0, 85, 0.8);">
+            <div style="font-size: 80px;">💥🔨🧊</div>
+            <h1 style="color: #ff0055; margin-top: 15px; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">CRASH!! 와장창!</h1>
+            <p style="color: #ffcccc; font-size: 20px; font-weight: bold;">현실의 벽이 산산조각 났습니다!</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+  time.sleep(1.2)
+  placeholder.empty()
+
+
+# 일반 상위 아우라(석영, 시데리움) 컷씬 함수
+def play_general_cutscene(aura_name):
+  placeholder = st.empty()
   stages = [
-      (
-          "🌌",
-          "차원의 결계가 흔들립니다...",
-          "알 수 없는 에너지가 모여듭니다.",
-          "#111",
-      ),
+      ("🌌", "차원의 결계가 흔들립니다...", "알 수 없는 에너지가 모여듭니다.", "#111"),
       ("⚡🌀⚡", "공간이 일그러지는 중...", "강력한 파동 감지!", "#2b0057"),
       ("🌟🔥👑", f"전설적인 아우라 [{aura_name}] 임박!", "운명의 기운 폭발!", "#4a0000"),
   ]
-
   for emoji, title, desc, bg_color in stages:
     with placeholder.container():
       st.markdown(
           f"""
-            <div style="text-align: center; padding: 60px 20px; background: {bg_color}; border-radius: 15px; border: 3px solid #ffd700; color: white; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);">
+            <div style="text-align: center; padding: 60px 20px; background: {bg_color}; border-radius: 15px; border: 3px solid #ffd700; color: white;">
                 <div style="font-size: 70px; margin-bottom: 10px;">{emoji}</div>
-                <h2 style="color: #ffd700; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">{title}</h2>
+                <h2 style="color: #ffd700;">{title}</h2>
                 <p style="color: #ffccd5; font-size: 18px; margin-top: 10px;">{desc}</p>
             </div>
             """,
           unsafe_allow_html=True,
       )
-    time.sleep(0.9)
-
+    time.sleep(0.8)
   placeholder.empty()
+
+
+# 통합 컷씬 실행 관리자
+def play_cutscene(aura_name):
+  if aura_name == "힘":
+    play_power_shatter_cutscene()
+  else:
+    play_general_cutscene(aura_name)
 
 
 # 1회 뽑기 실행 공통 함수
@@ -412,7 +446,6 @@ with tab_codex:
 with tab_shop:
   st.subheader("🛒 상점")
 
-  # 🛠️ 개발자 전용 비번 인증 패널
   with st.container(border=True):
     st.markdown("### 💻 개발자 인증 패널")
     st.write("비밀번호를 입력하고 개발자 권한을 활성화하세요.")
