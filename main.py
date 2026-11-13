@@ -75,23 +75,47 @@ if "counts" not in st.session_state:
 if "equipped" not in st.session_state:
   st.session_state.equipped = None
 if "coins" not in st.session_state:
-  st.session_state.coins = 0  # 0코인으로 시작 (뽑기로 획득)
+  st.session_state.coins = 0
 if "inventory_slots" not in st.session_state:
   st.session_state.inventory_slots = 50
 if "auto_roll_unlocked" not in st.session_state:
-  st.session_state.auto_roll_unlocked = False  # 오토 뽑기 해금 여부
+  st.session_state.auto_roll_unlocked = False
 if "auto_roll_active" not in st.session_state:
-  st.session_state.auto_roll_active = False  # 오토 뽑기 작동 상태
+  st.session_state.auto_roll_active = False
 if "last_result" not in st.session_state:
-  st.session_state.last_result = None  # 마지막 뽑기 결과 저장
+  st.session_state.last_result = None
+if "is_cutscene" not in st.session_state:
+  st.session_state.is_cutscene = False  # 컷씬 재생 중 여부
 
 
 # 1회 뽑기 실행 공통 함수
 def perform_roll():
   result = random.choices(items, weights=weights, k=1)[0]
+
+  # 상위 등급(힘, 석영, 시데리움) 당첨 시 컷씬 연출 발동
+  if result in ["힘", "석영", "시데리움"]:
+    st.session_state.is_cutscene = True
+    # 컷씬 UI를 보여주기 위해 임시 렌더링 후 대기
+    placeholder = st.empty()
+    with placeholder.container():
+      st.markdown(
+          """
+                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #2b0057, #000000); border-radius: 15px; border: 2px solid #ffd700; color: white;">
+                    <h2 style="animation: spin 1s infinite linear;">🌟💫✨</h2>
+                    <h3 style="color: #ffd700; margin-top: 15px;">전설적인 에너지가 감지됩니다...</h3>
+                    <p style="color: #aaa;">차원의 문이 열리는 중입니다!</p>
+                </div>
+                """,
+          unsafe_allow_html=True,
+      )
+    time.sleep(2.5)  # 2.5초간 컷씬 유지 (뽑기 일시 중단 효과)
+    placeholder.empty()
+    st.session_state.is_cutscene = False
+    st.balloons()
+
   st.session_state.counts[result] += 1
   st.session_state.history.insert(0, result)
-  st.session_state.coins += 5  # 1뽑당 무조건 5코인 지급
+  st.session_state.coins += 5
   st.session_state.last_result = result
   return result
 
@@ -154,35 +178,43 @@ with tab_gacha:
   st.subheader("🎲 행운의 아우라 소환 (1회당 +5 G)")
 
   with st.expander("📋 등급별 확률표 보기"):
-    total_weight = sum(weights)
+    weights_sum = sum(weights)
     for item, weight in zip(items, weights):
-      prob = (weight / total_weight) * 100
+      prob = (weight / weights_sum) * 100
       st.markdown(
           f"- **{icons[item]} {item}** : `{prob:.4f}%`"
-          f" (1/{int(total_weight/weight)})"
+          f" (1/{int(weights_sum/weight)})"
       )
 
   st.write("")
 
-  # 오토 뽑기 해금 시 토글 버튼 표시
+  # 오토 뽑기 해금 시 토글 버튼 (컷씬 중에는 비활성화)
   if st.session_state.auto_roll_unlocked:
     st.session_state.auto_roll_active = st.toggle(
         "⚡ 오토 뽑기 활성화 (1초마다 자동 소환)",
         value=st.session_state.auto_roll_active,
+        disabled=st.session_state.is_cutscene,
     )
 
-  # 수동 1회 뽑기 버튼
-  if st.button("🎲 1회 무료 뽑기", type="primary", use_container_width=True):
-    res = perform_roll()
-    if res in ["힘", "석영", "시데리움"]:
-      st.balloons()
+  # 수동 1회 뽑기 버튼 (컷씬 중에는 클릭 불가)
+  if st.button(
+      "🎲 1회 무료 뽑기",
+      type="primary",
+      use_container_width=True,
+      disabled=st.session_state.is_cutscene,
+  ):
+    perform_roll()
     st.rerun()
 
-  # 오토 뽑기 작동 중일 때 1회 소환 실행
-  if st.session_state.auto_roll_unlocked and st.session_state.auto_roll_active:
-    res = perform_roll()
-    if res in ["힘", "석영", "시데리움"]:
-      st.balloons()
+  # 오토 뽑기 작동 중이고 컷씬이 아닐 때 실행
+  if (
+      st.session_state.auto_roll_unlocked
+      and st.session_state.auto_roll_active
+      and not st.session_state.is_cutscene
+  ):
+    perform_roll()
+    time.sleep(1)
+    st.rerun()
 
   # 최근 뽑기 결과 카드 표시
   if st.session_state.last_result:
@@ -291,7 +323,6 @@ with tab_inventory:
 with tab_shop:
   st.subheader("🛒 상점")
 
-  # ⚡ 오토 뽑기 기능 구매 상품
   with st.container(border=True):
     col_a1, col_a2 = st.columns([2, 1])
     with col_a1:
@@ -310,9 +341,8 @@ with tab_shop:
             st.success("오토 뽑기 기능이 해금되었습니다!")
             st.rerun()
           else:
-            st.error("코인이 부족합니다! (20회 뽑기 필요)")
+            st.error("코인이 부족합니다!")
 
-  # 🎒 아우라 가방 확장권
   with st.container(border=True):
     col_s1, col_s2 = st.columns([2, 1])
     with col_s1:
@@ -345,11 +375,5 @@ with tab_shop:
     st.session_state.auto_roll_unlocked = False
     st.session_state.auto_roll_active = False
     st.session_state.last_result = None
+    st.session_state.is_cutscene = False
     st.rerun()
-
-# ==========================================
-# ⏱️ 오토 뽑기 1초 루프 트리거
-# ==========================================
-if st.session_state.auto_roll_unlocked and st.session_state.auto_roll_active:
-  time.sleep(1)
-  st.rerun()
