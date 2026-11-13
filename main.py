@@ -1,5 +1,6 @@
 import os
 import random
+import time
 import streamlit as st
 
 # 페이지 설정
@@ -38,7 +39,7 @@ icons = {
     "일반": "⚪📦",
 }
 
-# 등급별 테두리 색상 (Sol's RNG 스타일)
+# 등급별 테두리 색상
 border_colors = {
     "힘": "#FF0000",
     "석영": "#FF4500",
@@ -74,9 +75,26 @@ if "counts" not in st.session_state:
 if "equipped" not in st.session_state:
   st.session_state.equipped = None
 if "coins" not in st.session_state:
-  st.session_state.coins = 100
+  st.session_state.coins = 0  # 0코인으로 시작 (뽑기로 획득)
 if "inventory_slots" not in st.session_state:
   st.session_state.inventory_slots = 50
+if "auto_roll_unlocked" not in st.session_state:
+  st.session_state.auto_roll_unlocked = False  # 오토 뽑기 해금 여부
+if "auto_roll_active" not in st.session_state:
+  st.session_state.auto_roll_active = False  # 오토 뽑기 작동 상태
+if "last_result" not in st.session_state:
+  st.session_state.last_result = None  # 마지막 뽑기 결과 저장
+
+
+# 1회 뽑기 실행 공통 함수
+def perform_roll():
+  result = random.choices(items, weights=weights, k=1)[0]
+  st.session_state.counts[result] += 1
+  st.session_state.history.insert(0, result)
+  st.session_state.coins += 5  # 1뽑당 무조건 5코인 지급
+  st.session_state.last_result = result
+  return result
+
 
 st.title("✨ 아우라 가챠 & 인벤토리")
 
@@ -133,7 +151,7 @@ tab_gacha, tab_inventory, tab_shop = st.tabs(
 # [탭 1] 아우라 뽑기 카테고리
 # ------------------------------------------
 with tab_gacha:
-  st.subheader("🎲 행운의 아우라 소환 (무료)")
+  st.subheader("🎲 행운의 아우라 소환 (1회당 +5 G)")
 
   with st.expander("📋 등급별 확률표 보기"):
     total_weight = sum(weights)
@@ -146,28 +164,37 @@ with tab_gacha:
 
   st.write("")
 
+  # 오토 뽑기 해금 시 토글 버튼 표시
+  if st.session_state.auto_roll_unlocked:
+    st.session_state.auto_roll_active = st.toggle(
+        "⚡ 오토 뽑기 활성화 (1초마다 자동 소환)",
+        value=st.session_state.auto_roll_active,
+    )
+
+  # 수동 1회 뽑기 버튼
   if st.button("🎲 1회 무료 뽑기", type="primary", use_container_width=True):
-    result = random.choices(items, weights=weights, k=1)[0]
-
-    st.session_state.counts[result] += 1
-    st.session_state.history.insert(0, result)
-
-    reward_coin = 5
-    if result in ["힘", "석영", "시데리움"]:
-      reward_coin = 100
+    res = perform_roll()
+    if res in ["힘", "석영", "시데리움"]:
       st.balloons()
-    elif result in ["자력", "분노", "결정화"]:
-      reward_coin = 30
-    st.session_state.coins += reward_coin
+    st.rerun()
 
-    icon = icons[result]
+  # 오토 뽑기 작동 중일 때 1회 소환 실행
+  if st.session_state.auto_roll_unlocked and st.session_state.auto_roll_active:
+    res = perform_roll()
+    if res in ["힘", "석영", "시데리움"]:
+      st.balloons()
+
+  # 최근 뽑기 결과 카드 표시
+  if st.session_state.last_result:
+    res = st.session_state.last_result
+    icon = icons[res]
     st.markdown(
         f"""
             <div style="text-align: center; padding: 25px 0; background-color: #1e1e1e; color: white; border-radius: 10px; margin-top: 15px;">
                 <span style="font-size: 36px; font-weight: bold;">
-                    {icon} [{result}] 획득! {icon}
+                    {icon} [{res}] 획득! {icon}
                 </span>
-                <p style="color: #aaa; margin-top: 5px;">(+ 보너스 코인 {reward_coin}G 획득)</p>
+                <p style="color: #ffd700; margin-top: 5px;">(+ 5 코인 획득)</p>
             </div>
             """,
         unsafe_allow_html=True,
@@ -191,11 +218,8 @@ with tab_inventory:
   st.subheader(
       f"📦 아우라 스토리지 [보유 종류: {sum(1 for k in items if st.session_state.counts[k] > 0)} / {len(items)}]"
   )
-  st.write(
-      "획득한 아우라 카드를 클릭하거나 버튼을 눌러 장착할 수 있습니다."
-  )
+  st.write("획득한 아우라의 장착 버튼을 눌러 장착할 수 있습니다.")
 
-  # 4열 그리드 레이아웃으로 아우라 카드 배치
   cols_per_row = 4
   rows = [items[i : i + cols_per_row] for i in range(0, len(items), cols_per_row)]
 
@@ -209,7 +233,6 @@ with tab_inventory:
         b_color = border_colors[item]
         icon = icons[item]
 
-        # 카드 디자인 스타일 적용 컨테이너
         if is_owned:
           bg_color = "#222222" if not is_equipped else "#1b3a4b"
           opacity = "1.0"
@@ -238,11 +261,13 @@ with tab_inventory:
             unsafe_allow_html=True,
         )
 
-        # 장착 버튼
         if is_owned:
           if is_equipped:
             st.button(
-                "장착중", key=f"grid_eq_{item}", disabled=True, use_container_width=True
+                "장착중",
+                key=f"grid_eq_{item}",
+                disabled=True,
+                use_container_width=True,
             )
           else:
             if st.button(
@@ -258,7 +283,7 @@ with tab_inventory:
               use_container_width=True,
           )
 
-    st.write("")  # 줄바꿈 간격
+    st.write("")
 
 # ------------------------------------------
 # [탭 3] 상점 카테고리
@@ -266,6 +291,28 @@ with tab_inventory:
 with tab_shop:
   st.subheader("🛒 상점")
 
+  # ⚡ 오토 뽑기 기능 구매 상품
+  with st.container(border=True):
+    col_a1, col_a2 = st.columns([2, 1])
+    with col_a1:
+      st.markdown("### ⚡ 오토 뽑기 기능 (영구)")
+      st.write("1초마다 자동으로 아우라를 뽑아주는 편리한 기능입니다.")
+    with col_a2:
+      st.write("")
+      if st.session_state.auto_roll_unlocked:
+        st.button("보유 완료", disabled=True, use_container_width=True)
+      else:
+        if st.button("구매 (100 G)", key="buy_autoroll", use_container_width=True):
+          if st.session_state.coins >= 100:
+            st.session_state.coins -= 100
+            st.session_state.auto_roll_unlocked = True
+            st.session_state.auto_roll_active = True
+            st.success("오토 뽑기 기능이 해금되었습니다!")
+            st.rerun()
+          else:
+            st.error("코인이 부족합니다! (20회 뽑기 필요)")
+
+  # 🎒 아우라 가방 확장권
   with st.container(border=True):
     col_s1, col_s2 = st.columns([2, 1])
     with col_s1:
@@ -275,7 +322,7 @@ with tab_shop:
       )
     with col_s2:
       st.write("")
-      if st.button("구매 (50 G)", use_container_width=True):
+      if st.button("구매 (50 G)", key="buy_bag", use_container_width=True):
         if st.session_state.coins >= 50:
           st.session_state.coins -= 50
           st.session_state.inventory_slots += 20
@@ -283,18 +330,6 @@ with tab_shop:
           st.rerun()
         else:
           st.error("코인이 부족합니다!")
-
-  with st.container(border=True):
-    col_s3, col_s4 = st.columns([2, 1])
-    with col_s3:
-      st.markdown("### 💰 긴급 코인 충전")
-      st.write("무료로 코인 100G를 즉시 충전합니다.")
-    with col_s4:
-      st.write("")
-      if st.button("충전 받기", use_container_width=True):
-        st.session_state.coins += 100
-        st.success("코인 100G가 충전되었습니다!")
-        st.rerun()
 
   st.write("")
   if st.button(
@@ -305,6 +340,16 @@ with tab_shop:
     st.session_state.history = []
     st.session_state.counts = {item: 0 for item in items}
     st.session_state.equipped = None
-    st.session_state.coins = 100
+    st.session_state.coins = 0
     st.session_state.inventory_slots = 50
+    st.session_state.auto_roll_unlocked = False
+    st.session_state.auto_roll_active = False
+    st.session_state.last_result = None
     st.rerun()
+
+# ==========================================
+# ⏱️ 오토 뽑기 1초 루프 트리거
+# ==========================================
+if st.session_state.auto_roll_unlocked and st.session_state.auto_roll_active:
+  time.sleep(1)
+  st.rerun()
