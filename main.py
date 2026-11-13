@@ -451,10 +451,31 @@ def get_world_time_status():
   return is_day, rem_sec
 
 
-# 🎨 [특수 아우라 장착 배경 적용 함수]
+# 🎨 [특수 아우라 장착 배경 및 가독성 향상 CSS 적용 함수]
 def apply_equipped_background():
   eq = st.session_state.get("equipped")
   bg_path = equipped_backgrounds.get(eq)
+
+  # 기본 스타일 (메트릭 글자, 탭 메뉴 글자 흰색 및 가독성 백드롭 추가)
+  base_style = """
+    <style>
+    /* 메트릭(코인, 뽑기 횟수) 글자 선명한 흰색 및 그림자 처리 */
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+        color: #ffffff !important;
+        text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8);
+    }
+    /* 탭 메뉴 글자 선명한 흰색 및 가독성 강화 */
+    .stTabs [data-baseweb="tab"] {
+        color: #ffffff !important;
+        font-weight: bold;
+        text-shadow: 0 0 4px rgba(0,0,0,0.9);
+    }
+    .stTabs [data-baseweb="tab"] p {
+        color: #ffffff !important;
+    }
+    </style>
+    """
+
   if bg_path and os.path.exists(bg_path):
     with open(bg_path, "rb") as img_file:
       encoded_bg = base64.b64encode(img_file.read()).decode()
@@ -468,9 +489,12 @@ def apply_equipped_background():
             background-attachment: fixed;
         }}
         </style>
+        {base_style}
         """,
         unsafe_allow_html=True,
     )
+  else:
+    st.markdown(base_style, unsafe_allow_html=True)
 
 
 apply_equipped_background()
