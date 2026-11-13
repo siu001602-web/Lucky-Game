@@ -127,8 +127,8 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [개선된 인라인 컷씬] 화면 안에서 별이 제자리 회전하며 점점 커지고 멘트 출력
-def play_inline_star_animation(aura_name):
+# ✨ [Sol's RNG 스타일 원작 연출] 화면 중앙에서 별이 회전하며 커지는 CSS 애니메이션 컷씬
+def play_sols_rng_cutscene(aura_name):
   placeholder = st.empty()
 
   if aura_name == "바운디드":
@@ -140,92 +140,65 @@ def play_inline_star_animation(aura_name):
   elif aura_name == "스펙터":
     star_color = "#00ffcc"
     ment = "차가운 영혼의 안개가 걷히고 전설의 유령이 눈을 뜹니다..."
+  elif aura_name == "와트":
+    star_color = "#00ffff"
+    ment = "초전설 에너지 과부하! 강력한 전류가 몰아칩니다..."
+  elif aura_name == "힘":
+    star_color = "#ff0055"
+    ment = "현실의 벽을 부수는 압도적인 힘이 폭발합니다..."
   else:
-    star_color = "#ffff00"
-    ment = "알 수 없는 거대한 에너지가 수면 위로 떠오릅니다..."
+    star_color = "#ffd700"
+    ment = "전설적인 에너지가 요동칩니다..."
 
-  # 단계별로 별의 크기(font-size)를 키우고 회전 효과 부여
-  animation_steps = [
-      (
-          "40px",
-          "⭐",
-          "차원의 별이 소환되었습니다...",
-          "마력을 모으는 중...",
-      ),
-      (
-          "80px",
-          "🌟",
-          "별이 회전하며 거대해집니다!",
-          "에너지가 증폭됩니다!",
-      ),
-      (
-          "130px",
-          "💫",
-          f"초희귀 등급 [{aura_name}] 임박!",
-          ment,
-      ),
-  ]
+  # CSS 애니메이션 주입 (별이 회전하며 커지는 효과)
+  animation_html = f"""
+    <style>
+    @keyframes spinAndGrow {{
+        0% {{ transform: rotate(0deg) scale(0.5); opacity: 0.3; }}
+        50% {{ transform: rotate(360deg) scale(1.2); opacity: 0.8; }}
+        100% {{ transform: rotate(720deg) scale(2.0); opacity: 1; }}
+    }}
+    .spinning-star {{
+        display: inline-block;
+        animation: spinAndGrow 2.5s ease-in-out forwards;
+        font-size: 70px;
+        color: {star_color};
+        text-shadow: 0 0 30px {star_color};
+    }}
+    </style>
+    <div style="
+        text-align: center;
+        padding: 50px 20px;
+        background: #0d0d14;
+        border: 3px solid {star_color};
+        border-radius: 15px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 0 30px {star_color};
+    ">
+        <div style="margin-bottom: 20px;">
+            <div class="spinning-star">✦</div>
+        </div>
+        <h2 style="color: {star_color}; margin: 10px 0; font-size: 26px; text-shadow: 0 0 10px {star_color};">
+            [{aura_name}] 강림 임박!
+        </h2>
+        <p style="font-size: 18px; color: #ffeb3b; margin-top: 10px; font-weight: bold;">
+            {ment}
+        </p>
+    </div>
+    """
 
-  for size, star_icon, title_text, desc_text in animation_steps:
-    with placeholder.container():
-      st.markdown(
-          f"""
-            <div style="
-                text-align: center;
-                padding: 35px;
-                background: #11111c;
-                border: 2px solid {star_color};
-                border-radius: 12px;
-                margin-top: 15px;
-                margin-bottom: 15px;
-                box-shadow: 0 0 25px {star_color};
-            ">
-                <div style="font-size: {size}; color: {star_color}; transition: all 0.3s ease-in-out; margin-bottom: 10px;">
-                    {star_icon}
-                </div>
-                <h3 style="color: {star_color}; margin: 5px 0; font-size: 22px;">{title_text}</h3>
-                <p style="font-size: 16px; color: #ffeb3b; margin-top: 8px; font-weight: bold;">{desc_text}</p>
-            </div>
-            """,
-          unsafe_allow_html=True,
-      )
-    time.sleep(0.8)
+  with placeholder.container():
+    st.markdown(animation_html, unsafe_allow_html=True)
 
+  # 애니메이션 재생 시간 동안 대기
+  time.sleep(2.5)
   placeholder.empty()
 
 
-# 기타 상위 등급 컷씬 관리자
+# 기타 상위 등급 일반 컷씬
 def play_cutscene(aura_name):
-  if aura_name in ["바운디드", "재즈", "스펙터"]:
-    play_inline_star_animation(aura_name)
-  elif aura_name == "와트":
-    placeholder = st.empty()
-    with placeholder.container():
-      st.markdown(
-          """
-            <div style="text-align: center; padding: 35px; background: #001a33; border: 2px solid #00ffff; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
-                <div style="font-size: 80px;">⚡👑⚡</div>
-                <h3 style="color: #00ffff; margin-top: 10px;">초전설 [와트] 과부하 발동!</h3>
-            </div>
-            """,
-          unsafe_allow_html=True,
-      )
-    time.sleep(1.0)
-    placeholder.empty()
-  else:
-    placeholder = st.empty()
-    with placeholder.container():
-      st.markdown(
-          f"""
-            <div style="text-align: center; padding: 35px; background: #2b0057; border: 2px solid #ffd700; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
-                <div style="font-size: 80px;">🌟</div>
-                <h3 style="color: #ffd700; margin-top: 10px;">전설적인 아우라 [{aura_name}] 임박!</h3>
-            </div>
-            """,
-          unsafe_allow_html=True,
-      )
-    time.sleep(1.0)
-    placeholder.empty()
+  play_sols_rng_cutscene(aura_name)
 
 
 # 1회 뽑기 실행 공통 함수
