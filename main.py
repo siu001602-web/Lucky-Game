@@ -6,39 +6,62 @@ st.set_page_config(page_title="뽑기 시뮬레이터", page_icon="🎁", layout
 
 st.title("🎁 뽑기 시뮬레이터")
 
+# 등급 리스트 정의 (상위 등급부터 하위 등급 순)
+items = [
+    "힘",
+    "석영",
+    "시데리움",
+    "자력",
+    "분노",
+    "결정화",
+    "레어",
+    "자연",
+    "희귀",
+    "일반",
+]
+
 # 세션 상태 초기화
 if "history" not in st.session_state:
   st.session_state.history = []
 if "counts" not in st.session_state:
-  st.session_state.counts = {
-      "신성": 0,
-      "토큰": 0,
-      "전설": 0,
-      "에픽": 0,
-      "희귀": 0,
-      "일반": 0,
-  }
+  st.session_state.counts = {item: 0 for item in items}
 
-# 등급 및 가중치 설정 (총합 1,000,000 기준)
-items = ["신성", "토큰", "전설", "에픽", "희귀", "일반"]
+# 각 분수 확률에 따른 가중치 설정 (기준: 16,384)
 weights = [
-    20,  # 신성: 0.002% (1/50,000)
-    1000,  # 토큰: 0.1% (1/1,000)
-    10000,  # 전설: 1%
-    190000,  # 에픽: 19%
-    300000,  # 희귀: 30%
-    498980,  # 일반: 49.898%
+    1,  # 힘: 1/16384
+    2,  # 석영: 1/8192
+    4,  # 시데리움: 1/4096
+    8,  # 자력: 1/2048
+    128,  # 분노: 1/128
+    256,  # 결정화: 1/64
+    1024,  # 레어: 1/16
+    2048,  # 자연: 1/8
+    4096,  # 희귀: 1/4
+    8192,  # 일반: 1/2
 ]
 
-# 등급별 색상 설정
-colors = {
-    "신성": "#FF1493",  # 진분홍
-    "토큰": "#00CED1",  # 청록
-    "전설": "#FFA500",  # 주황/금색
-    "에픽": "#9932CC",  # 보라
-    "희귀": "#1E90FF",  # 파랑
-    "일반": "#808080",  # 회색
+# 등급별 이모티콘 매핑
+icons = {
+    "힘": "⚡🔥",
+    "석영": "💎✨",
+    "시데리움": "🌟🛡️",
+    "자력": "🧲💫",
+    "분노": "😡💢",
+    "결정화": "🔮✨",
+    "레어": "💙📦",
+    "자연": "🌿🍃",
+    "희귀": "💧📘",
+    "일반": "⚪📦",
 }
+
+# 확률표 안내 (접이식)
+with st.expander("📋 등급별 확률표 보기"):
+  total_weight = sum(weights)
+  for item, weight in zip(items, weights):
+    prob = (weight / total_weight) * 100
+    st.markdown(
+        f"- **{icons[item]} {item}** : `{prob:.4f}%` (1/{int(total_weight/weight)})"
+    )
 
 # 뽑기 버튼
 if st.button("🎲 1회 뽑기", type="primary", use_container_width=True):
@@ -48,17 +71,17 @@ if st.button("🎲 1회 뽑기", type="primary", use_container_width=True):
   st.session_state.counts[result] += 1
   st.session_state.history.insert(0, result)
 
-  # 희귀 등급 풍선 효과 (원치 않으시면 이 두 줄은 지우셔도 됩니다)
-  if result in ["신성", "토큰"]:
+  # 상위 등급 당첨 시 풍선 효과
+  if result in ["힘", "석영", "시데리움", "자력", "분노"]:
     st.balloons()
 
-  # 화면 중앙에 깔끔하게 [등급]만 표시
-  color = colors[result]
+  # 화면 중앙에 이모티콘과 함께 [등급] 표시
+  icon = icons[result]
   st.markdown(
       f"""
         <div style="text-align: center; padding: 30px 0;">
-            <span style="font-size: 42px; font-weight: bold; color: {color};">
-                [{result}]
+            <span style="font-size: 42px; font-weight: bold;">
+                {icon} [{result}] {icon}
             </span>
         </div>
         """,
@@ -75,28 +98,26 @@ with col1:
   total_pulls = sum(st.session_state.counts.values())
   st.write(f"총 뽑기 횟수: **{total_pulls}회**")
 
-  for item, count in st.session_state.counts.items():
+  for item in items:
+    count = st.session_state.counts[item]
     rate = (count / total_pulls * 100) if total_pulls > 0 else 0
-    st.text(f"{item}: {count}회 ({rate:.3f}%)")
+    st.text(f"{icons[item]} {item}: {count}회 ({rate:.2f}%)")
 
 with col2:
   st.subheader("📜 최근 뽑기 기록")
   if st.session_state.history:
     recent = st.session_state.history[:5]
     for i, res in enumerate(recent):
-      st.text(f"{len(st.session_state.history) - i}번째: [{res}]")
+      st.text(
+          f"{len(st.session_state.history) - i}번째: {icons[res]} [{res}]"
+      )
   else:
     st.text("아직 뽑기 기록이 없습니다.")
 
+st.write("")
+
 # 초기화 버튼
-if st.button("🔄 기록 초기화"):
+if st.button("🔄 기록 초기화", use_container_width=True):
   st.session_state.history = []
-  st.session_state.counts = {
-      "신성": 0,
-      "토큰": 0,
-      "전설": 0,
-      "에픽": 0,
-      "희귀": 0,
-      "일반": 0,
-  }
+  st.session_state.counts = {item: 0 for item in items}
   st.rerun()
