@@ -127,11 +127,10 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [10만 이하 초희귀 3종 전용] 화면 전체 풀스크린 컷씬 (별 회전 -> 멘트 -> 아우라 등장)
+# ✨ [10만 이하 초희귀 3종 전용] 중앙에서 별이 회전하며 커지는 풀스크린 컷씬
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  # 아우라별 개성 있는 별 색상 및 멘트 설정
   if aura_name == "바운디드":
     star_color = "#bf00ff"
     bg_gradient = "linear-gradient(135deg, #1a0033, #000000)"
@@ -149,21 +148,21 @@ def play_fullscreen_star_cutscene(aura_name):
     bg_gradient = "linear-gradient(135deg, #222200, #000000)"
     ment = "알 수 없는 거대한 에너지가 수면 위로 떠오릅니다..."
 
-  # 1단계: 별이 화면 전체에서 개성 있게 회전하는 연출
+  # 단계별로 별의 크기(font-size)를 점진적으로 키우는 연출
   steps = [
       (
-          f"<div style='font-size: 100px; color: {star_color}; animation: spin 1s infinite;'>⭐</div>",
-          "차원의 별이 강렬하게 회전합니다...",
-          "에너지를 모으는 중...",
+          f"<div style='font-size: 60px; color: {star_color};'>⭐</div>",
+          "차원의 별이 소환되었습니다...",
+          "마력을 모으는 중...",
       ),
       (
-          f"<div style='font-size: 120px; color: {star_color};'>🌟💫🌟</div>",
-          "별의 회전 속도가 한계에 달했습니다!",
+          f"<div style='font-size: 110px; color: {star_color};'>🌟</div>",
+          "별이 회전하며 거대하게 커집니다!",
           ment,
       ),
       (
-          f"<div style='font-size: 140px; color: {star_color};'>💥👑💥</div>",
-          f"초희귀 등급 [{aura_name}] 강림!",
+          f"<div style='font-size: 180px; color: {star_color};'>💫</div>",
+          f"폭발적인 에너지! 초희귀 등급 [{aura_name}] 강림!",
           "현실의 문이 완전히 열렸습니다!",
       ),
   ]
@@ -186,8 +185,8 @@ def play_fullscreen_star_cutscene(aura_name):
                 padding: 20px;
             ">
                 {star_html}
-                <h1 style="color: {star_color}; margin-top: 20px; text-shadow: 0 0 20px {star_color}; font-size: 36px;">{title_text}</h1>
-                <p style="font-size: 22px; color: #ffeb3b; margin-top: 10px; font-weight: bold;">{desc_text}</p>
+                <h1 style="color: {star_color}; margin-top: 25px; text-shadow: 0 0 25px {star_color}; font-size: 38px;">{title_text}</h1>
+                <p style="font-size: 22px; color: #ffeb3b; margin-top: 15px; font-weight: bold;">{desc_text}</p>
             </div>
             """,
           unsafe_allow_html=True,
@@ -202,14 +201,13 @@ def play_cutscene(aura_name):
   if aura_name in ["바운디드", "재즈", "스펙터"]:
     play_fullscreen_star_cutscene(aura_name)
   elif aura_name == "와트":
-    # 와트 전용 간소화 컷씬
     placeholder = st.empty()
     with placeholder.container():
       st.markdown(
           """
             <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #001a33; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; color: white;">
-                <div style="font-size: 100px;">⚡👑⚡</div>
-                <h1 style="color: #00ffff; margin-top: 20px;">초전설 [와트] 과부하 발동!</h1>
+                <div style="font-size: 120px;">⚡👑⚡</div>
+                <h1 style="color: #00ffff; margin-top: 20px; font-size: 40px;">초전설 [와트] 과부하 발동!</h1>
             </div>
             """,
           unsafe_allow_html=True,
@@ -222,8 +220,8 @@ def play_cutscene(aura_name):
       st.markdown(
           f"""
             <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2b0057; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; color: white;">
-                <div style="font-size: 100px;">🌟</div>
-                <h1 style="color: #ffd700; margin-top: 20px;">전설적인 아우라 [{aura_name}] 임박!</h1>
+                <div style="font-size: 120px;">🌟</div>
+                <h1 style="color: #ffd700; margin-top: 20px; font-size: 40px;">전설적인 아우라 [{aura_name}] 임박!</h1>
             </div>
             """,
           unsafe_allow_html=True,
