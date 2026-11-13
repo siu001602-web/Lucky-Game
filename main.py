@@ -127,71 +127,61 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [10만 이하 초희귀 3종 전용] 중앙에서 별이 회전하며 커지는 풀스크린 컷씬
-def play_fullscreen_star_cutscene(aura_name):
+# ✨ [인라인 컷씬] 화면 안에서 별이 중앙에 회전하며 커지는 연출
+def play_inline_star_cutscene(aura_name):
   placeholder = st.empty()
 
   if aura_name == "바운디드":
     star_color = "#bf00ff"
-    bg_gradient = "linear-gradient(135deg, #1a0033, #000000)"
     ment = "시공간의 경계가 무너지고 영원한 심판이 시작됩니다..."
   elif aura_name == "재즈":
     star_color = "#ff007f"
-    bg_gradient = "linear-gradient(135deg, #33001a, #000000)"
     ment = "화려한 선율과 함께 온 우주를 매료시킬 리듬이 깨어납니다..."
   elif aura_name == "스펙터":
     star_color = "#00ffcc"
-    bg_gradient = "linear-gradient(135deg, #003322, #000000)"
     ment = "차가운 영혼의 안개가 걷히고 전설의 유령이 눈을 뜹니다..."
   else:
     star_color = "#ffff00"
-    bg_gradient = "linear-gradient(135deg, #222200, #000000)"
     ment = "알 수 없는 거대한 에너지가 수면 위로 떠오릅니다..."
 
-  # 단계별로 별의 크기(font-size)를 점진적으로 키우는 연출
+  # 단계별 크기(font-size) 증가 연출
   steps = [
       (
-          f"<div style='font-size: 60px; color: {star_color};'>⭐</div>",
+          f"<div style='font-size: 50px; color: {star_color};'>⭐</div>",
           "차원의 별이 소환되었습니다...",
-          "마력을 모으는 중...",
       ),
       (
-          f"<div style='font-size: 110px; color: {star_color};'>🌟</div>",
-          "별이 회전하며 거대하게 커집니다!",
+          f"<div style='font-size: 90px; color: {star_color};'>🌟</div>",
+          "별이 회전하며 거대해집니다!",
+      ),
+      (
+          f"<div style='font-size: 130px; color: {star_color};'>💫</div>",
           ment,
-      ),
-      (
-          f"<div style='font-size: 180px; color: {star_color};'>💫</div>",
-          f"폭발적인 에너지! 초희귀 등급 [{aura_name}] 강림!",
-          "현실의 문이 완전히 열렸습니다!",
       ),
   ]
 
-  for star_html, title_text, desc_text in steps:
+  for star_html, desc_text in steps:
     with placeholder.container():
       st.markdown(
           f"""
             <div style="
-                position: fixed;
-                top: 0; left: 0; width: 100vw; height: 100vh;
-                background: {bg_gradient};
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                z-index: 99999;
-                color: white;
                 text-align: center;
-                padding: 20px;
+                padding: 40px;
+                background: #11111c;
+                border: 2px solid {star_color};
+                border-radius: 12px;
+                margin-top: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 0 20px {star_color};
             ">
-                {star_html}
-                <h1 style="color: {star_color}; margin-top: 25px; text-shadow: 0 0 25px {star_color}; font-size: 38px;">{title_text}</h1>
-                <p style="font-size: 22px; color: #ffeb3b; margin-top: 15px; font-weight: bold;">{desc_text}</p>
+                <div style="margin-bottom: 15px;">{star_html}</div>
+                <h3 style="color: {star_color}; margin: 0; font-size: 22px;">초희귀 [{aura_name}] 감지 중...</h3>
+                <p style="font-size: 16px; color: #ffeb3b; margin-top: 10px; font-weight: bold;">{desc_text}</p>
             </div>
             """,
           unsafe_allow_html=True,
       )
-    time.sleep(1.0)
+    time.sleep(0.9)
 
   placeholder.empty()
 
@@ -199,34 +189,34 @@ def play_fullscreen_star_cutscene(aura_name):
 # 기타 상위 등급 컷씬 관리자
 def play_cutscene(aura_name):
   if aura_name in ["바운디드", "재즈", "스펙터"]:
-    play_fullscreen_star_cutscene(aura_name)
+    play_inline_star_cutscene(aura_name)
   elif aura_name == "와트":
     placeholder = st.empty()
     with placeholder.container():
       st.markdown(
           """
-            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #001a33; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; color: white;">
-                <div style="font-size: 120px;">⚡👑⚡</div>
-                <h1 style="color: #00ffff; margin-top: 20px; font-size: 40px;">초전설 [와트] 과부하 발동!</h1>
+            <div style="text-align: center; padding: 40px; background: #001a33; border: 2px solid #00ffff; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
+                <div style="font-size: 80px;">⚡👑⚡</div>
+                <h3 style="color: #00ffff; margin-top: 10px;">초전설 [와트] 과부하 발동!</h3>
             </div>
             """,
           unsafe_allow_html=True,
       )
-    time.sleep(1.5)
+    time.sleep(1.2)
     placeholder.empty()
   else:
     placeholder = st.empty()
     with placeholder.container():
       st.markdown(
           f"""
-            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2b0057; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; color: white;">
-                <div style="font-size: 120px;">🌟</div>
-                <h1 style="color: #ffd700; margin-top: 20px; font-size: 40px;">전설적인 아우라 [{aura_name}] 임박!</h1>
+            <div style="text-align: center; padding: 40px; background: #2b0057; border: 2px solid #ffd700; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
+                <div style="font-size: 80px;">🌟</div>
+                <h3 style="color: #ffd700; margin-top: 10px;">전설적인 아우라 [{aura_name}] 임박!</h3>
             </div>
             """,
           unsafe_allow_html=True,
       )
-    time.sleep(1.2)
+    time.sleep(1.0)
     placeholder.empty()
 
 
