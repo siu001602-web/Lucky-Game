@@ -381,7 +381,6 @@ if not st.session_state.logged_in:
           st.session_state.million_ticket_active = False
           st.session_state.last_results = []
           st.session_state.last_luck_mult = 1
-          st.session_state.is_cutscene = False
           st.session_state.selected_codex = items[0]
 
           st.success(f"환영합니다, {l_user}님! 게임을 시작합니다.")
@@ -503,7 +502,7 @@ def get_current_luck_multiplier(next_pull_number):
   return mult
 
 
-# ✨ [확률별 맞춤형 화려한 풀스크린 컷씬]
+# ✨ [확률별 맞춤형 화려한 풀스크린 컷씬 (최초 1회만 재생)]
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
@@ -645,7 +644,7 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수
+# 1회 또는 다회 뽑기 실행 공통 함수 (버튼 잠금 현상 완전 제거)
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
@@ -706,9 +705,7 @@ def perform_rolls(roll_count=1):
 
   if new_cutscene_targets:
     rarest_aura = min(new_cutscene_targets, key=lambda x: items.index(x))
-    st.session_state.is_cutscene = True
     play_cutscene(rarest_aura)
-    st.session_state.is_cutscene = False
     st.balloons()
 
   st.session_state.last_results = results
@@ -880,12 +877,7 @@ with tab_gacha:
   if st.session_state.triple_roll_unlocked:
     col_b1, col_b2 = st.columns(2)
     with col_b1:
-      if st.button(
-          "🎲 1회 무료 뽑기",
-          type="secondary",
-          use_container_width=True,
-          disabled=st.session_state.get("is_cutscene", False),
-      ):
+      if st.button("🎲 1회 무료 뽑기", type="secondary", use_container_width=True):
         perform_rolls(1)
         st.rerun()
     with col_b2:
@@ -896,17 +888,11 @@ with tab_gacha:
           f"🔥 3회 연속 뽑기 (+{triple_bonus_coins} G)",
           type="primary",
           use_container_width=True,
-          disabled=st.session_state.get("is_cutscene", False),
       ):
         perform_rolls(3)
         st.rerun()
   else:
-    if st.button(
-        "🎲 1회 무료 뽑기",
-        type="primary",
-        use_container_width=True,
-        disabled=st.session_state.get("is_cutscene", False),
-    ):
+    if st.button("🎲 1회 무료 뽑기", type="primary", use_container_width=True):
       perform_rolls(1)
       st.rerun()
 
@@ -1047,19 +1033,28 @@ with tab_potions:
               unsafe_allow_html=True,
           )
           if count > 0:
-            if st.button("사용하기", key=f"tab_use_pot_{p_name}", use_container_width=True):
+            if st.button(
+                "사용하기", key=f"tab_use_pot_{p_name}", use_container_width=True
+            ):
               st.session_state.potions[p_name] -= 1
               cfg = potion_config[p_name]
               if cfg["type"] == "potion":
                 st.session_state.active_potion_mult = cfg["mult"]
-                st.session_state.active_potion_end = time.time() + cfg["duration"]
+                st.session_state.active_potion_end = (
+                    time.time() + cfg["duration"]
+                )
                 st.session_state.active_potion_name = p_name
               elif cfg["type"] == "ticket":
                 st.session_state.million_ticket_active = True
               save_user_data_to_db()
               st.rerun()
           else:
-            st.button("보유 없음", key=f"tab_none_pot_{p_name}", disabled=True, use_container_width=True)
+            st.button(
+                "보유 없음",
+                key=f"tab_none_pot_{p_name}",
+                disabled=True,
+                use_container_width=True,
+            )
       st.write("")
   else:
     st.markdown(
@@ -1292,7 +1287,6 @@ with tab_shop:
     st.session_state.million_ticket_active = False
     st.session_state.last_results = []
     st.session_state.last_luck_mult = 1
-    st.session_state.is_cutscene = False
     st.session_state.selected_codex = items[0]
     save_user_data_to_db()
     st.rerun()
