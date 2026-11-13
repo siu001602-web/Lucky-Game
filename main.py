@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="아우라 가챠 & 도감", page_icon="✨", layout="wide"
 )
 
-# 등급 리스트 정의 (희귀도 높은 순 - 신규 등급 포함)
+# 등급 리스트 정의 (희귀도 높은 순)
 items = [
     "크로마틱",
     "헬리오스",
@@ -187,7 +187,6 @@ def init_session_state():
     if key not in st.session_state:
       st.session_state[key] = val
 
-  # 신규 등급이 추가되어도 기존 데이터에 키가 없으면 0으로 자동 채움
   for item in items:
     if item not in st.session_state.counts:
       st.session_state.counts[item] = 0
@@ -196,71 +195,93 @@ def init_session_state():
 init_session_state()
 
 
-# ✨ [풀스크린 컷씬] 화면 전체에서 별이 회전하며 커지는 연출
+# ✨ [확률별 맞춤형 화려한 풀스크린 컷씬]
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
+  # 등급별 맞춤형 테마 컬러, 별 기호, 대사, 애니메이션 속도 설정
   if aura_name == "크로마틱":
     star_color = "#ff00ff"
-    ment = "빛의 스펙트럼이 극한으로 수렴하며 온 우주를 찬란하게 물들입니다..."
+    bg_style = "radial-gradient(circle, #330033 0%, #05000a 90%)"
+    star_symbol = "🌟💫🌈"
+    ment = "⚠️ [UNIVERSE BREAK] 우주의 모든 스펙트럼이 융합하여 절대적인 빛이 탄생합니다!"
+    duration = 3.2
   elif aura_name == "헬리오스":
-    star_color = "#ff9900"
-    ment = "태양의 권능이 폭발하며 모든 어둠을 태우는 태초의 빛이 강림합니다..."
+    star_color = "#ff6600"
+    bg_style = "radial-gradient(circle, #4d1a00 0%, #0a0500 90%)"
+    star_symbol = "☀️🔥"
+    ment = "🔥 [SOLAR FLARE] 태양계의 모든 권능이 폭발하며 차원을 불태웁니다!"
+    duration = 3.0
   elif aura_name == "대마법사":
-    star_color = "#9933ff"
-    ment = "금지된 고대의 마력이 깨어나며 차원의 문이 열립니다..."
+    star_color = "#b84dff"
+    bg_style = "radial-gradient(circle, #260033 0%, #05000a 90%)"
+    star_symbol = "🧙‍♂️✨🔮"
+    ment = "🔮 [ARCHMAGE] 금지된 고대의 아르카나 마력이 온 세상에 해방됩니다!"
+    duration = 2.8
   elif aura_name == "아케인":
     star_color = "#00ffff"
+    bg_style = "radial-gradient(circle, #003333 0%, #00050a 90%)"
+    star_symbol = "🔮👑"
     ment = (
         "태고의 신비로운 아케인 에너지가 온 차원을 뒤덮고 영원히 빛납니다..."
     )
+    duration = 2.5
   elif aura_name == "워록":
     star_color = "#ff3300"
+    bg_style = "radial-gradient(circle, #330000 0%, #0a0000 90%)"
+    star_symbol = "💀🔥"
     ment = "어둠의 파괴자가 깨어나며 전장을 지배할 저주가 쏟아집니다..."
+    duration = 2.5
   elif aura_name == "바운디드":
     star_color = "#bf00ff"
+    bg_style = "rgba(5, 5, 10, 0.95)"
+    star_symbol = "✦"
     ment = "시공간의 경계가 무너지고 영원한 심판이 시작됩니다..."
+    duration = 2.5
   elif aura_name == "재즈":
     star_color = "#ff007f"
+    bg_style = "rgba(5, 5, 10, 0.95)"
+    star_symbol = "✦"
     ment = "화려한 선율과 함께 온 우주를 매료시킬 리듬이 깨어납니다..."
+    duration = 2.5
   elif aura_name == "스펙터":
     star_color = "#00ffcc"
+    bg_style = "rgba(5, 5, 10, 0.95)"
+    star_symbol = "✦"
     ment = "차가운 영혼의 안개가 걷히고 전설의 유령이 눈을 뜹니다..."
-  elif aura_name == "와트":
-    star_color = "#00ffff"
-    ment = "초전설 에너지 과부하! 강력한 전류가 몰아칩니다..."
-  elif aura_name == "힘":
-    star_color = "#ff0055"
-    ment = "현실의 벽을 부주는 압도적인 힘이 폭발합니다..."
+    duration = 2.5
   else:
     star_color = "#ffd700"
+    bg_style = "rgba(5, 5, 10, 0.95)"
+    star_symbol = "✦"
     ment = "전설적인 에너지가 요동칩니다..."
+    duration = 2.2
 
   fullscreen_html = f"""
     <style>
-    @keyframes fullSpinAndGrow {{
-        0% {{ transform: rotate(0deg) scale(0.3); opacity: 0.2; }}
-        50% {{ transform: rotate(360deg) scale(1.5); opacity: 0.8; }}
-        100% {{ transform: rotate(720deg) scale(3.5); opacity: 1; }}
+    @keyframes epicSpinAndGrow {{
+        0% {{ transform: rotate(0deg) scale(0.2); opacity: 0.1; filter: brightness(0.5); }}
+        50% {{ transform: rotate(540deg) scale(1.8); opacity: 0.9; filter: brightness(1.5); }}
+        100% {{ transform: rotate(1080deg) scale(4.0); opacity: 1; filter: brightness(2.0); }}
     }}
     .fullscreen-overlay {{
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(5, 5, 10, 0.95);
+        background: {bg_style};
         display: flex; flex-direction: column; justify-content: center; align-items: center;
         z-index: 999999; text-align: center;
     }}
     .fullscreen-star {{
         display: inline-block;
-        animation: fullSpinAndGrow 2.5s ease-in-out forwards;
-        font-size: 100px; color: {star_color}; text-shadow: 0 0 50px {star_color};
+        animation: epicSpinAndGrow {duration}s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        font-size: 110px; color: {star_color}; text-shadow: 0 0 60px {star_color}, 0 0 100px {star_color};
     }}
     </style>
     <div class="fullscreen-overlay">
-        <div class="fullscreen-star">✦</div>
-        <h1 style="color: {star_color}; margin-top: 30px; font-size: 38px; text-shadow: 0 0 20px {star_color};">
+        <div class="fullscreen-star">{star_symbol}</div>
+        <h1 style="color: {star_color}; margin-top: 35px; font-size: 42px; text-shadow: 0 0 25px {star_color}; letter-spacing: 2px;">
             [{aura_name}] 강림 임박!
         </h1>
-        <p style="font-size: 22px; color: #ffeb3b; margin-top: 15px; font-weight: bold; max-width: 800px;">
+        <p style="font-size: 24px; color: #ffeb3b; margin-top: 15px; font-weight: bold; max-width: 850px; text-shadow: 0 0 10px rgba(0,0,0,0.8);">
             {ment}
         </p>
     </div>
@@ -269,7 +290,7 @@ def play_fullscreen_star_cutscene(aura_name):
   with placeholder.container():
     st.markdown(fullscreen_html, unsafe_allow_html=True)
 
-  time.sleep(2.5)
+  time.sleep(duration)
   placeholder.empty()
 
 
