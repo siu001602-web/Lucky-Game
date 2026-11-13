@@ -10,6 +10,8 @@ st.set_page_config(
 
 # 등급 리스트 정의 (희귀도 높은 순)
 items = [
+    "아케인",
+    "워록",
     "바운디드",
     "재즈",
     "스펙터",
@@ -26,11 +28,30 @@ items = [
     "일반",
 ]
 
-# 기본 분수 확률에 따른 가중치 설정 (기준: 200,000)
-base_weights = [1, 1, 1, 6, 12, 24, 48, 97, 781, 1562, 12500, 25000, 50000, 100000]
+# 각 분수 확률에 따른 가중치 설정 (기준: 1,000,000)
+base_weights = [
+    1,
+    1,
+    5,
+    6,
+    7,
+    30,
+    61,
+    122,
+    244,
+    488,
+    3906,
+    7812,
+    62500,
+    125000,
+    250000,
+    500000,
+]
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
+    "아케인": "1 in 1,000,000",
+    "워록": "1 in 660,000",
     "바운디드": "1 in 200,000",
     "재즈": "1 in 160,000",
     "스펙터": "1 in 140,000",
@@ -48,10 +69,22 @@ fractions = {
 }
 
 # 컷씬이 존재하는 아우라 목록
-cutscene_auras = ["바운디드", "재즈", "스펙터", "와트", "힘", "석영", "시데리움"]
+cutscene_auras = [
+    "아케인",
+    "워록",
+    "바운디드",
+    "재즈",
+    "스펙터",
+    "와트",
+    "힘",
+    "석영",
+    "시데리움",
+]
 
 # 등급별 이모티콘 매핑
 icons = {
+    "아케인": "🔮👑",
+    "워록": "💀🔥",
     "바운디드": "🌌👑",
     "재즈": "🎶🎷",
     "스펙터": "👻🔮",
@@ -70,6 +103,8 @@ icons = {
 
 # 등급별 테두리 색상
 border_colors = {
+    "아케인": "#00ffff",
+    "워록": "#ff3300",
     "바운디드": "#9900ff",
     "재즈": "#ff00aa",
     "스펙터": "#00ff88",
@@ -102,6 +137,8 @@ aura_images = {
     "스펙터": "images/SmartSelect_20261113_125325_Chrome.jpg",
     "재즈": "images/SmartSelect_20261113_125353_Chrome.jpg",
     "바운디드": "images/SmartSelect_20261113_125424_Chrome.jpg",
+    "워록": "images/SmartSelect_20261113_222357_Chrome.jpg",
+    "아케인": "images/SmartSelect_20261113_222429_Chrome.jpg",
 }
 
 # 세션 상태 초기화
@@ -135,7 +172,15 @@ if "selected_codex" not in st.session_state:
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  if aura_name == "바운디드":
+  if aura_name == "아케인":
+    star_color = "#00ffff"
+    ment = (
+        "태고의 신비로운 아케인 에너지가 온 차원을 뒤덮고 영원히 빛납니다..."
+    )
+  elif aura_name == "워록":
+    star_color = "#ff3300"
+    ment = "어둠의 파괴자가 깨어나며 전장을 지배할 저주가 쏟아집니다..."
+  elif aura_name == "바운디드":
     star_color = "#bf00ff"
     ment = "시공간의 경계가 무너지고 영원한 심판이 시작됩니다..."
   elif aura_name == "재즈":
@@ -202,9 +247,9 @@ def perform_roll():
   current_weights = list(base_weights)
   st.session_state.luck_active_flag = False
 
-  # 10뽑마다 행운 2배 버프 적용 체크
+  # 10뽑마다 행운 2배 버프 적용 체크 (상위 5개 등급 대상)
   if st.session_state.luck_buff_unlocked and (total_pulls % 10 == 0):
-    current_weights[:4] = [w * 2 for w in current_weights[:4]]
+    current_weights[:5] = [w * 2 for w in current_weights[:5]]
     st.session_state.luck_active_flag = True
 
   result = random.choices(items, weights=current_weights, k=1)[0]
