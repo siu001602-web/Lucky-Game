@@ -60,9 +60,9 @@ if "counts" not in st.session_state:
 if "equipped" not in st.session_state:
   st.session_state.equipped = None
 if "coins" not in st.session_state:
-  st.session_state.coins = 100  # 기본 지급 코인
+  st.session_state.coins = 100  # 보너스용 코인
 if "inventory_slots" not in st.session_state:
-  st.session_state.inventory_slots = 50  # 기본 가방 칸수
+  st.session_state.inventory_slots = 50
 
 st.title("✨ 아우라 가챠 & 상점 시뮬레이터")
 
@@ -116,10 +116,10 @@ tab_gacha, tab_inventory, tab_shop = st.tabs(
 )
 
 # ------------------------------------------
-# [탭 1] 아우라 뽑기 카테고리
+# [탭 1] 아우라 뽑기 카테고리 (비용 제거)
 # ------------------------------------------
 with tab_gacha:
-  st.subheader("🎲 행운의 아우라 소환")
+  st.subheader("🎲 행운의 아우라 소환 (무료)")
 
   # 확률표 안내 (접이식)
   with st.expander("📋 등급별 확률표 보기"):
@@ -133,40 +133,36 @@ with tab_gacha:
 
   st.write("")
 
-  # 뽑기 버튼
-  if st.button("🎲 1회 뽑기 (비용: 10 G)", type="primary", use_container_width=True):
-    if st.session_state.coins >= 10:
-      st.session_state.coins -= 10
-      result = random.choices(items, weights=weights, k=1)[0]
+  # 무료 뽑기 버튼
+  if st.button("🎲 1회 무료 뽑기", type="primary", use_container_width=True):
+    result = random.choices(items, weights=weights, k=1)[0]
 
-      # 횟수 및 기록 업데이트
-      st.session_state.counts[result] += 1
-      st.session_state.history.insert(0, result)
+    # 횟수 및 기록 업데이트
+    st.session_state.counts[result] += 1
+    st.session_state.history.insert(0, result)
 
-      # 보상 코인 지급 (일반은 5G, 상위 등급은 보너스)
-      reward_coin = 5
-      if result in ["힘", "석영", "시데리움"]:
-        reward_coin = 100
-        st.balloons()
-      elif result in ["자력", "분노", "결정화"]:
-        reward_coin = 30
-      st.session_state.coins += reward_coin
+    # 보상 코인 지급
+    reward_coin = 5
+    if result in ["힘", "석영", "시데리움"]:
+      reward_coin = 100
+      st.balloons()
+    elif result in ["자력", "분노", "결정화"]:
+      reward_coin = 30
+    st.session_state.coins += reward_coin
 
-      # 뽑기 결과 표시
-      icon = icons[result]
-      st.markdown(
-          f"""
-                <div style="text-align: center; padding: 25px 0; background-color: #f0f2f6; border-radius: 10px; margin-top: 15px;">
-                    <span style="font-size: 36px; font-weight: bold;">
-                        {icon} [{result}] 획득! {icon}
-                    </span>
-                    <p style="color: gray; margin-top: 5px;">(+ 코인 {reward_coin}G 획득)</p>
-                </div>
-                """,
-          unsafe_allow_html=True,
-      )
-    else:
-      st.error("코인이 부족합니다! 상점에서 코인을 충전하거나 뽑기를 진행하세요.")
+    # 뽑기 결과 표시
+    icon = icons[result]
+    st.markdown(
+        f"""
+            <div style="text-align: center; padding: 25px 0; background-color: #f0f2f6; border-radius: 10px; margin-top: 15px;">
+                <span style="font-size: 36px; font-weight: bold;">
+                    {icon} [{result}] 획득! {icon}
+                </span>
+                <p style="color: gray; margin-top: 5px;">(+ 보너스 코인 {reward_coin}G 획득)</p>
+            </div>
+            """,
+        unsafe_allow_html=True,
+    )
 
   st.divider()
   st.subheader("📜 최근 뽑기 기록")
@@ -180,46 +176,52 @@ with tab_gacha:
     st.text("아직 뽑기 기록이 없습니다.")
 
 # ------------------------------------------
-# [탭 2] 인벤토리 & 장착 카테고리
+# [탭 2] 인벤토리 & 장착 카테고리 (나열식)
 # ------------------------------------------
 with tab_inventory:
-  st.subheader("🎒 보유 아우라 목록 & 장착")
-  owned_auras = [item for item in items if st.session_state.counts[item] > 0]
+  st.subheader("🎒 아우라 도감 및 나열식 장착")
+  st.write("보유 중인 아우라를 확인하고 원하는 아우라를 장착하세요.")
 
-  if owned_auras:
-    col_sel, col_btn = st.columns([3, 1])
-    with col_sel:
-      selected_aura = st.selectbox(
-          "장착할 아우라 선택:",
-          options=owned_auras,
-          format_func=lambda x: (
-              f"{icons[x]} {x} (보유: {st.session_state.counts[x]}개)"
-          ),
-      )
-    with col_btn:
-      st.write("")  # 간격 맞춤용
-      if st.button("⚔️ 장착하기", use_container_width=True):
-        st.session_state.equipped = selected_aura
-        st.rerun()
-  else:
-    st.caption("아직 보유한 아우라가 없습니다. 뽑기 탭에서 아우라를 획득하세요!")
-
-  st.divider()
-  st.subheader("📊 전체 수집 통계")
+  # 모든 아우라를 쭉 나열하여 표시
   for item in items:
     count = st.session_state.counts[item]
-    rate = (count / total_pulls * 100) if total_pulls > 0 else 0
-    st.text(f"{icons[item]} {item}: {count}회 ({rate:.2f}%)")
+    is_owned = count > 0
+    is_equipped = st.session_state.equipped == item
+
+    with st.container(border=True):
+      col_icon, col_name, col_status, col_btn = st.columns([1, 2, 2, 1])
+
+      with col_icon:
+        st.markdown(
+            f"<div style='font-size: 30px; text-align: center;'>{icons[item]}</div>",
+            unsafe_allow_html=True,
+        )
+
+      with col_name:
+        st.markdown(f"**[{item}]**")
+        if is_equipped:
+          st.caption("✨ 장착 중")
+
+      with col_status:
+        st.write(f"보유: **{count}개**")
+
+      with col_btn:
+        if is_owned:
+          if is_equipped:
+            st.button("장착중", key=f"eq_{item}", disabled=True, use_container_width=True)
+          else:
+            if st.button("장착하기", key=f"btn_{item}", use_container_width=True):
+              st.session_state.equipped = item
+              st.rerun()
+        else:
+          st.caption("미보유")
 
 # ------------------------------------------
 # [탭 3] 아우라 가방 상점 카테고리
 # ------------------------------------------
 with tab_shop:
   st.subheader("🛒 아우라 가방 & 상점")
-  st.write(
-      "코인을 사용하여 아우라 가방 슬롯을 확장하거나 특별 상품을 구매할 수"
-      " 있습니다."
-  )
+  st.write("뽑기로 얻은 코인으로 가방 슬롯을 확장하거나 코인을 충전하세요.")
 
   with st.container(border=True):
     col_s1, col_s2 = st.columns([2, 1])
@@ -228,7 +230,6 @@ with tab_shop:
       st.write(
           f"현재 가방 최대 수용 칸수: **{st.session_state.inventory_slots}칸**"
       )
-      st.caption("가방을 넓혀 더 많은 아우라를 보관하세요!")
     with col_s2:
       st.write("")
       if st.button("구매 (50 G)", use_container_width=True):
