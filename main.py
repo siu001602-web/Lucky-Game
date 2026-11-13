@@ -127,8 +127,8 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [10만 이하 전용] 화면 전체 풀스크린: 별 회전 -> 멘트 출력 -> 와장창 깨짐 연출
-def play_fullscreen_star_shatter_cutscene(aura_name):
+# ✨ [깨짐 연출 제거] 화면 전체 풀스크린: 별 회전 -> 멘트 출력 후 깔끔하게 종료
+def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
   if aura_name == "바운디드":
@@ -150,8 +150,7 @@ def play_fullscreen_star_shatter_cutscene(aura_name):
     star_color = "#ffd700"
     ment = "전설적인 에너지가 요동칩니다..."
 
-  # 1단계: 별이 회전하며 커지는 풀스크린 연출
-  step1_html = f"""
+  fullscreen_html = f"""
     <style>
     @keyframes fullSpinAndGrow {{
         0% {{ transform: rotate(0deg) scale(0.3); opacity: 0.2; }}
@@ -166,7 +165,7 @@ def play_fullscreen_star_shatter_cutscene(aura_name):
     }}
     .fullscreen-star {{
         display: inline-block;
-        animation: fullSpinAndGrow 2s ease-in-out forwards;
+        animation: fullSpinAndGrow 2.5s ease-in-out forwards;
         font-size: 100px; color: {star_color}; text-shadow: 0 0 50px {star_color};
     }}
     </style>
@@ -182,32 +181,16 @@ def play_fullscreen_star_shatter_cutscene(aura_name):
     """
 
   with placeholder.container():
-    st.markdown(step1_html, unsafe_allow_html=True)
-  time.sleep(2.0)
+    st.markdown(fullscreen_html, unsafe_allow_html=True)
 
-  # 2단계: 와장창 깨지는 순간 연출
-  step2_html = f"""
-    <div class="fullscreen-overlay" style="background: rgba(40, 0, 20, 0.98);">
-        <div style="font-size: 120px; animation: shake 0.5s infinite;">💥🔨🧊</div>
-        <h1 style="color: #ff0055; margin-top: 25px; font-size: 45px; text-shadow: 0 0 30px #ff0055;">
-            CRASH!! 와장창!
-        </h1>
-        <p style="font-size: 24px; color: #ffcccc; margin-top: 15px; font-weight: bold;">
-            현실의 벽이 산산조각 났습니다! [{aura_name}] 등장!
-        </p>
-    </div>
-    """
-
-  with placeholder.container():
-    st.markdown(step2_html, unsafe_allow_html=True)
-  time.sleep(1.2)
-
+  # 연출 재생 후 깔끔하게 종료
+  time.sleep(2.5)
   placeholder.empty()
 
 
 # 기타 상위 등급 컷씬 관리자
 def play_cutscene(aura_name):
-  play_fullscreen_star_shatter_cutscene(aura_name)
+  play_fullscreen_star_cutscene(aura_name)
 
 
 # 1회 뽑기 실행 공통 함수
