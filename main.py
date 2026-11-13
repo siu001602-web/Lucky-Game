@@ -1065,11 +1065,21 @@ with tab_potions:
               st.session_state.potions[p_name] -= 1
               cfg = potion_config[p_name]
               if cfg["type"] == "potion":
-                st.session_state.active_potion_mult = cfg["mult"]
-                st.session_state.active_potion_end = (
-                    time.time() + cfg["duration"]
-                )
-                st.session_state.active_potion_name = p_name
+                now = time.time()
+                # 이미 동일한 포션 버프가 활성화되어 있다면 남은 시간에 지속 시간 누적
+                if (
+                    st.session_state.active_potion_mult == cfg["mult"]
+                    and now < st.session_state.active_potion_end
+                ):
+                  st.session_state.active_potion_end += cfg["duration"]
+                else:
+                  # 새로 켜거나 다른 배율일 경우: 이미 작동 중인 버프가 있으면 종료 시간에 더하고, 아니면 현재 시간 기준 적용
+                  if now < st.session_state.active_potion_end:
+                    st.session_state.active_potion_end += cfg["duration"]
+                  else:
+                    st.session_state.active_potion_end = now + cfg["duration"]
+                  st.session_state.active_potion_mult = cfg["mult"]
+                  st.session_state.active_potion_name = p_name
               elif cfg["type"] == "ticket":
                 st.session_state.million_ticket_active = True
               save_user_data_to_db()
