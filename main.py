@@ -4,7 +4,7 @@ import streamlit as st
 
 # 페이지 설정
 st.set_page_config(
-    page_title="아우라 가챠 & 상점 시뮬레이터", page_icon="✨", layout="centered"
+    page_title="아우라 가챠 & 인벤토리", page_icon="✨", layout="centered"
 )
 
 # 등급 리스트 정의
@@ -38,6 +38,20 @@ icons = {
     "일반": "⚪📦",
 }
 
+# 등급별 테두리 색상 (Sol's RNG 스타일)
+border_colors = {
+    "힘": "#FF0000",
+    "석영": "#FF4500",
+    "시데리움": "#FFD700",
+    "자력": "#00CED1",
+    "분노": "#FF1493",
+    "결정화": "#9932CC",
+    "레어": "#1E90FF",
+    "자연": "#32CD32",
+    "희귀": "#87CEEB",
+    "일반": "#555555",
+}
+
 # 등급별 아우라 이미지 경로 매핑 (장착 프로필용)
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
@@ -60,11 +74,11 @@ if "counts" not in st.session_state:
 if "equipped" not in st.session_state:
   st.session_state.equipped = None
 if "coins" not in st.session_state:
-  st.session_state.coins = 100  # 보너스용 코인
+  st.session_state.coins = 100
 if "inventory_slots" not in st.session_state:
   st.session_state.inventory_slots = 50
 
-st.title("✨ 아우라 가챠 & 상점 시뮬레이터")
+st.title("✨ 아우라 가챠 & 인벤토리")
 
 # ==========================================
 # 🌟 [항상 상단 고정] 현재 장착 중인 아우라 영역
@@ -112,16 +126,15 @@ st.divider()
 # 🗂️ 카테고리 탭 구성
 # ==========================================
 tab_gacha, tab_inventory, tab_shop = st.tabs(
-    ["🎲 아우라 뽑기", "🎒 인벤토리 & 장착", "🛒 아우라 가방 상점"]
+    ["🎲 아우라 뽑기", "🎒 아우라 스토리지 (인벤토리)", "🛒 상점"]
 )
 
 # ------------------------------------------
-# [탭 1] 아우라 뽑기 카테고리 (비용 제거)
+# [탭 1] 아우라 뽑기 카테고리
 # ------------------------------------------
 with tab_gacha:
   st.subheader("🎲 행운의 아우라 소환 (무료)")
 
-  # 확률표 안내 (접이식)
   with st.expander("📋 등급별 확률표 보기"):
     total_weight = sum(weights)
     for item, weight in zip(items, weights):
@@ -133,15 +146,12 @@ with tab_gacha:
 
   st.write("")
 
-  # 무료 뽑기 버튼
   if st.button("🎲 1회 무료 뽑기", type="primary", use_container_width=True):
     result = random.choices(items, weights=weights, k=1)[0]
 
-    # 횟수 및 기록 업데이트
     st.session_state.counts[result] += 1
     st.session_state.history.insert(0, result)
 
-    # 보상 코인 지급
     reward_coin = 5
     if result in ["힘", "석영", "시데리움"]:
       reward_coin = 100
@@ -150,15 +160,14 @@ with tab_gacha:
       reward_coin = 30
     st.session_state.coins += reward_coin
 
-    # 뽑기 결과 표시
     icon = icons[result]
     st.markdown(
         f"""
-            <div style="text-align: center; padding: 25px 0; background-color: #f0f2f6; border-radius: 10px; margin-top: 15px;">
+            <div style="text-align: center; padding: 25px 0; background-color: #1e1e1e; color: white; border-radius: 10px; margin-top: 15px;">
                 <span style="font-size: 36px; font-weight: bold;">
                     {icon} [{result}] 획득! {icon}
                 </span>
-                <p style="color: gray; margin-top: 5px;">(+ 보너스 코인 {reward_coin}G 획득)</p>
+                <p style="color: #aaa; margin-top: 5px;">(+ 보너스 코인 {reward_coin}G 획득)</p>
             </div>
             """,
         unsafe_allow_html=True,
@@ -176,52 +185,86 @@ with tab_gacha:
     st.text("아직 뽑기 기록이 없습니다.")
 
 # ------------------------------------------
-# [탭 2] 인벤토리 & 장착 카테고리 (나열식)
+# [탭 2] 아우라 스토리지 (그리드 카드 스타일)
 # ------------------------------------------
 with tab_inventory:
-  st.subheader("🎒 아우라 도감 및 나열식 장착")
-  st.write("보유 중인 아우라를 확인하고 원하는 아우라를 장착하세요.")
+  st.subheader(
+      f"📦 아우라 스토리지 [보유 종류: {sum(1 for k in items if st.session_state.counts[k] > 0)} / {len(items)}]"
+  )
+  st.write(
+      "획득한 아우라 카드를 클릭하거나 버튼을 눌러 장착할 수 있습니다."
+  )
 
-  # 모든 아우라를 쭉 나열하여 표시
-  for item in items:
-    count = st.session_state.counts[item]
-    is_owned = count > 0
-    is_equipped = st.session_state.equipped == item
+  # 4열 그리드 레이아웃으로 아우라 카드 배치
+  cols_per_row = 4
+  rows = [items[i : i + cols_per_row] for i in range(0, len(items), cols_per_row)]
 
-    with st.container(border=True):
-      col_icon, col_name, col_status, col_btn = st.columns([1, 2, 2, 1])
+  for row in rows:
+    cols = st.columns(cols_per_row)
+    for idx, item in enumerate(row):
+      with cols[idx]:
+        count = st.session_state.counts[item]
+        is_owned = count > 0
+        is_equipped = st.session_state.equipped == item
+        b_color = border_colors[item]
+        icon = icons[item]
 
-      with col_icon:
+        # 카드 디자인 스타일 적용 컨테이너
+        if is_owned:
+          bg_color = "#222222" if not is_equipped else "#1b3a4b"
+          opacity = "1.0"
+        else:
+          bg_color = "#111111"
+          opacity = "0.3"
+
         st.markdown(
-            f"<div style='font-size: 30px; text-align: center;'>{icons[item]}</div>",
+            f"""
+                <div style="
+                    background-color: {bg_color};
+                    border: 2px solid {b_color};
+                    border-radius: 8px;
+                    padding: 12px;
+                    text-align: center;
+                    opacity: {opacity};
+                    margin-bottom: 10px;
+                    min-height: 110px;
+                ">
+                    <div style="font-size: 24px;">{icon}</div>
+                    <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 4px;">{item}</div>
+                    <div style="color: #aaa; font-size: 11px; margin-top: 2px;">보유: {count}개</div>
+                    {"<div style='color: #4da6ff; font-size: 11px; font-weight: bold; margin-top: 2px;'>[장착 중]</div>" if is_equipped else ""}
+                </div>
+                """,
             unsafe_allow_html=True,
         )
 
-      with col_name:
-        st.markdown(f"**[{item}]**")
-        if is_equipped:
-          st.caption("✨ 장착 중")
-
-      with col_status:
-        st.write(f"보유: **{count}개**")
-
-      with col_btn:
+        # 장착 버튼
         if is_owned:
           if is_equipped:
-            st.button("장착중", key=f"eq_{item}", disabled=True, use_container_width=True)
+            st.button(
+                "장착중", key=f"grid_eq_{item}", disabled=True, use_container_width=True
+            )
           else:
-            if st.button("장착하기", key=f"btn_{item}", use_container_width=True):
+            if st.button(
+                "장착", key=f"grid_btn_{item}", use_container_width=True
+            ):
               st.session_state.equipped = item
               st.rerun()
         else:
-          st.caption("미보유")
+          st.button(
+              "잠김",
+              key=f"grid_lock_{item}",
+              disabled=True,
+              use_container_width=True,
+          )
+
+    st.write("")  # 줄바꿈 간격
 
 # ------------------------------------------
-# [탭 3] 아우라 가방 상점 카테고리
+# [탭 3] 상점 카테고리
 # ------------------------------------------
 with tab_shop:
-  st.subheader("🛒 아우라 가방 & 상점")
-  st.write("뽑기로 얻은 코인으로 가방 슬롯을 확장하거나 코인을 충전하세요.")
+  st.subheader("🛒 상점")
 
   with st.container(border=True):
     col_s1, col_s2 = st.columns([2, 1])
@@ -236,7 +279,7 @@ with tab_shop:
         if st.session_state.coins >= 50:
           st.session_state.coins -= 50
           st.session_state.inventory_slots += 20
-          st.success("가방 칸수가 20칸 확장되었습니다!")
+          st.success("가방 칸수가 확장되었습니다!")
           st.rerun()
         else:
           st.error("코인이 부족합니다!")
