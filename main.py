@@ -304,15 +304,17 @@ def save_user_data_to_db():
     return
   username = st.session_state.username
   save_data = {
-      "history": st.session_state.history,
-      "counts": st.session_state.counts,
-      "equipped": st.session_state.equipped,
-      "coins": st.session_state.coins,
-      "inventory_slots": st.session_state.inventory_slots,
-      "auto_roll_unlocked": st.session_state.auto_roll_unlocked,
-      "luck_buff_unlocked": st.session_state.luck_buff_unlocked,
-      "triple_roll_unlocked": st.session_state.triple_roll_unlocked,
-      "potions": st.session_state.potions,
+      "history": st.session_state.get("history", []),
+      "counts": st.session_state.get("counts", {}),
+      "equipped": st.session_state.get("equipped", None),
+      "coins": st.session_state.get("coins", 0),
+      "inventory_slots": st.session_state.get("inventory_slots", 50),
+      "auto_roll_unlocked": st.session_state.get("auto_roll_unlocked", False),
+      "luck_buff_unlocked": st.session_state.get("luck_buff_unlocked", False),
+      "triple_roll_unlocked": st.session_state.get(
+          "triple_roll_unlocked", False
+      ),
+      "potions": st.session_state.get("potions", {}),
   }
   conn = sqlite3.connect("users.db", check_same_thread=False)
   cursor = conn.cursor()
@@ -413,8 +415,8 @@ if not st.session_state.logged_in:
           conn.close()
           st.error("이미 존재하는 아이디입니다.")
         else:
-          # 초기 유저 데이터 구조 명확하게 정의
-          default_init_data = {
+          # 내부에서 안전하게 초기 데이터 생성
+          new_user_init_data = {
               "history": [],
               "counts": {item: 0 for item in items},
               "equipped": None,
@@ -427,7 +429,11 @@ if not st.session_state.logged_in:
           }
           cursor.execute(
               "INSERT INTO users (username, password, data) VALUES (?, ?, ?)",
-              (r_user, hash_password(r_pass), json.dumps(default_init_data)),
+              (
+                  r_user,
+                  hash_password(r_pass),
+                  json.dumps(new_user_init_data, ensure_ascii=False),
+              ),
           )
           conn.commit()
           conn.close()
@@ -654,7 +660,7 @@ def perform_rolls(roll_count=1):
     results = []
     max_luck_applied = 1
     coin_gain_per_roll = (
-        10 if st.session_state.equipped == "스펙트라플로우" else 5
+        10 if st.session_state.get("equipped") == "스펙트라플로우" else 5
     )
     is_day, _ = get_world_time_status()
 
@@ -753,7 +759,7 @@ with c_u2:
 is_day_now, rem_seconds_now = get_world_time_status()
 m_rem = rem_seconds_now // 60
 s_rem = rem_seconds_now % 60
-is_dc_equipped = st.session_state.equipped == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"
+is_dc_equipped = st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"
 
 if is_day_now:
   st.markdown(
@@ -781,7 +787,7 @@ else:
 
 with st.container(border=True):
   st.markdown("### 👤 현재 장착 중인 아우라")
-  equipped_aura = st.session_state.equipped
+  equipped_aura = st.session_state.get("equipped")
 
   if equipped_aura and equipped_aura in items:
     col_img, col_info = st.columns([1, 4])
@@ -843,7 +849,7 @@ tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
 with tab_gacha:
   roll_coin_label = (
       "1회당 +10 G (스펙트라플로우 효과)"
-      if st.session_state.equipped == "스펙트라플로우"
+      if st.session_state.get("equipped") == "스펙트라플로우"
       else "1회당 +5 G"
   )
   st.subheader(f"🎲 행운의 아우라 소환 ({roll_coin_label})")
@@ -932,7 +938,7 @@ with tab_gacha:
         st.rerun()
     with col_b2:
       triple_bonus_coins = (
-          30 if st.session_state.equipped == "스펙트라플로우" else 15
+          30 if st.session_state.get("equipped") == "스펙트라플로우" else 15
       )
       if st.button(
           f"🔥 3회 연속 뽑기 (+{triple_bonus_coins} G)",
@@ -964,7 +970,9 @@ with tab_gacha:
 
   if st.session_state.last_results:
     res_list = st.session_state.last_results
-    per_coin = 10 if st.session_state.equipped == "스펙트라플로우" else 5
+    per_coin = (
+        10 if st.session_state.get("equipped") == "스펙트라플로우" else 5
+    )
     earned_coins = len(res_list) * per_coin
     result_badges = " &nbsp;|&nbsp; ".join(
         [f"{icons.get(r, '✨')} [{r}]" for r in res_list]
@@ -1015,7 +1023,7 @@ with tab_inventory:
       for idx, item in enumerate(row):
         with cols[idx]:
           count = st.session_state.counts.get(item, 0)
-          is_equipped = st.session_state.equipped == item
+          is_equipped = st.session_state.get("equipped") == item
           b_color = border_colors.get(item, "#ffffff")
           icon = icons.get(item, "✨")
 
