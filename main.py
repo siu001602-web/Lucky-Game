@@ -5,10 +5,10 @@ import streamlit as st
 
 # 페이지 설정
 st.set_page_config(
-    page_title="아우라 가챠 & 인벤토리", page_icon="✨", layout="centered"
+    page_title="아우라 가챠 & 도감", page_icon="✨", layout="wide"
 )
 
-# 등급 리스트 정의
+# 등급 리스트 정의 (희귀도 높은 순)
 items = [
     "힘",
     "석영",
@@ -24,6 +24,23 @@ items = [
 
 # 각 분수 확률에 따른 가중치 설정 (기준: 16,384)
 weights = [1, 2, 4, 8, 128, 256, 1024, 2048, 4096, 8192]
+
+# 각 아우라의 분수 표시 문자열
+fractions = {
+    "힘": "1 in 16,384",
+    "석영": "1 in 8,192",
+    "시데리움": "1 in 4,096",
+    "자력": "1 in 2,048",
+    "분노": "1 in 128",
+    "결정화": "1 in 64",
+    "레어": "1 in 16",
+    "자연": "1 in 8",
+    "희귀": "1 in 4",
+    "일반": "1 in 2",
+}
+
+# 컷씬이 존재하는 아우라 목록
+cutscene_auras = ["힘", "석영", "시데리움"]
 
 # 등급별 이모티콘 매핑
 icons = {
@@ -85,31 +102,36 @@ if "auto_roll_active" not in st.session_state:
 if "last_result" not in st.session_state:
   st.session_state.last_result = None
 if "is_cutscene" not in st.session_state:
-  st.session_state.is_cutscene = False  # 컷씬 재생 중 여부
+  st.session_state.is_cutscene = False
+if "selected_codex" not in st.session_state:
+  st.session_state.selected_codex = items[0]  # 도감에서 선택된 아우라
+
+
+# 컷씬 재생 함수
+def play_cutscene():
+  placeholder = st.empty()
+  with placeholder.container():
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 50px; background: linear-gradient(135deg, #2b0057, #000000); border-radius: 15px; border: 2px solid #ffd700; color: white;">
+            <h1 style="font-size: 60px;">🌟💫✨</h1>
+            <h2 style="color: #ffd700; margin-top: 15px;">전설적인 에너지가 요동칩니다...</h2>
+            <p style="color: #aaa;">차원의 문이 열리는 중입니다!</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+  time.sleep(2.5)
+  placeholder.empty()
 
 
 # 1회 뽑기 실행 공통 함수
 def perform_roll():
   result = random.choices(items, weights=weights, k=1)[0]
 
-  # 상위 등급(힘, 석영, 시데리움) 당첨 시 컷씬 연출 발동
-  if result in ["힘", "석영", "시데리움"]:
+  if result in cutscene_auras:
     st.session_state.is_cutscene = True
-    # 컷씬 UI를 보여주기 위해 임시 렌더링 후 대기
-    placeholder = st.empty()
-    with placeholder.container():
-      st.markdown(
-          """
-                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #2b0057, #000000); border-radius: 15px; border: 2px solid #ffd700; color: white;">
-                    <h2 style="animation: spin 1s infinite linear;">🌟💫✨</h2>
-                    <h3 style="color: #ffd700; margin-top: 15px;">전설적인 에너지가 감지됩니다...</h3>
-                    <p style="color: #aaa;">차원의 문이 열리는 중입니다!</p>
-                </div>
-                """,
-          unsafe_allow_html=True,
-      )
-    time.sleep(2.5)  # 2.5초간 컷씬 유지 (뽑기 일시 중단 효과)
-    placeholder.empty()
+    play_cutscene()
     st.session_state.is_cutscene = False
     st.balloons()
 
@@ -120,7 +142,7 @@ def perform_roll():
   return result
 
 
-st.title("✨ 아우라 가챠 & 인벤토리")
+st.title("✨ 아우라 가챠 & 도감 시스템")
 
 # ==========================================
 # 🌟 [항상 상단 고정] 현재 장착 중인 아우라 영역
@@ -130,7 +152,7 @@ with st.container(border=True):
   equipped_aura = st.session_state.equipped
 
   if equipped_aura:
-    col_img, col_info = st.columns([1, 3])
+    col_img, col_info = st.columns([1, 4])
     img_path = aura_images.get(equipped_aura)
 
     with col_img:
@@ -154,7 +176,7 @@ with st.container(border=True):
         " 장착해보세요!"
     )
 
-# 상단 재화 및 기본 정보
+# 상단 재화 정보
 col_c1, col_c2 = st.columns(2)
 with col_c1:
   st.metric(label="💰 보유 코인", value=f"{st.session_state.coins} G")
@@ -165,14 +187,14 @@ with col_c2:
 st.divider()
 
 # ==========================================
-# 🗂️ 카테고리 탭 구성
+# 🗂️ 카테고리 탭 구성 (뽑기 / 인벤토리 / 도감 / 상점)
 # ==========================================
-tab_gacha, tab_inventory, tab_shop = st.tabs(
-    ["🎲 아우라 뽑기", "🎒 아우라 스토리지 (인벤토리)", "🛒 상점"]
+tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
+    ["🎲 아우라 뽑기", "🎒 스토리지", "📖 도감 (Codex)", "🛒 상점"]
 )
 
 # ------------------------------------------
-# [탭 1] 아우라 뽑기 카테고리
+# [탭 1] 아우라 뽑기
 # ------------------------------------------
 with tab_gacha:
   st.subheader("🎲 행운의 아우라 소환 (1회당 +5 G)")
@@ -181,14 +203,10 @@ with tab_gacha:
     weights_sum = sum(weights)
     for item, weight in zip(items, weights):
       prob = (weight / weights_sum) * 100
-      st.markdown(
-          f"- **{icons[item]} {item}** : `{prob:.4f}%`"
-          f" (1/{int(weights_sum/weight)})"
-      )
+      st.markdown(f"- **{icons[item]} {item}** : `{prob:.4f}%` ({fractions[item]})")
 
   st.write("")
 
-  # 오토 뽑기 해금 시 토글 버튼 (컷씬 중에는 비활성화)
   if st.session_state.auto_roll_unlocked:
     st.session_state.auto_roll_active = st.toggle(
         "⚡ 오토 뽑기 활성화 (1초마다 자동 소환)",
@@ -196,7 +214,6 @@ with tab_gacha:
         disabled=st.session_state.is_cutscene,
     )
 
-  # 수동 1회 뽑기 버튼 (컷씬 중에는 클릭 불가)
   if st.button(
       "🎲 1회 무료 뽑기",
       type="primary",
@@ -206,7 +223,6 @@ with tab_gacha:
     perform_roll()
     st.rerun()
 
-  # 오토 뽑기 작동 중이고 컷씬이 아닐 때 실행
   if (
       st.session_state.auto_roll_unlocked
       and st.session_state.auto_roll_active
@@ -216,19 +232,18 @@ with tab_gacha:
     time.sleep(1)
     st.rerun()
 
-  # 최근 뽑기 결과 카드 표시
   if st.session_state.last_result:
     res = st.session_state.last_result
     icon = icons[res]
     st.markdown(
         f"""
-            <div style="text-align: center; padding: 25px 0; background-color: #1e1e1e; color: white; border-radius: 10px; margin-top: 15px;">
-                <span style="font-size: 36px; font-weight: bold;">
-                    {icon} [{res}] 획득! {icon}
-                </span>
-                <p style="color: #ffd700; margin-top: 5px;">(+ 5 코인 획득)</p>
-            </div>
-            """,
+        <div style="text-align: center; padding: 20px; background-color: #1e1e1e; color: white; border-radius: 10px; margin-top: 15px;">
+            <span style="font-size: 32px; font-weight: bold;">
+                {icon} [{res}] 획득! {icon}
+            </span>
+            <p style="color: #ffd700; margin-top: 5px;">(+ 5 코인 획득)</p>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
@@ -244,11 +259,13 @@ with tab_gacha:
     st.text("아직 뽑기 기록이 없습니다.")
 
 # ------------------------------------------
-# [탭 2] 아우라 스토리지 (그리드 카드 스타일)
+# [탭 2] 스토리지 (인벤토리)
 # ------------------------------------------
 with tab_inventory:
   st.subheader(
-      f"📦 아우라 스토리지 [보유 종류: {sum(1 for k in items if st.session_state.counts[k] > 0)} / {len(items)}]"
+      f"📦 아우라 스토리지 [보유 종류:"
+      f" {sum(1 for k in items if st.session_state.counts[k] > 0)} /"
+      f" {len(items)}]"
   )
   st.write("획득한 아우라의 장착 버튼을 눌러 장착할 수 있습니다.")
 
@@ -265,31 +282,20 @@ with tab_inventory:
         b_color = border_colors[item]
         icon = icons[item]
 
-        if is_owned:
-          bg_color = "#222222" if not is_equipped else "#1b3a4b"
-          opacity = "1.0"
-        else:
-          bg_color = "#111111"
-          opacity = "0.3"
+        bg_color = (
+            "#222222" if not is_equipped else "#1b3a4b"
+        ) if is_owned else "#111111"
+        opacity = "1.0" if is_owned else "0.3"
 
         st.markdown(
             f"""
-                <div style="
-                    background-color: {bg_color};
-                    border: 2px solid {b_color};
-                    border-radius: 8px;
-                    padding: 12px;
-                    text-align: center;
-                    opacity: {opacity};
-                    margin-bottom: 10px;
-                    min-height: 110px;
-                ">
-                    <div style="font-size: 24px;">{icon}</div>
-                    <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 4px;">{item}</div>
-                    <div style="color: #aaa; font-size: 11px; margin-top: 2px;">보유: {count}개</div>
-                    {"<div style='color: #4da6ff; font-size: 11px; font-weight: bold; margin-top: 2px;'>[장착 중]</div>" if is_equipped else ""}
-                </div>
-                """,
+            <div style="background-color: {bg_color}; border: 2px solid {b_color}; border-radius: 8px; padding: 12px; text-align: center; opacity: {opacity}; margin-bottom: 10px; min-height: 110px;">
+                <div style="font-size: 24px;">{icon}</div>
+                <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 4px;">{item}</div>
+                <div style="color: #aaa; font-size: 11px; margin-top: 2px;">보유: {count}개</div>
+                {"<div style='color: #4da6ff; font-size: 11px; font-weight: bold; margin-top: 2px;'>[장착 중]</div>" if is_equipped else ""}
+            </div>
+            """,
             unsafe_allow_html=True,
         )
 
@@ -297,28 +303,86 @@ with tab_inventory:
           if is_equipped:
             st.button(
                 "장착중",
-                key=f"grid_eq_{item}",
+                key=f"inv_eq_{item}",
                 disabled=True,
                 use_container_width=True,
             )
           else:
             if st.button(
-                "장착", key=f"grid_btn_{item}", use_container_width=True
+                "장착", key=f"inv_btn_{item}", use_container_width=True
             ):
               st.session_state.equipped = item
               st.rerun()
         else:
           st.button(
               "잠김",
-              key=f"grid_lock_{item}",
+              key=f"inv_lock_{item}",
               disabled=True,
               use_container_width=True,
           )
-
     st.write("")
 
 # ------------------------------------------
-# [탭 3] 상점 카테고리
+# [탭 3] 도감 (Codex) - Sol's RNG 스타일 좌우 분할
+# ------------------------------------------
+with tab_codex:
+  st.subheader("📖 아우라 도감 (Aura Codex)")
+  st.write(
+      "왼쪽 목록에서 아우라를 선택하여 상세 정보와 컷씬을 확인할 수"
+      " 있습니다."
+  )
+
+  col_left, col_right = st.columns([1, 1.5])
+
+  with col_left:
+    st.markdown("#### 📜 등급 목록")
+    # 왼쪽 목록 (버튼 형태로 구현하여 클릭 시 선택되도록 함)
+    for item in items:
+      is_owned = st.session_state.counts[item] > 0
+      display_name = (
+          f"{icons[item]} {item}" if is_owned else "🔒 [LOCKED] ???"
+      )
+
+      if st.button(
+          display_name,
+          key=f"codex_select_{item}",
+          use_container_width=True,
+      ):
+        st.session_state.selected_codex = item
+
+  with col_right:
+    sel = st.session_state.selected_codex
+    is_owned = st.session_state.counts[sel] > 0
+    st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
+
+    with st.container(border=True):
+      if is_owned:
+        st.markdown(f"### {icons[sel]} [{sel}]")
+        st.write(f"**희귀도 확률:** {fractions[sel]}")
+        st.write(f"**보유 수량:** {st.session_state.counts[sel]}개")
+        st.markdown("---")
+
+        # 컷씬 다시 보기 버튼 (컷씬 대상 아우라일 경우에만 표시)
+        if sel in cutscene_auras:
+          st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
+          if st.button("🎬 컷씬 다시 보기", use_container_width=True):
+            play_cutscene()
+        else:
+          st.caption("이 아우라에는 별도의 컷씬 연출이 없습니다.")
+      else:
+        st.markdown(
+            """
+            <div style="text-align: center; padding: 40px; color: #777;">
+                <h2>🔒</h2>
+                <h3>아직 획득하지 못한 아우라입니다.</h3>
+                <p>뽑기를 통해 도감을 해금해보세요!</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+# ------------------------------------------
+# [탭 4] 상점
 # ------------------------------------------
 with tab_shop:
   st.subheader("🛒 상점")
@@ -376,4 +440,12 @@ with tab_shop:
     st.session_state.auto_roll_active = False
     st.session_state.last_result = None
     st.session_state.is_cutscene = False
+    st.session_state.selected_codex = items[0]
     st.rerun()
+
+# ==========================================
+# ⏱️ 오토 뽑기 1초 루프 트리거
+# ==========================================
+if st.session_state.auto_roll_unlocked and st.session_state.auto_roll_active:
+  time.sleep(1)
+  st.rerun()
