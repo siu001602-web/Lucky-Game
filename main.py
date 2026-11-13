@@ -127,8 +127,8 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [화면 전체 풀스크린] Sol's RNG 원작 스타일 회전형 별 애니메이션 컷씬
-def play_fullscreen_sols_cutscene(aura_name):
+# ✨ [10만 이하 전용] 화면 전체 풀스크린: 별 회전 -> 멘트 출력 -> 와장창 깨짐 연출
+def play_fullscreen_star_shatter_cutscene(aura_name):
   placeholder = st.empty()
 
   if aura_name == "바운디드":
@@ -150,8 +150,8 @@ def play_fullscreen_sols_cutscene(aura_name):
     star_color = "#ffd700"
     ment = "전설적인 에너지가 요동칩니다..."
 
-  # 화면 전체를 덮는 풀스크린 CSS 애니메이션 HTML
-  fullscreen_html = f"""
+  # 1단계: 별이 회전하며 커지는 풀스크린 연출
+  step1_html = f"""
     <style>
     @keyframes fullSpinAndGrow {{
         0% {{ transform: rotate(0deg) scale(0.3); opacity: 0.2; }}
@@ -159,31 +159,19 @@ def play_fullscreen_sols_cutscene(aura_name):
         100% {{ transform: rotate(720deg) scale(3.5); opacity: 1; }}
     }}
     .fullscreen-overlay {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background: rgba(5, 5, 10, 0.95);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 999999;
-        text-align: center;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        z-index: 999999; text-align: center;
     }}
     .fullscreen-star {{
         display: inline-block;
-        animation: fullSpinAndGrow 2.5s ease-in-out forwards;
-        font-size: 100px;
-        color: {star_color};
-        text-shadow: 0 0 50px {star_color};
+        animation: fullSpinAndGrow 2s ease-in-out forwards;
+        font-size: 100px; color: {star_color}; text-shadow: 0 0 50px {star_color};
     }}
     </style>
     <div class="fullscreen-overlay">
-        <div>
-            <div class="fullscreen-star">✦</div>
-        </div>
+        <div class="fullscreen-star">✦</div>
         <h1 style="color: {star_color}; margin-top: 30px; font-size: 38px; text-shadow: 0 0 20px {star_color};">
             [{aura_name}] 강림 임박!
         </h1>
@@ -194,16 +182,32 @@ def play_fullscreen_sols_cutscene(aura_name):
     """
 
   with placeholder.container():
-    st.markdown(fullscreen_html, unsafe_allow_html=True)
+    st.markdown(step1_html, unsafe_allow_html=True)
+  time.sleep(2.0)
 
-  # 연출 재생 시간 대기
-  time.sleep(2.5)
+  # 2단계: 와장창 깨지는 순간 연출
+  step2_html = f"""
+    <div class="fullscreen-overlay" style="background: rgba(40, 0, 20, 0.98);">
+        <div style="font-size: 120px; animation: shake 0.5s infinite;">💥🔨🧊</div>
+        <h1 style="color: #ff0055; margin-top: 25px; font-size: 45px; text-shadow: 0 0 30px #ff0055;">
+            CRASH!! 와장창!
+        </h1>
+        <p style="font-size: 24px; color: #ffcccc; margin-top: 15px; font-weight: bold;">
+            현실의 벽이 산산조각 났습니다! [{aura_name}] 등장!
+        </p>
+    </div>
+    """
+
+  with placeholder.container():
+    st.markdown(step2_html, unsafe_allow_html=True)
+  time.sleep(1.2)
+
   placeholder.empty()
 
 
 # 기타 상위 등급 컷씬 관리자
 def play_cutscene(aura_name):
-  play_fullscreen_sols_cutscene(aura_name)
+  play_fullscreen_star_shatter_cutscene(aura_name)
 
 
 # 1회 뽑기 실행 공통 함수
