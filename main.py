@@ -107,21 +107,36 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# 컷씬 재생 함수
-def play_cutscene():
+# ✨ 이모티콘 기반 화려한 시네마틱 컷씬 연출 함수
+def play_cutscene(aura_name):
   placeholder = st.empty()
-  with placeholder.container():
-    st.markdown(
-        """
-        <div style="text-align: center; padding: 50px; background: linear-gradient(135deg, #2b0057, #000000); border-radius: 15px; border: 2px solid #ffd700; color: white;">
-            <h1 style="font-size: 60px;">🌟💫✨</h1>
-            <h2 style="color: #ffd700; margin-top: 15px;">전설적인 에너지가 요동칩니다...</h2>
-            <p style="color: #aaa;">차원의 문이 열리는 중입니다!</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-  time.sleep(2.5)
+
+  # 단계별 이모티콘 연출 시퀀스 (긴장감 조성)
+  stages = [
+      (
+          "🌌",
+          "차원의 결계가 흔들립니다...",
+          "알 수 없는 에너지가 모여듭니다.",
+          "#111",
+      ),
+      ("⚡🌀⚡", "공간이 일그러지는 중...", "강력한 파동 감지!", "#2b0057"),
+      ("🌟🔥👑", f"전설적인 아우라 [{aura_name}] 임박!", "운명의 기운 폭발!", "#4a0000"),
+  ]
+
+  for emoji, title, desc, bg_color in stages:
+    with placeholder.container():
+      st.markdown(
+          f"""
+            <div style="text-align: center; padding: 60px 20px; background: {bg_color}; border-radius: 15px; border: 3px solid #ffd700; color: white; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);">
+                <div style="font-size: 70px; margin-bottom: 10px;">{emoji}</div>
+                <h2 style="color: #ffd700; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">{title}</h2>
+                <p style="color: #ffccd5; font-size: 18px; margin-top: 10px;">{desc}</p>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+    time.sleep(0.9)
+
   placeholder.empty()
 
 
@@ -131,7 +146,7 @@ def perform_roll():
 
   if result in cutscene_auras:
     st.session_state.is_cutscene = True
-    play_cutscene()
+    play_cutscene(result)
     st.session_state.is_cutscene = False
     st.balloons()
 
@@ -376,7 +391,7 @@ with tab_codex:
         if sel in cutscene_auras:
           st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
           if st.button("🎬 컷씬 다시 보기", use_container_width=True):
-            play_cutscene()
+            play_cutscene(sel)
         else:
           st.caption("이 아우라에는 별도의 컷씬 연출이 없습니다.")
       else:
@@ -392,24 +407,30 @@ with tab_codex:
         )
 
 # ------------------------------------------
-# [탭 4] 상점 (개발자 치트키 추가)
+# [탭 4] 상점 (개발자 비번 인증 추가)
 # ------------------------------------------
 with tab_shop:
   st.subheader("🛒 상점")
 
-  # 🛠️ 개발자 전용 치트키 박스
+  # 🛠️ 개발자 전용 비번 인증 패널
   with st.container(border=True):
-    st.markdown("### 💻 개발자 전용 메뉴")
-    st.write(
-        "버튼을 누르면 모든 아우라를 즉시 1개씩 획득하여 도감과 스토리지를"
-        " 해금합니다."
+    st.markdown("### 💻 개발자 인증 패널")
+    st.write("비밀번호를 입력하고 개발자 권한을 활성화하세요.")
+
+    dev_password = st.text_input(
+        "개발자 비밀번호", type="password", key="dev_pw_input"
     )
-    if st.button("🔓 [개발자] 모든 도감 & 스토리지 즉시 해금", type="primary"):
-      for item in items:
-        if st.session_state.counts[item] == 0:
-          st.session_state.counts[item] = 1
-      st.success("모든 도감이 해금되었습니다!")
-      st.rerun()
+    if st.button("🔐 권한 인증 및 모든 도감 해금", type="primary"):
+      if dev_password == "0925":
+        for item in items:
+          if st.session_state.counts[item] == 0:
+            st.session_state.counts[item] = 1
+        st.success(
+            "개발자 인증 성공! 모든 아우라 도감과 스토리지에 해금되었습니다!"
+        )
+        st.rerun()
+      else:
+        st.error("비밀번호가 틀렸습니다!")
 
   with st.container(border=True):
     col_a1, col_a2 = st.columns([2, 1])
