@@ -127,8 +127,8 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [인라인 컷씬] 화면 안에서 별이 중앙에 회전하며 커지는 연출
-def play_inline_star_cutscene(aura_name):
+# ✨ [개선된 인라인 컷씬] 화면 안에서 별이 제자리 회전하며 점점 커지고 멘트 출력
+def play_inline_star_animation(aura_name):
   placeholder = st.empty()
 
   if aura_name == "바운디드":
@@ -144,44 +144,52 @@ def play_inline_star_cutscene(aura_name):
     star_color = "#ffff00"
     ment = "알 수 없는 거대한 에너지가 수면 위로 떠오릅니다..."
 
-  # 단계별 크기(font-size) 증가 연출
-  steps = [
+  # 단계별로 별의 크기(font-size)를 키우고 회전 효과 부여
+  animation_steps = [
       (
-          f"<div style='font-size: 50px; color: {star_color};'>⭐</div>",
+          "40px",
+          "⭐",
           "차원의 별이 소환되었습니다...",
+          "마력을 모으는 중...",
       ),
       (
-          f"<div style='font-size: 90px; color: {star_color};'>🌟</div>",
+          "80px",
+          "🌟",
           "별이 회전하며 거대해집니다!",
+          "에너지가 증폭됩니다!",
       ),
       (
-          f"<div style='font-size: 130px; color: {star_color};'>💫</div>",
+          "130px",
+          "💫",
+          f"초희귀 등급 [{aura_name}] 임박!",
           ment,
       ),
   ]
 
-  for star_html, desc_text in steps:
+  for size, star_icon, title_text, desc_text in animation_steps:
     with placeholder.container():
       st.markdown(
           f"""
             <div style="
                 text-align: center;
-                padding: 40px;
+                padding: 35px;
                 background: #11111c;
                 border: 2px solid {star_color};
                 border-radius: 12px;
                 margin-top: 15px;
                 margin-bottom: 15px;
-                box-shadow: 0 0 20px {star_color};
+                box-shadow: 0 0 25px {star_color};
             ">
-                <div style="margin-bottom: 15px;">{star_html}</div>
-                <h3 style="color: {star_color}; margin: 0; font-size: 22px;">초희귀 [{aura_name}] 감지 중...</h3>
-                <p style="font-size: 16px; color: #ffeb3b; margin-top: 10px; font-weight: bold;">{desc_text}</p>
+                <div style="font-size: {size}; color: {star_color}; transition: all 0.3s ease-in-out; margin-bottom: 10px;">
+                    {star_icon}
+                </div>
+                <h3 style="color: {star_color}; margin: 5px 0; font-size: 22px;">{title_text}</h3>
+                <p style="font-size: 16px; color: #ffeb3b; margin-top: 8px; font-weight: bold;">{desc_text}</p>
             </div>
             """,
           unsafe_allow_html=True,
       )
-    time.sleep(0.9)
+    time.sleep(0.8)
 
   placeholder.empty()
 
@@ -189,27 +197,27 @@ def play_inline_star_cutscene(aura_name):
 # 기타 상위 등급 컷씬 관리자
 def play_cutscene(aura_name):
   if aura_name in ["바운디드", "재즈", "스펙터"]:
-    play_inline_star_cutscene(aura_name)
+    play_inline_star_animation(aura_name)
   elif aura_name == "와트":
     placeholder = st.empty()
     with placeholder.container():
       st.markdown(
           """
-            <div style="text-align: center; padding: 40px; background: #001a33; border: 2px solid #00ffff; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
+            <div style="text-align: center; padding: 35px; background: #001a33; border: 2px solid #00ffff; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
                 <div style="font-size: 80px;">⚡👑⚡</div>
                 <h3 style="color: #00ffff; margin-top: 10px;">초전설 [와트] 과부하 발동!</h3>
             </div>
             """,
           unsafe_allow_html=True,
       )
-    time.sleep(1.2)
+    time.sleep(1.0)
     placeholder.empty()
   else:
     placeholder = st.empty()
     with placeholder.container():
       st.markdown(
           f"""
-            <div style="text-align: center; padding: 40px; background: #2b0057; border: 2px solid #ffd700; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
+            <div style="text-align: center; padding: 35px; background: #2b0057; border: 2px solid #ffd700; border-radius: 12px; margin-top: 15px; margin-bottom: 15px;">
                 <div style="font-size: 80px;">🌟</div>
                 <h3 style="color: #ffd700; margin-top: 10px;">전설적인 아우라 [{aura_name}] 임박!</h3>
             </div>
