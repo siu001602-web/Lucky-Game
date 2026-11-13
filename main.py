@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="아우라 가챠 & 도감", page_icon="✨", layout="wide"
 )
 
-# 등급 리스트 정의 (희귀도 높은 순)
+# 등급 리스트 정의 (희귀도 높은 순 - 신규 등급 포함)
 items = [
     "아케인",
     "워록",
@@ -141,31 +141,37 @@ aura_images = {
     "아케인": "images/SmartSelect_20261113_222429_Chrome.jpg",
 }
 
-# 세션 상태 초기화
-if "history" not in st.session_state:
-  st.session_state.history = []
-if "counts" not in st.session_state:
-  st.session_state.counts = {item: 0 for item in items}
-if "equipped" not in st.session_state:
-  st.session_state.equipped = None
-if "coins" not in st.session_state:
-  st.session_state.coins = 0
-if "inventory_slots" not in st.session_state:
-  st.session_state.inventory_slots = 50
-if "auto_roll_unlocked" not in st.session_state:
-  st.session_state.auto_roll_unlocked = False
-if "auto_roll_active" not in st.session_state:
-  st.session_state.auto_roll_active = False
-if "luck_buff_unlocked" not in st.session_state:
-  st.session_state.luck_buff_unlocked = False
-if "last_result" not in st.session_state:
-  st.session_state.last_result = None
-if "luck_active_flag" not in st.session_state:
-  st.session_state.luck_active_flag = False
-if "is_cutscene" not in st.session_state:
-  st.session_state.is_cutscene = False
-if "selected_codex" not in st.session_state:
-  st.session_state.selected_codex = items[0]
+
+# ==========================================
+# 🛡️ [업데이트 안전 호환] 세션 상태 초기화 및 누락 데이터 자동 보정
+# ==========================================
+def init_session_state():
+  defaults = {
+      "history": [],
+      "counts": {item: 0 for item in items},
+      "equipped": None,
+      "coins": 0,
+      "inventory_slots": 50,
+      "auto_roll_unlocked": False,
+      "auto_roll_active": False,
+      "luck_buff_unlocked": False,
+      "last_result": None,
+      "luck_active_flag": False,
+      "is_cutscene": False,
+      "selected_codex": items[0],
+  }
+
+  for key, val in defaults.items():
+    if key not in st.session_state:
+      st.session_state[key] = val
+
+  # 나중에 새로운 아우라가 추가되더라도 기존 counts 딕셔너리에 키가 없으면 에러 안 나게 자동 추가
+  for item in items:
+    if item not in st.session_state.counts:
+      st.session_state.counts[item] = 0
+
+
+init_session_state()
 
 
 # ✨ [풀스크린 컷씬] 화면 전체에서 별이 회전하며 커지는 연출
@@ -247,7 +253,7 @@ def perform_roll():
   current_weights = list(base_weights)
   st.session_state.luck_active_flag = False
 
-  # 10뽑마다 행운 2배 버프 적용 체크 (상위 5개 등급 대상)
+  # 10뽑마다 행운 2배 버프 적용 체크 (상위 등급 대상)
   if st.session_state.luck_buff_unlocked and (total_pulls % 10 == 0):
     current_weights[:5] = [w * 2 for w in current_weights[:5]]
     st.session_state.luck_active_flag = True
@@ -276,7 +282,7 @@ with st.container(border=True):
   st.markdown("### 👤 현재 장착 중인 아우라")
   equipped_aura = st.session_state.equipped
 
-  if equipped_aura:
+  if equipped_aura and equipped_aura in items:
     col_img, col_info = st.columns([1, 4])
     img_path = aura_images.get(equipped_aura)
 
@@ -285,17 +291,23 @@ with st.container(border=True):
         st.image(img_path, use_container_width=True)
       else:
         st.markdown(
-            f"<div style='font-size: 50px; text-align: center;'>{icons[equipped_aura]}</div>",
+            f"<div style='font-size: 50px; text-align: center;'>{icons.get(equipped_aura, '✨')}</div>",
             unsafe_allow_html=True,
         )
 
     with col_info:
-      st.markdown(f"#### {icons[equipped_aura]} **[{equipped_aura}]** 장착 중")
-      st.write(f"보유 수량: **{st.session_state.counts[equipped_aura]}개**")
+      st.markdown(
+          f"#### {icons.get(equipped_aura, '✨')} **[{equipped_aura}]** 장착"
+          " 중"
+      )
+      st.write(
+          f"보유 수량: **{st.session_state.counts.get(equipped_aura, 0)}개**"
+      )
       if st.button("❌ 장착 해제", key="top_unequip_btn"):
         st.session_state.equipped = None
         st.rerun()
   else:
+    st.session_state.equipped = None
     st.info(
         "현재 장착된 아우라가 없습니다. 뽑기를 통해 아우라를 획득하고"
         " 장착해보세요!"
@@ -334,7 +346,10 @@ with tab_gacha:
         prob_str = f"{prob:.6f}%"
       else:
         prob_str = f"{prob:.4f}%"
-      st.markdown(f"- **{icons[item]} {item}** : `{prob_str}` ({fractions[item]})")
+      st.markdown(
+          f"- **{icons.get(item, '✨')} {item}** : `{prob_str}`"
+          f" ({fractions.get(item, 'N/A')})"
+      )
 
   st.write("")
 
@@ -376,7 +391,7 @@ with tab_gacha:
 
   if st.session_state.last_result:
     res = st.session_state.last_result
-    icon = icons[res]
+    icon = icons.get(res, "✨")
     st.markdown(
         f"""
         <div style="text-align: center; padding: 20px; background-color: #1e1e1e; color: white; border-radius: 10px; margin-top: 15px;">
@@ -395,7 +410,7 @@ with tab_gacha:
     recent = st.session_state.history[:5]
     for i, res in enumerate(recent):
       st.text(
-          f"{len(st.session_state.history) - i}번째: {icons[res]} [{res}]"
+          f"{len(st.session_state.history) - i}번째: {icons.get(res, '✨')} [{res}]"
       )
   else:
     st.text("아직 뽑기 기록이 없습니다.")
@@ -405,7 +420,9 @@ with tab_gacha:
 # ------------------------------------------
 with tab_inventory:
   owned_items = [
-      item for item in items if st.session_state.counts[item] > 0
+      item
+      for item in items
+      if st.session_state.counts.get(item, 0) > 0
   ]
   st.subheader(
       f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
@@ -423,10 +440,10 @@ with tab_inventory:
       cols = st.columns(cols_per_row)
       for idx, item in enumerate(row):
         with cols[idx]:
-          count = st.session_state.counts[item]
+          count = st.session_state.counts.get(item, 0)
           is_equipped = st.session_state.equipped == item
-          b_color = border_colors[item]
-          icon = icons[item]
+          b_color = border_colors.get(item, "#ffffff")
+          icon = icons.get(item, "✨")
 
           bg_color = "#1b3a4b" if is_equipped else "#222222"
 
@@ -482,9 +499,9 @@ with tab_codex:
   with col_left:
     st.markdown("#### 📜 등급 목록")
     for item in items:
-      is_owned = st.session_state.counts[item] > 0
+      is_owned = st.session_state.counts.get(item, 0) > 0
       display_name = (
-          f"{icons[item]} {item}" if is_owned else "🔒 [LOCKED] ???"
+          f"{icons.get(item, '✨')} {item}" if is_owned else "🔒 [LOCKED] ???"
       )
 
       if st.button(
@@ -496,7 +513,9 @@ with tab_codex:
 
   with col_right:
     sel = st.session_state.selected_codex
-    is_owned = st.session_state.counts[sel] > 0
+    if sel not in items:
+      sel = items[0]
+    is_owned = st.session_state.counts.get(sel, 0) > 0
     st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
 
     with st.container(border=True):
@@ -506,13 +525,13 @@ with tab_codex:
           st.image(img_path, width=150)
         else:
           st.markdown(
-              f"<div style='font-size: 40px;'>{icons[sel]}</div>",
+              f"<div style='font-size: 40px;'>{icons.get(sel, '✨')}</div>",
               unsafe_allow_html=True,
           )
 
         st.markdown(f"### [{sel}]")
-        st.write(f"**희귀도 확률:** {fractions[sel]}")
-        st.write(f"**보유 수량:** {st.session_state.counts[sel]}개")
+        st.write(f"**희귀도 확률:** {fractions.get(sel, 'N/A')}")
+        st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
         st.markdown("---")
 
         if sel in cutscene_auras:
@@ -549,8 +568,9 @@ with tab_shop:
     if st.button("🔐 권한 인증 및 모든 도감 해금", type="primary"):
       if dev_password == "0925":
         for item in items:
-          if st.session_state.counts[item] == 0:
-            st.session_state.counts[item] = 1
+          st.session_state.counts[item] = max(
+              1, st.session_state.counts.get(item, 1)
+          )
         st.success(
             "개발자 인증 성공! 모든 아우라 도감과 스토리지에 해금되었습니다!"
         )
