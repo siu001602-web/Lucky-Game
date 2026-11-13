@@ -413,8 +413,8 @@ if not st.session_state.logged_in:
           conn.close()
           st.error("이미 존재하는 아이디입니다.")
         else:
-          # 초기 유저 데이터 구조 정의
-          init_data = {
+          # 초기 유저 데이터 구조 명확하게 정의
+          default_init_data = {
               "history": [],
               "counts": {item: 0 for item in items},
               "equipped": None,
@@ -427,7 +427,7 @@ if not st.session_state.logged_in:
           }
           cursor.execute(
               "INSERT INTO users (username, password, data) VALUES (?, ?, ?)",
-              (r_user, hash_password(r_pass), json.dumps(init_data)),
+              (r_user, hash_password(r_pass), json.dumps(default_init_data)),
           )
           conn.commit()
           conn.close()
