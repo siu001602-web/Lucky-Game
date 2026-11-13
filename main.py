@@ -127,8 +127,8 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [Sol's RNG 스타일 원작 연출] 화면 중앙에서 별이 회전하며 커지는 CSS 애니메이션 컷씬
-def play_sols_rng_cutscene(aura_name):
+# ✨ [화면 전체 풀스크린] Sol's RNG 원작 스타일 회전형 별 애니메이션 컷씬
+def play_fullscreen_sols_cutscene(aura_name):
   placeholder = st.empty()
 
   if aura_name == "바운디드":
@@ -150,55 +150,60 @@ def play_sols_rng_cutscene(aura_name):
     star_color = "#ffd700"
     ment = "전설적인 에너지가 요동칩니다..."
 
-  # CSS 애니메이션 주입 (별이 회전하며 커지는 효과)
-  animation_html = f"""
+  # 화면 전체를 덮는 풀스크린 CSS 애니메이션 HTML
+  fullscreen_html = f"""
     <style>
-    @keyframes spinAndGrow {{
-        0% {{ transform: rotate(0deg) scale(0.5); opacity: 0.3; }}
-        50% {{ transform: rotate(360deg) scale(1.2); opacity: 0.8; }}
-        100% {{ transform: rotate(720deg) scale(2.0); opacity: 1; }}
+    @keyframes fullSpinAndGrow {{
+        0% {{ transform: rotate(0deg) scale(0.3); opacity: 0.2; }}
+        50% {{ transform: rotate(360deg) scale(1.5); opacity: 0.8; }}
+        100% {{ transform: rotate(720deg) scale(3.5); opacity: 1; }}
     }}
-    .spinning-star {{
+    .fullscreen-overlay {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(5, 5, 10, 0.95);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 999999;
+        text-align: center;
+    }}
+    .fullscreen-star {{
         display: inline-block;
-        animation: spinAndGrow 2.5s ease-in-out forwards;
-        font-size: 70px;
+        animation: fullSpinAndGrow 2.5s ease-in-out forwards;
+        font-size: 100px;
         color: {star_color};
-        text-shadow: 0 0 30px {star_color};
+        text-shadow: 0 0 50px {star_color};
     }}
     </style>
-    <div style="
-        text-align: center;
-        padding: 50px 20px;
-        background: #0d0d14;
-        border: 3px solid {star_color};
-        border-radius: 15px;
-        margin-top: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 0 30px {star_color};
-    ">
-        <div style="margin-bottom: 20px;">
-            <div class="spinning-star">✦</div>
+    <div class="fullscreen-overlay">
+        <div>
+            <div class="fullscreen-star">✦</div>
         </div>
-        <h2 style="color: {star_color}; margin: 10px 0; font-size: 26px; text-shadow: 0 0 10px {star_color};">
+        <h1 style="color: {star_color}; margin-top: 30px; font-size: 38px; text-shadow: 0 0 20px {star_color};">
             [{aura_name}] 강림 임박!
-        </h2>
-        <p style="font-size: 18px; color: #ffeb3b; margin-top: 10px; font-weight: bold;">
+        </h1>
+        <p style="font-size: 22px; color: #ffeb3b; margin-top: 15px; font-weight: bold; max-width: 800px;">
             {ment}
         </p>
     </div>
     """
 
   with placeholder.container():
-    st.markdown(animation_html, unsafe_allow_html=True)
+    st.markdown(fullscreen_html, unsafe_allow_html=True)
 
-  # 애니메이션 재생 시간 동안 대기
+  # 연출 재생 시간 대기
   time.sleep(2.5)
   placeholder.empty()
 
 
-# 기타 상위 등급 일반 컷씬
+# 기타 상위 등급 컷씬 관리자
 def play_cutscene(aura_name):
-  play_sols_rng_cutscene(aura_name)
+  play_fullscreen_sols_cutscene(aura_name)
 
 
 # 1회 뽑기 실행 공통 함수
