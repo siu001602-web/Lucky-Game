@@ -163,6 +163,23 @@ aura_images = {
     "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
 }
 
+# 행운권 상자 아이템 목록 및 메타데이터
+potion_items = [
+    "100배 행운 포션 (1분)",
+    "500배 행운 포션 (30초)",
+    "1000배 행운 포션 (15초)",
+    "10000배 행운 포션 (10초)",
+    "백만배 행운권 (1회)",
+]
+potion_weights = [900, 70, 20, 9, 1]  # 합계 1000 (90%, 7%, 2%, 0.9%, 0.1%)
+potion_config = {
+    "100배 행운 포션 (1분)": {"mult": 100, "duration": 60, "type": "potion"},
+    "500배 행운 포션 (30초)": {"mult": 500, "duration": 30, "type": "potion"},
+    "1000배 행운 포션 (15초)": {"mult": 1000, "duration": 15, "type": "potion"},
+    "10000배 행운 포션 (10초)": {"mult": 10000, "duration": 10, "type": "potion"},
+    "백만배 행운권 (1회)": {"mult": 1000000, "duration": 0, "type": "ticket"},
+}
+
 
 # ==========================================
 # 🛡️ [업데이트 안전 호환] 세션 초기화 및 데이터 보정
@@ -177,8 +194,14 @@ def init_session_state():
       "auto_roll_unlocked": False,
       "auto_roll_active": False,
       "luck_buff_unlocked": False,
-      "last_result": None,
-      "luck_active_flag": False,
+      "triple_roll_unlocked": False,
+      "potions": {p: 0 for p in potion_items},
+      "active_potion_mult": 1,
+      "active_potion_end": 0.0,
+      "active_potion_name": None,
+      "million_ticket_active": False,
+      "last_results": [],
+      "last_luck_mult": 1,
       "is_cutscene": False,
       "selected_codex": items[0],
   }
@@ -191,15 +214,49 @@ def init_session_state():
     if item not in st.session_state.counts:
       st.session_state.counts[item] = 0
 
+  for p in potion_items:
+    if p not in st.session_state.potions:
+      st.session_state.potions[p] = 0
+
 
 init_session_state()
+
+
+# 현재 적용 중인 총 행운 배율 계산 함수
+def get_current_luck_multiplier(next_pull_number):
+  now = time.time()
+  # 만료된 포션 정리
+  if (
+      st.session_state.active_potion_mult > 1
+      and now >= st.session_state.active_potion_end
+  ):
+    st.session_state.active_potion_mult = 1
+    st.session_state.active_potion_end = 0.0
+    st.session_state.active_potion_name = None
+
+  mult = 1
+
+  # 1) 백만배 행운권 활성화 시 최우선 적용
+  if st.session_state.million_ticket_active:
+    mult *= 1000000
+  # 2) 시간제 포션 적용
+  elif (
+      st.session_state.active_potion_mult > 1
+      and now < st.session_state.active_potion_end
+  ):
+    mult *= st.session_state.active_potion_mult
+
+  # 3) 영구 10뽑마다 행운 2배 버프 중첩
+  if st.session_state.luck_buff_unlocked and (next_pull_number % 10 == 0):
+    mult *= 2
+
+  return mult
 
 
 # ✨ [확률별 맞춤형 화려한 풀스크린 컷씬]
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  # 등급별 맞춤형 테마 컬러, 별 기호, 대사, 애니메이션 속도 설정
   if aura_name == "크로마틱":
     star_color = "#ff00ff"
     bg_style = "radial-gradient(circle, #330033 0%, #05000a 90%)"
@@ -298,30 +355,47 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 뽑기 실행 공통 함수
-def perform_roll():
-  total_pulls = sum(st.session_state.counts.values()) + 1
+# 1회 또는 다회 뽑기 실행 공통 함수
+def perform_rolls(roll_count=1):
+  results = []
+  max_luck_applied = 1
 
-  current_weights = list(base_weights)
-  st.session_state.luck_active_flag = False
+  for _ in range(roll_count):
+    next_pull = sum(st.session_state.counts.values()) + 1
+    luck_mult = get_current_luck_multiplier(next_pull)
+    max_luck_applied = max(max_luck_applied, luck_mult)
 
-  if st.session_state.luck_buff_unlocked and (total_pulls % 10 == 0):
-    current_weights[:5] = [w * 2 for w in current_weights[:5]]
-    st.session_state.luck_active_flag = True
+    # 1회성 백만배 행운권 소모 처리
+    if st.session_state.million_ticket_active:
+      st.session_state.million_ticket_active = False
 
-  result = random.choices(items, weights=current_weights, k=1)[0]
+    current_weights = list(base_weights)
+    if luck_mult > 1:
+      # 상위 희귀 등급(컷씬 등급 전체)의 가중치에 행운 배율 곱하기
+      rare_count = len(cutscene_auras)
+      current_weights[:rare_count] = [
+          w * luck_mult for w in current_weights[:rare_count]
+      ]
 
-  if result in cutscene_auras:
+    result = random.choices(items, weights=current_weights, k=1)[0]
+    results.append(result)
+
+    st.session_state.counts[result] += 1
+    st.session_state.history.insert(0, result)
+    st.session_state.coins += 5
+
+  # 획득한 결과 중 가장 희귀한 아우라가 컷씬 대상이면 1회 대표 재생
+  cutscene_targets = [r for r in results if r in cutscene_auras]
+  if cutscene_targets:
+    rarest_aura = min(cutscene_targets, key=lambda x: items.index(x))
     st.session_state.is_cutscene = True
-    play_cutscene(result)
+    play_cutscene(rarest_aura)
     st.session_state.is_cutscene = False
     st.balloons()
 
-  st.session_state.counts[result] += 1
-  st.session_state.history.insert(0, result)
-  st.session_state.coins += 5
-  st.session_state.last_result = result
-  return result
+  st.session_state.last_results = results
+  st.session_state.last_luck_mult = max_luck_applied
+  return results
 
 
 st.title("✨ 아우라 가챠 & 도감 시스템")
@@ -386,10 +460,58 @@ tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
 # ------------------------------------------
 with tab_gacha:
   st.subheader("🎲 행운의 아우라 소환 (1회당 +5 G)")
-  if st.session_state.luck_buff_unlocked:
-    st.success("🍀 [행운 버프 활성화됨] 매 10번째 뽑기마다 행운 2배 적용 중!")
 
-  with st.expander("📋 등급별 확률표 보기"):
+  # 현재 활성화된 버프 상태 표시
+  now = time.time()
+  if (
+      st.session_state.active_potion_mult > 1
+      and now < st.session_state.active_potion_end
+  ):
+    rem_sec = int(st.session_state.active_potion_end - now)
+    st.warning(
+        f"🧪 **[포션 버프 적용 중]** {st.session_state.active_potion_name} —"
+        f" 남은 시간: **{rem_sec}초** (행운"
+        f" {st.session_state.active_potion_mult:,}배)"
+    )
+  elif (
+      st.session_state.active_potion_mult > 1
+      and now >= st.session_state.active_potion_end
+  ):
+    st.session_state.active_potion_mult = 1
+    st.session_state.active_potion_end = 0.0
+    st.session_state.active_potion_name = None
+
+  if st.session_state.million_ticket_active:
+    st.error(
+        "🎟️ **[백만배 행운권 장전 완료!]** 다음 뽑기 1회에 행운 **1,000,000배**가"
+        " 즉시 적용됩니다!"
+    )
+
+  if st.session_state.luck_buff_unlocked:
+    st.success("🍀 [영구 버프 활성화됨] 매 10번째 뽑기마다 행운 2배 적용 중!")
+
+  # 🧪 보유 중인 행운 포션 & 행운권 사용 패널
+  owned_potions = {k: v for k, v in st.session_state.potions.items() if v > 0}
+  if owned_potions:
+    with st.container(border=True):
+      st.markdown("#### 🧪 보유 중인 행운 아이템 사용")
+      p_cols = st.columns(len(owned_potions))
+      for idx, (p_name, p_count) in enumerate(owned_potions.items()):
+        with p_cols[idx]:
+          st.markdown(f"**{p_name}**")
+          st.caption(f"보유: {p_count}개")
+          if st.button("사용하기", key=f"use_pot_{p_name}", use_container_width=True):
+            st.session_state.potions[p_name] -= 1
+            cfg = potion_config[p_name]
+            if cfg["type"] == "potion":
+              st.session_state.active_potion_mult = cfg["mult"]
+              st.session_state.active_potion_end = time.time() + cfg["duration"]
+              st.session_state.active_potion_name = p_name
+            elif cfg["type"] == "ticket":
+              st.session_state.million_ticket_active = True
+            st.rerun()
+
+  with st.expander("📋 등급별 기본 확률표 보기"):
     weights_sum = sum(base_weights)
     for item, weight in zip(items, base_weights):
       prob = (weight / weights_sum) * 100
@@ -411,44 +533,72 @@ with tab_gacha:
         disabled=st.session_state.is_cutscene,
     )
 
-  if st.button(
-      "🎲 1회 무료 뽑기",
-      type="primary",
-      use_container_width=True,
-      disabled=st.session_state.is_cutscene,
-  ):
-    perform_roll()
-    st.rerun()
+  # 뽑기 버튼 배치 (3회 뽑기 해금 여부에 따라 버튼 분할)
+  if st.session_state.triple_roll_unlocked:
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+      if st.button(
+          "🎲 1회 무료 뽑기",
+          type="secondary",
+          use_container_width=True,
+          disabled=st.session_state.is_cutscene,
+      ):
+        perform_rolls(1)
+        st.rerun()
+    with col_b2:
+      if st.button(
+          "🔥 3회 연속 뽑기 (+15 G)",
+          type="primary",
+          use_container_width=True,
+          disabled=st.session_state.is_cutscene,
+      ):
+        perform_rolls(3)
+        st.rerun()
+  else:
+    if st.button(
+        "🎲 1회 무료 뽑기",
+        type="primary",
+        use_container_width=True,
+        disabled=st.session_state.is_cutscene,
+    ):
+      perform_rolls(1)
+      st.rerun()
 
   if (
       st.session_state.auto_roll_unlocked
       and st.session_state.auto_roll_active
       and not st.session_state.is_cutscene
   ):
-    perform_roll()
+    roll_amt = 3 if st.session_state.triple_roll_unlocked else 1
+    perform_rolls(roll_amt)
     time.sleep(1)
     st.rerun()
 
-  if st.session_state.luck_active_flag:
+  # 행운 배율 발동 알림 배너
+  if st.session_state.last_luck_mult > 1:
     st.markdown(
-        """
+        f"""
         <div style="text-align: center; padding: 12px; background-color: #004d40; color: #66ffcc; border-radius: 8px; margin-top: 10px; border: 1px solid #00b0ff; font-weight: bold; font-size: 18px;">
-            🍀 [행운 2배 활성화!] 이번 10번째 뽑기 행운이 2배로 적용되었습니다! 🍀
+            🍀 [행운 {st.session_state.last_luck_mult:,}배 활성화!] 강력한 행운 보너스가 적용되었습니다! 🍀
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-  if st.session_state.last_result:
-    res = st.session_state.last_result
-    icon = icons.get(res, "✨")
+  # 뽑기 결과 출력 영역
+  if st.session_state.last_results:
+    res_list = st.session_state.last_results
+    earned_coins = len(res_list) * 5
+    result_badges = " &nbsp;|&nbsp; ".join(
+        [f"{icons.get(r, '✨')} [{r}]" for r in res_list]
+    )
     st.markdown(
         f"""
         <div style="text-align: center; padding: 20px; background-color: #1e1e1e; color: white; border-radius: 10px; margin-top: 15px;">
-            <span style="font-size: 32px; font-weight: bold;">
-                {icon} [{res}] 획득! {icon}
+            <span style="font-size: 28px; font-weight: bold;">
+                {result_badges} 획득!
             </span>
-            <p style="color: #ffd700; margin-top: 5px;">(+ 5 코인 획득)</p>
+            <p style="color: #ffd700; margin-top: 8px;">(+ {earned_coins} 코인 획득)</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -603,86 +753,75 @@ with tab_codex:
         )
 
 # ------------------------------------------
-# [탭 4] 상점 (개발자 비번 인증 및 세이브/로드 시스템)
+# [탭 4] 상점 (업그레이드, 행운권 상자, 데이터 저장/로드)
 # ------------------------------------------
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 관리")
 
+  # 🎁 [신규] 행운권 상자 구매 패널
   with st.container(border=True):
-    st.markdown("### 💾 게임 데이터 저장 및 불러오기")
-    st.write(
-        "플레이 데이터를 파일로 저장하거나, 저장된 파일을 업로드하여"
-        " 언제든 이어서 할 수 있습니다."
-    )
+    col_box1, col_box2 = st.columns([2, 1])
+    with col_box1:
+      st.markdown("### 🎁 행운권 상자 (즉시 개봉)")
+      st.write(
+          "초고배율 행운 포션이나 백만배 행운권을 획득할 수 있는 미스터리"
+          " 상자입니다."
+      )
+      with st.expander("📋 상자 구성품 확률 보기"):
+        st.markdown("- **90%**: 100배 행운 포션 (1분)")
+        st.markdown("- **7%**: 500배 행운 포션 (30초)")
+        st.markdown("- **2%**: 1000배 행운 포션 (15초)")
+        st.markdown("- **0.9%**: 10000배 행운 포션 (10초)")
+        st.markdown("- **0.1%**: 백만배 행운권 (1회)")
+    with col_box2:
+      st.write("")
+      if st.button(
+          "상자 구매 및 열기 (300 G)",
+          type="primary",
+          key="buy_luck_box",
+          use_container_width=True,
+      ):
+        if st.session_state.coins >= 300:
+          st.session_state.coins -= 300
+          won_item = random.choices(
+              potion_items, weights=potion_weights, k=1
+          )[0]
+          st.session_state.potions[won_item] += 1
+          st.success(f"🎉 행운권 상자에서 **[{won_item}]**을(를) 획득했습니다!")
+          st.balloons()
+          time.sleep(1.2)
+          st.rerun()
+        else:
+          st.error("코인이 부족합니다! (300 G 필요)")
 
-    save_data = {
-        "history": st.session_state.history,
-        "counts": st.session_state.counts,
-        "equipped": st.session_state.equipped,
-        "coins": st.session_state.coins,
-        "inventory_slots": st.session_state.inventory_slots,
-        "auto_roll_unlocked": st.session_state.auto_roll_unlocked,
-        "luck_buff_unlocked": st.session_state.luck_buff_unlocked,
-    }
-    json_str = json.dumps(save_data, ensure_ascii=False, indent=4)
-
-    st.download_button(
-        label="📥 게임 데이터 저장하기 (파일 다운로드)",
-        data=json_str,
-        file_name="sols_rng_save.json",
-        mime="application/json",
-        use_container_width=True,
-    )
-
-    st.write("")
-    uploaded_file = st.file_uploader(
-        "📤 저장한 데이터 불러오기 (JSON 파일 업로드)", type=["json"]
-    )
-    if uploaded_file is not None:
-      try:
-        loaded_data = json.load(uploaded_file)
-        st.session_state.history = loaded_data.get("history", [])
-        saved_counts = loaded_data.get("counts", {})
-        for item in items:
-          st.session_state.counts[item] = saved_counts.get(item, 0)
-        st.session_state.equipped = loaded_data.get("equipped", None)
-        st.session_state.coins = loaded_data.get("coins", 0)
-        st.session_state.inventory_slots = loaded_data.get(
-            "inventory_slots", 50
-        )
-        st.session_state.auto_roll_unlocked = loaded_data.get(
-            "auto_roll_unlocked", False
-        )
-        st.session_state.luck_buff_unlocked = loaded_data.get(
-            "luck_buff_unlocked", False
-        )
-        st.success(
-            "성공적으로 게임 데이터를 불러왔습니다! 화면이 갱신됩니다."
-        )
-        time.sleep(1)
-        st.rerun()
-      except Exception as e:
-        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
-
+  # 🔥 [신규] 3회씩 뽑기 영구 해금 패널
   with st.container(border=True):
-    st.markdown("### 💻 개발자 인증 패널")
-    st.write("비밀번호를 입력하고 개발자 권한을 활성화하세요.")
-
-    dev_password = st.text_input(
-        "개발자 비밀번호", type="password", key="dev_pw_input"
-    )
-    if st.button("🔐 권한 인증 및 모든 도감 해금", type="primary"):
-      if dev_password == "0925":
-        for item in items:
-          st.session_state.counts[item] = max(
-              1, st.session_state.counts.get(item, 1)
-          )
-        st.success(
-            "개발자 인증 성공! 모든 아우라 도감과 스토리지에 해금되었습니다!"
+    col_t1, col_t2 = st.columns([2, 1])
+    with col_t1:
+      st.markdown("### 🔥 3회씩 연속 뽑기 (영구)")
+      st.write(
+          "한 번에 3회씩 아우라를 빠르게 소환할 수 있는 기능을 해금합니다."
+      )
+    with col_t2:
+      st.write("")
+      if st.session_state.triple_roll_unlocked:
+        st.button(
+            "보유 완료",
+            disabled=True,
+            key="buy_triple_done",
+            use_container_width=True,
         )
-        st.rerun()
       else:
-        st.error("비밀번호가 틀렸습니다!")
+        if st.button(
+            "구매 (500 G)", key="buy_triple_roll", use_container_width=True
+        ):
+          if st.session_state.coins >= 500:
+            st.session_state.coins -= 500
+            st.session_state.triple_roll_unlocked = True
+            st.success("3회 연속 뽑기 기능이 해금되었습니다!")
+            st.rerun()
+          else:
+            st.error("코인이 부족합니다! (500 G 필요)")
 
   with st.container(border=True):
     col_l1, col_l2 = st.columns([2, 1])
@@ -748,6 +887,91 @@ with tab_shop:
         else:
           st.error("코인이 부족합니다!")
 
+  # 💾 세이브 데이터 백업 및 복구 패널
+  with st.container(border=True):
+    st.markdown("### 💾 게임 데이터 저장 및 불러오기")
+    st.write(
+        "플레이 데이터를 파일로 저장하거나, 저장된 파일을 업로드하여"
+        " 언제든 이어서 할 수 있습니다."
+    )
+
+    save_data = {
+        "history": st.session_state.history,
+        "counts": st.session_state.counts,
+        "equipped": st.session_state.equipped,
+        "coins": st.session_state.coins,
+        "inventory_slots": st.session_state.inventory_slots,
+        "auto_roll_unlocked": st.session_state.auto_roll_unlocked,
+        "luck_buff_unlocked": st.session_state.luck_buff_unlocked,
+        "triple_roll_unlocked": st.session_state.triple_roll_unlocked,
+        "potions": st.session_state.potions,
+    }
+    json_str = json.dumps(save_data, ensure_ascii=False, indent=4)
+
+    st.download_button(
+        label="📥 게임 데이터 저장하기 (파일 다운로드)",
+        data=json_str,
+        file_name="sols_rng_save.json",
+        mime="application/json",
+        use_container_width=True,
+    )
+
+    st.write("")
+    uploaded_file = st.file_uploader(
+        "📤 저장한 데이터 불러오기 (JSON 파일 업로드)", type=["json"]
+    )
+    if uploaded_file is not None:
+      try:
+        loaded_data = json.load(uploaded_file)
+        st.session_state.history = loaded_data.get("history", [])
+        saved_counts = loaded_data.get("counts", {})
+        for item in items:
+          st.session_state.counts[item] = saved_counts.get(item, 0)
+        st.session_state.equipped = loaded_data.get("equipped", None)
+        st.session_state.coins = loaded_data.get("coins", 0)
+        st.session_state.inventory_slots = loaded_data.get(
+            "inventory_slots", 50
+        )
+        st.session_state.auto_roll_unlocked = loaded_data.get(
+            "auto_roll_unlocked", False
+        )
+        st.session_state.luck_buff_unlocked = loaded_data.get(
+            "luck_buff_unlocked", False
+        )
+        st.session_state.triple_roll_unlocked = loaded_data.get(
+            "triple_roll_unlocked", False
+        )
+        saved_potions = loaded_data.get("potions", {})
+        for p in potion_items:
+          st.session_state.potions[p] = saved_potions.get(p, 0)
+        st.success(
+            "성공적으로 게임 데이터를 불러왔습니다! 화면이 갱신됩니다."
+        )
+        time.sleep(1)
+        st.rerun()
+      except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
+
+  with st.container(border=True):
+    st.markdown("### 💻 개발자 인증 패널")
+    st.write("비밀번호를 입력하고 개발자 권한을 활성화하세요.")
+
+    dev_password = st.text_input(
+        "개발자 비밀번호", type="password", key="dev_pw_input"
+    )
+    if st.button("🔐 권한 인증 및 모든 도감 해금", type="primary"):
+      if dev_password == "0925":
+        for item in items:
+          st.session_state.counts[item] = max(
+              1, st.session_state.counts.get(item, 1)
+          )
+        st.success(
+            "개발자 인증 성공! 모든 아우라 도감과 스토리지에 해금되었습니다!"
+        )
+        st.rerun()
+      else:
+        st.error("비밀번호가 틀렸습니다!")
+
   st.write("")
   if st.button(
       "🔄 모든 게임 데이터 초기화",
@@ -762,8 +986,14 @@ with tab_shop:
     st.session_state.auto_roll_unlocked = False
     st.session_state.auto_roll_active = False
     st.session_state.luck_buff_unlocked = False
-    st.session_state.luck_active_flag = False
-    st.session_state.last_result = None
+    st.session_state.triple_roll_unlocked = False
+    st.session_state.potions = {p: 0 for p in potion_items}
+    st.session_state.active_potion_mult = 1
+    st.session_state.active_potion_end = 0.0
+    st.session_state.active_potion_name = None
+    st.session_state.million_ticket_active = False
+    st.session_state.last_results = []
+    st.session_state.last_luck_mult = 1
     st.session_state.is_cutscene = False
     st.session_state.selected_codex = items[0]
     st.rerun()
