@@ -55,6 +55,29 @@ base_weights = [
     10000000,
 ]
 
+# 각 아우라의 실제 분모 수치 (행운 배율 필터링 기준)
+denominators = {
+    "크로마틱": 20000000,
+    "헬리오스": 9000000,
+    "대마법사": 1766000,
+    "아케인": 1000000,
+    "워록": 660000,
+    "바운디드": 200000,
+    "재즈": 160000,
+    "스펙터": 140000,
+    "와트": 32768,
+    "힘": 16384,
+    "석영": 8192,
+    "시데리움": 4096,
+    "자력": 2048,
+    "분노": 256,
+    "결정화": 128,
+    "레어": 16,
+    "자연": 8,
+    "희귀": 4,
+    "일반": 2,
+}
+
 # 각 아우라의 분수 표시 문자열
 fractions = {
     "크로마틱": "1 in 20,000,000",
@@ -171,7 +194,7 @@ potion_items = [
     "10000배 행운 포션 (10초)",
     "백만배 행운권 (1회)",
 ]
-potion_weights = [900, 70, 20, 9, 1]  # 합계 1000 (90%, 7%, 2%, 0.9%, 0.1%)
+potion_weights = [900, 70, 20, 9, 1]
 potion_config = {
     "100배 행운 포션 (1분)": {"mult": 100, "duration": 60, "type": "potion"},
     "500배 행운 포션 (30초)": {"mult": 500, "duration": 30, "type": "potion"},
@@ -225,7 +248,6 @@ init_session_state()
 # 현재 적용 중인 총 행운 배율 계산 함수
 def get_current_luck_multiplier(next_pull_number):
   now = time.time()
-  # 만료된 포션 정리
   if (
       st.session_state.active_potion_mult > 1
       and now >= st.session_state.active_potion_end
@@ -236,17 +258,14 @@ def get_current_luck_multiplier(next_pull_number):
 
   mult = 1
 
-  # 1) 백만배 행운권 활성화 시 최우선 적용
   if st.session_state.million_ticket_active:
     mult *= 1000000
-  # 2) 시간제 포션 적용
   elif (
       st.session_state.active_potion_mult > 1
       and now < st.session_state.active_potion_end
   ):
     mult *= st.session_state.active_potion_mult
 
-  # 3) 영구 10뽑마다 행운 2배 버프 중첩
   if st.session_state.luck_buff_unlocked and (next_pull_number % 10 == 0):
     mult *= 2
 
@@ -355,7 +374,7 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수
+# 1회 또는 다회 뽑기 실행 공통 함수 (Sol's RNG 방식 최소 등급 보장 적용)
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
@@ -370,12 +389,23 @@ def perform_rolls(roll_count=1):
       st.session_state.million_ticket_active = False
 
     current_weights = list(base_weights)
+
     if luck_mult > 1:
-      # 상위 희귀 등급(컷씬 등급 전체)의 가중치에 행운 배율 곱하기
-      rare_count = len(cutscene_auras)
-      current_weights[:rare_count] = [
-          w * luck_mult for w in current_weights[:rare_count]
+      # Sol's RNG 방식: 행운 배율보다 분모가 작은 아우라는 제외 (최소 luck_mult 이상 등급만 등장)
+      eligible_indices = [
+          idx
+          for idx, item in enumerate(items)
+          if denominators[item] >= luck_mult
       ]
+      if eligible_indices:
+        for idx in range(len(items)):
+          if idx not in eligible_indices:
+            current_weights[idx] = 0
+          else:
+            current_weights[idx] = base_weights[idx] * luck_mult
+      else:
+        # 배율이 최고 등급 분모보다 큰 경우 최고 등급 100% 보장
+        current_weights = [1] + [0] * (len(items) - 1)
 
     result = random.choices(items, weights=current_weights, k=1)[0]
     results.append(result)
@@ -470,8 +500,8 @@ with tab_gacha:
     rem_sec = int(st.session_state.active_potion_end - now)
     st.warning(
         f"🧪 **[포션 버프 적용 중]** {st.session_state.active_potion_name} —"
-        f" 남은 시간: **{rem_sec}초** (행운"
-        f" {st.session_state.active_potion_mult:,}배)"
+        f" 남은 시간: **{rem_sec}초** (최소 1/{st.session_state.active_potion_mult:,}"
+        " 이상 확정!)"
     )
   elif (
       st.session_state.active_potion_mult > 1
@@ -483,8 +513,8 @@ with tab_gacha:
 
   if st.session_state.million_ticket_active:
     st.error(
-        "🎟️ **[백만배 행운권 장전 완료!]** 다음 뽑기 1회에 행운 **1,000,000배**가"
-        " 즉시 적용됩니다!"
+        "🎟️ **[백만배 행운권 장전 완료!]** 다음 뽑기 1회에 최소 **1/1,000,000"
+        " (아케인 이상)** 아우라가 100% 확정 등장합니다!"
     )
 
   if st.session_state.luck_buff_unlocked:
@@ -533,7 +563,7 @@ with tab_gacha:
         disabled=st.session_state.is_cutscene,
     )
 
-  # 뽑기 버튼 배치 (3회 뽑기 해금 여부에 따라 버튼 분할)
+  # 뽑기 버튼 배치
   if st.session_state.triple_roll_unlocked:
     col_b1, col_b2 = st.columns(2)
     with col_b1:
@@ -579,7 +609,7 @@ with tab_gacha:
     st.markdown(
         f"""
         <div style="text-align: center; padding: 12px; background-color: #004d40; color: #66ffcc; border-radius: 8px; margin-top: 10px; border: 1px solid #00b0ff; font-weight: bold; font-size: 18px;">
-            🍀 [행운 {st.session_state.last_luck_mult:,}배 활성화!] 강력한 행운 보너스가 적용되었습니다! 🍀
+            🍀 [행운 {st.session_state.last_luck_mult:,}배 활성화!] 최소 1/{st.session_state.last_luck_mult:,} 이상 등급이 보장되었습니다! 🍀
         </div>
         """,
         unsafe_allow_html=True,
@@ -758,7 +788,6 @@ with tab_codex:
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 관리")
 
-  # 🎁 [신규] 행운권 상자 구매 패널
   with st.container(border=True):
     col_box1, col_box2 = st.columns([2, 1])
     with col_box1:
@@ -768,11 +797,11 @@ with tab_shop:
           " 상자입니다."
       )
       with st.expander("📋 상자 구성품 확률 보기"):
-        st.markdown("- **90%**: 100배 행운 포션 (1분)")
-        st.markdown("- **7%**: 500배 행운 포션 (30초)")
-        st.markdown("- **2%**: 1000배 행운 포션 (15초)")
-        st.markdown("- **0.9%**: 10000배 행운 포션 (10초)")
-        st.markdown("- **0.1%**: 백만배 행운권 (1회)")
+        st.markdown("- **90%**: 100배 행운 포션 (1분) — 최소 1/128 이상 보장")
+        st.markdown("- **7%**: 500배 행운 포션 (30초) — 최소 1/2,048 이상 보장")
+        st.markdown("- **2%**: 1000배 행운 포션 (15초) — 최소 1/2,048 이상 보장")
+        st.markdown("- **0.9%**: 10000배 행운 포션 (10초) — 최소 1/16,384 이상 보장")
+        st.markdown("- **0.1%**: 백만배 행운권 (1회) — 최소 1/1,000,000 (아케인 이상) 확정!")
     with col_box2:
       st.write("")
       if st.button(
@@ -794,7 +823,6 @@ with tab_shop:
         else:
           st.error("코인이 부족합니다! (300 G 필요)")
 
-  # 🔥 [신규] 3회씩 뽑기 영구 해금 패널
   with st.container(border=True):
     col_t1, col_t2 = st.columns([2, 1])
     with col_t1:
