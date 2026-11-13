@@ -11,6 +11,9 @@ st.set_page_config(
 
 # 등급 리스트 정의 (희귀도 높은 순 - 신규 등급 포함)
 items = [
+    "크로마틱",
+    "헬리오스",
+    "대마법사",
     "아케인",
     "워록",
     "바운디드",
@@ -29,28 +32,34 @@ items = [
     "일반",
 ]
 
-# 각 분수 확률에 따른 가중치 설정 (기준: 1,000,000)
+# 각 분수 확률에 따른 가중치 설정 (기준: 20,000,000)
 base_weights = [
     1,
-    1,
-    5,
-    6,
-    7,
+    2,
+    11,
+    20,
     30,
-    61,
-    122,
-    244,
-    488,
-    3906,
-    7812,
-    62500,
-    125000,
-    250000,
-    500000,
+    100,
+    125,
+    142,
+    610,
+    1220,
+    2441,
+    4882,
+    9765,
+    78125,
+    156250,
+    1250000,
+    2500000,
+    5000000,
+    10000000,
 ]
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
+    "크로마틱": "1 in 20,000,000",
+    "헬리오스": "1 in 9,000,000",
+    "대마법사": "1 in 1,766,000",
     "아케인": "1 in 1,000,000",
     "워록": "1 in 660,000",
     "바운디드": "1 in 200,000",
@@ -71,6 +80,9 @@ fractions = {
 
 # 컷씬이 존재하는 아우라 목록
 cutscene_auras = [
+    "크로마틱",
+    "헬리오스",
+    "대마법사",
     "아케인",
     "워록",
     "바운디드",
@@ -84,6 +96,9 @@ cutscene_auras = [
 
 # 등급별 이모티콘 매핑
 icons = {
+    "크로마틱": "🌈💫",
+    "헬리오스": "☀️🔥",
+    "대마법사": "🧙‍♂️✨",
     "아케인": "🔮👑",
     "워록": "💀🔥",
     "바운디드": "🌌👑",
@@ -104,6 +119,9 @@ icons = {
 
 # 등급별 테두리 색상
 border_colors = {
+    "크로마틱": "#ff00ff",
+    "헬리오스": "#ff9900",
+    "대마법사": "#9933ff",
     "아케인": "#00ffff",
     "워록": "#ff3300",
     "바운디드": "#9900ff",
@@ -140,6 +158,9 @@ aura_images = {
     "바운디드": "images/SmartSelect_20261113_125424_Chrome.jpg",
     "워록": "images/SmartSelect_20261113_222357_Chrome.jpg",
     "아케인": "images/SmartSelect_20261113_222429_Chrome.jpg",
+    "대마법사": "images/SmartSelect_20261113_230233_Chrome.jpg",
+    "헬리오스": "images/SmartSelect_20261113_230344_Chrome.jpg",
+    "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
 }
 
 
@@ -179,7 +200,16 @@ init_session_state()
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  if aura_name == "아케인":
+  if aura_name == "크로마틱":
+    star_color = "#ff00ff"
+    ment = "빛의 스펙트럼이 극한으로 수렴하며 온 우주를 찬란하게 물들입니다..."
+  elif aura_name == "헬리오스":
+    star_color = "#ff9900"
+    ment = "태양의 권능이 폭발하며 모든 어둠을 태우는 태초의 빛이 강림합니다..."
+  elif aura_name == "대마법사":
+    star_color = "#9933ff"
+    ment = "금지된 고대의 마력이 깨어나며 차원의 문이 열립니다..."
+  elif aura_name == "아케인":
     star_color = "#00ffff"
     ment = (
         "태고의 신비로운 아케인 에너지가 온 차원을 뒤덮고 영원히 빛납니다..."
@@ -557,7 +587,6 @@ with tab_codex:
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 관리")
 
-  # 💾 [신규 기능] 세이브 데이터 백업 및 복구 패널
   with st.container(border=True):
     st.markdown("### 💾 게임 데이터 저장 및 불러오기")
     st.write(
@@ -565,7 +594,6 @@ with tab_shop:
         " 언제든 이어서 할 수 있습니다."
     )
 
-    # 1. 저장 데이터 JSON 생성
     save_data = {
         "history": st.session_state.history,
         "counts": st.session_state.counts,
@@ -592,7 +620,6 @@ with tab_shop:
     if uploaded_file is not None:
       try:
         loaded_data = json.load(uploaded_file)
-        # 안전하게 세션에 반영 (새로운 항목이 추가되었어도 에러 안 나게 방어)
         st.session_state.history = loaded_data.get("history", [])
         saved_counts = loaded_data.get("counts", {})
         for item in items:
