@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 import hashlib
+import json
 import os
 import random
 import sqlite3
@@ -415,7 +416,6 @@ if not st.session_state.logged_in:
           conn.close()
           st.error("이미 존재하는 아이디입니다.")
         else:
-          # 내부에서 안전하게 초기 데이터 생성
           new_user_init_data = {
               "history": [],
               "counts": {item: 0 for item in items},
@@ -506,7 +506,7 @@ def get_current_luck_multiplier(next_pull_number):
     mult *= 2
 
   is_day, _ = get_world_time_status()
-  if not is_day and st.session_state.equipped == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
+  if not is_day and st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
     mult *= 100
 
   return mult
