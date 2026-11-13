@@ -66,7 +66,39 @@ if "inventory_slots" not in st.session_state:
 
 st.title("✨ 아우라 가챠 & 상점 시뮬레이터")
 
-# 상단 재화 정보 표시
+# ==========================================
+# 🌟 [항상 상단 고정] 현재 장착 중인 아우라 영역
+# ==========================================
+with st.container(border=True):
+  st.markdown("### 👤 현재 장착 중인 아우라")
+  equipped_aura = st.session_state.equipped
+
+  if equipped_aura:
+    col_img, col_info = st.columns([1, 3])
+    img_path = aura_images.get(equipped_aura)
+
+    with col_img:
+      if img_path and os.path.exists(img_path):
+        st.image(img_path, use_container_width=True)
+      else:
+        st.markdown(
+            f"<div style='font-size: 50px; text-align: center;'>{icons[equipped_aura]}</div>",
+            unsafe_allow_html=True,
+        )
+
+    with col_info:
+      st.markdown(f"#### {icons[equipped_aura]} **[{equipped_aura}]** 장착 중")
+      st.write(f"보유 수량: **{st.session_state.counts[equipped_aura]}개**")
+      if st.button("❌ 장착 해제", key="top_unequip_btn"):
+        st.session_state.equipped = None
+        st.rerun()
+  else:
+    st.info(
+        "현재 장착된 아우라가 없습니다. 뽑기를 통해 아우라를 획득하고"
+        " 장착해보세요!"
+    )
+
+# 상단 재화 및 기본 정보
 col_c1, col_c2 = st.columns(2)
 with col_c1:
   st.metric(label="💰 보유 코인", value=f"{st.session_state.coins} G")
@@ -134,7 +166,7 @@ with tab_gacha:
           unsafe_allow_html=True,
       )
     else:
-      st.error("코인이 부족합니다! 상점에서 코인을 충전하거나 뽑기를 초기화하세요.")
+      st.error("코인이 부족합니다! 상점에서 코인을 충전하거나 뽑기를 진행하세요.")
 
   st.divider()
   st.subheader("📜 최근 뽑기 기록")
@@ -151,37 +183,6 @@ with tab_gacha:
 # [탭 2] 인벤토리 & 장착 카테고리
 # ------------------------------------------
 with tab_inventory:
-  st.subheader("👤 현재 장착 중인 아우라")
-  equipped_aura = st.session_state.equipped
-
-  with st.container(border=True):
-    if equipped_aura:
-      col_img, col_info = st.columns([1, 2])
-      img_path = aura_images.get(equipped_aura)
-
-      with col_img:
-        if img_path and os.path.exists(img_path):
-          st.image(img_path, use_container_width=True)
-        else:
-          st.markdown(
-              f"<div style='font-size: 64px; text-align: center;'>{icons[equipped_aura]}</div>",
-              unsafe_allow_html=True,
-          )
-
-      with col_info:
-        st.markdown(f"### {icons[equipped_aura]} **[{equipped_aura}]** 장착됨")
-        st.write(f"보유 수량: **{st.session_state.counts[equipped_aura]}개**")
-        if st.button("❌ 장착 해제", key="unequip_btn"):
-          st.session_state.equipped = None
-          st.rerun()
-    else:
-      st.info(
-          "현재 장착된 아우라가 없습니다. 아래 목록에서 아우라를 선택해"
-          " 장착해보세요!"
-      )
-
-  st.divider()
-
   st.subheader("🎒 보유 아우라 목록 & 장착")
   owned_auras = [item for item in items if st.session_state.counts[item] > 0]
 
