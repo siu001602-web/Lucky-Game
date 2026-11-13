@@ -721,7 +721,7 @@ def perform_rolls(roll_count=1):
     return results
 
 
-# 백그라운드 오토 스레드 오토 롤러
+# 백그라운드 오토 스레드 오토 롤러 (지연 없는 1초 주기 실시간 백그라운드 자동화)
 def background_auto_roller():
   while True:
     time.sleep(1.0)
@@ -990,15 +990,20 @@ with tab_gacha:
     )
 
   st.divider()
-  st.subheader("📜 최근 뽑기 기록")
+  st.subheader("📜 실시간 최근 뽑기 기록")
   if st.session_state.history:
-    recent = st.session_state.history[:5]
+    recent = st.session_state.history[:8]
     for i, res in enumerate(recent):
       st.text(
           f"{len(st.session_state.history) - i}번째: {icons.get(res, '✨')} [{res}]"
       )
   else:
     st.text("아직 뽑기 기록이 없습니다.")
+
+  # 오토 뽑기가 켜져 있을 때 실시간 화면 갱신을 위해 짧은 주기(1초)로 rerun 유도
+  if st.session_state.get("auto_roll_active", False):
+    time.sleep(1.0)
+    st.rerun()
 
 with tab_inventory:
   owned_items = [
