@@ -70,7 +70,7 @@ border_colors = {
     "일반": "#555555",
 }
 
-# 등급별 아우라 이미지 경로 매핑 (장착 프로필용)
+# 등급별 아우라 이미지 경로 매핑 (장착 프로필 및 도감 상세용)
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
     "희귀": "images/SmartSelect_20261113_115402_NAVER.jpg",
@@ -104,7 +104,7 @@ if "last_result" not in st.session_state:
 if "is_cutscene" not in st.session_state:
   st.session_state.is_cutscene = False
 if "selected_codex" not in st.session_state:
-  st.session_state.selected_codex = items[0]  # 도감에서 선택된 아우라
+  st.session_state.selected_codex = items[0]
 
 
 # 컷씬 재생 함수
@@ -187,7 +187,7 @@ with col_c2:
 st.divider()
 
 # ==========================================
-# 🗂️ 카테고리 탭 구성 (뽑기 / 인벤토리 / 도감 / 상점)
+# 🗂️ 카테고리 탭 구성
 # ==========================================
 tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
     ["🎲 아우라 뽑기", "🎒 스토리지", "📖 도감 (Codex)", "🛒 상점"]
@@ -323,7 +323,7 @@ with tab_inventory:
     st.write("")
 
 # ------------------------------------------
-# [탭 3] 도감 (Codex) - Sol's RNG 스타일 좌우 분할
+# [탭 3] 도감 (Codex) - 이미지 출력 지원
 # ------------------------------------------
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
@@ -336,7 +336,6 @@ with tab_codex:
 
   with col_left:
     st.markdown("#### 📜 등급 목록")
-    # 왼쪽 목록 (버튼 형태로 구현하여 클릭 시 선택되도록 함)
     for item in items:
       is_owned = st.session_state.counts[item] > 0
       display_name = (
@@ -357,12 +356,21 @@ with tab_codex:
 
     with st.container(border=True):
       if is_owned:
-        st.markdown(f"### {icons[sel]} [{sel}]")
+        # 도감 상세 창에 이미지 출력 추가 (등록된 이미지가 있으면 이미지 표시)
+        img_path = aura_images.get(sel)
+        if img_path and os.path.exists(img_path):
+          st.image(img_path, width=150)
+        else:
+          st.markdown(
+              f"<div style='font-size: 40px;'>{icons[sel]}</div>",
+              unsafe_allow_html=True,
+          )
+
+        st.markdown(f"### [{sel}]")
         st.write(f"**희귀도 확률:** {fractions[sel]}")
         st.write(f"**보유 수량:** {st.session_state.counts[sel]}개")
         st.markdown("---")
 
-        # 컷씬 다시 보기 버튼 (컷씬 대상 아우라일 경우에만 표시)
         if sel in cutscene_auras:
           st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
           if st.button("🎬 컷씬 다시 보기", use_container_width=True):
