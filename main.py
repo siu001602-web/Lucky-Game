@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import random
@@ -186,6 +187,11 @@ aura_images = {
     "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
 }
 
+# 특수 장착 배경 이미지 매핑
+equipped_backgrounds = {
+    "크로마틱": "Background/SmartSelect_20261113_233022_Google.jpg",
+}
+
 # 행운권 상자 아이템 목록 및 메타데이터
 potion_items = [
     "100배 행운 포션 (1분)",
@@ -243,6 +249,31 @@ def init_session_state():
 
 
 init_session_state()
+
+
+# 🎨 [특수 아우라 장착 배경 적용 함수]
+def apply_equipped_background():
+  eq = st.session_state.equipped
+  bg_path = equipped_backgrounds.get(eq)
+  if bg_path and os.path.exists(bg_path):
+    with open(bg_path, "rb") as img_file:
+      encoded_bg = base64.b64encode(img_file.read()).decode()
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: linear-gradient(rgba(10, 10, 18, 0.72), rgba(10, 10, 18, 0.85)), url("data:image/jpeg;base64,{encoded_bg}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+apply_equipped_background()
 
 
 # 현재 적용 중인 총 행운 배율 계산 함수
@@ -384,14 +415,12 @@ def perform_rolls(roll_count=1):
     luck_mult = get_current_luck_multiplier(next_pull)
     max_luck_applied = max(max_luck_applied, luck_mult)
 
-    # 1회성 백만배 행운권 소모 처리
     if st.session_state.million_ticket_active:
       st.session_state.million_ticket_active = False
 
     current_weights = list(base_weights)
 
     if luck_mult > 1:
-      # Sol's RNG 방식: 행운 배율보다 분모가 작은 아우라는 제외 (최소 luck_mult 이상 등급만 등장)
       eligible_indices = [
           idx
           for idx, item in enumerate(items)
@@ -404,7 +433,6 @@ def perform_rolls(roll_count=1):
           else:
             current_weights[idx] = base_weights[idx] * luck_mult
       else:
-        # 배율이 최고 등급 분모보다 큰 경우 최고 등급 100% 보장
         current_weights = [1] + [0] * (len(items) - 1)
 
     result = random.choices(items, weights=current_weights, k=1)[0]
@@ -414,7 +442,6 @@ def perform_rolls(roll_count=1):
     st.session_state.history.insert(0, result)
     st.session_state.coins += 5
 
-  # 획득한 결과 중 가장 희귀한 아우라가 컷씬 대상이면 1회 대표 재생
   cutscene_targets = [r for r in results if r in cutscene_auras]
   if cutscene_targets:
     rarest_aura = min(cutscene_targets, key=lambda x: items.index(x))
@@ -458,6 +485,8 @@ with st.container(border=True):
       st.write(
           f"보유 수량: **{st.session_state.counts.get(equipped_aura, 0)}개**"
       )
+      if equipped_aura in equipped_backgrounds:
+        st.caption("🌌 전용 배경 테마가 적용되어 있습니다.")
       if st.button("❌ 장착 해제", key="top_unequip_btn"):
         st.session_state.equipped = None
         st.rerun()
@@ -491,7 +520,6 @@ tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
 with tab_gacha:
   st.subheader("🎲 행운의 아우라 소환 (1회당 +5 G)")
 
-  # 현재 활성화된 버프 상태 표시
   now = time.time()
   if (
       st.session_state.active_potion_mult > 1
@@ -520,7 +548,6 @@ with tab_gacha:
   if st.session_state.luck_buff_unlocked:
     st.success("🍀 [영구 버프 활성화됨] 매 10번째 뽑기마다 행운 2배 적용 중!")
 
-  # 🧪 보유 중인 행운 포션 & 행운권 사용 패널
   owned_potions = {k: v for k, v in st.session_state.potions.items() if v > 0}
   if owned_potions:
     with st.container(border=True):
@@ -563,7 +590,6 @@ with tab_gacha:
         disabled=st.session_state.is_cutscene,
     )
 
-  # 뽑기 버튼 배치
   if st.session_state.triple_roll_unlocked:
     col_b1, col_b2 = st.columns(2)
     with col_b1:
@@ -604,7 +630,6 @@ with tab_gacha:
     time.sleep(1)
     st.rerun()
 
-  # 행운 배율 발동 알림 배너
   if st.session_state.last_luck_mult > 1:
     st.markdown(
         f"""
@@ -615,7 +640,6 @@ with tab_gacha:
         unsafe_allow_html=True,
     )
 
-  # 뽑기 결과 출력 영역
   if st.session_state.last_results:
     res_list = st.session_state.last_results
     earned_coins = len(res_list) * 5
