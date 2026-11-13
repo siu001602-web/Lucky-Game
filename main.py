@@ -70,18 +70,18 @@ border_colors = {
     "일반": "#555555",
 }
 
-# 등급별 아우라 이미지 경로 매핑
+# 모든 등급 아우라 이미지 경로 매핑 (최종 완성)
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
     "희귀": "images/SmartSelect_20261113_115402_NAVER.jpg",
     "자연": "images/SmartSelect_20261113_115446_NAVER.jpg",
-    "레어": None,
-    "결정화": None,
-    "분노": None,
-    "자력": None,
-    "시데리움": None,
-    "석영": None,
-    "힘": None,
+    "레어": "images/SmartSelect_20261113_123717_Chrome.jpg",
+    "결정화": "images/SmartSelect_20261113_123732_Chrome.jpg",
+    "분노": "images/SmartSelect_20261113_123747_Chrome.jpg",
+    "자력": "images/SmartSelect_20261113_123943_Chrome.jpg",
+    "시데리움": "images/SmartSelect_20261113_123957_Chrome.jpg",
+    "석영": "images/SmartSelect_20261113_124024_Chrome.jpg",
+    "힘": "images/SmartSelect_20261113_124048_Chrome.jpg",
 }
 
 # 세션 상태 초기화
