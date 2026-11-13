@@ -120,9 +120,11 @@ if "auto_roll_unlocked" not in st.session_state:
 if "auto_roll_active" not in st.session_state:
   st.session_state.auto_roll_active = False
 if "luck_buff_unlocked" not in st.session_state:
-  st.session_state.luck_buff_unlocked = False  # 10뽑마다 행운 2배 버프 구매 여부
+  st.session_state.luck_buff_unlocked = False
 if "last_result" not in st.session_state:
   st.session_state.last_result = None
+if "luck_active_flag" not in st.session_state:
+  st.session_state.luck_active_flag = False
 if "is_cutscene" not in st.session_state:
   st.session_state.is_cutscene = False
 if "selected_codex" not in st.session_state:
@@ -147,7 +149,7 @@ def play_fullscreen_star_cutscene(aura_name):
     ment = "초전설 에너지 과부하! 강력한 전류가 몰아칩니다..."
   elif aura_name == "힘":
     star_color = "#ff0055"
-    ment = "현실의 벽을 부수는 압도적인 힘이 폭발합니다..."
+    ment = "현실의 벽을 부주는 압도적인 힘이 폭발합니다..."
   else:
     star_color = "#ffd700"
     ment = "전설적인 에너지가 요동칩니다..."
@@ -197,11 +199,13 @@ def play_cutscene(aura_name):
 def perform_roll():
   total_pulls = sum(st.session_state.counts.values()) + 1
 
-  # 현재 가중치 계산 (버프 구매 + 10뽑마다 행운 2배 적용 시)
   current_weights = list(base_weights)
+  st.session_state.luck_active_flag = False
+
+  # 10뽑마다 행운 2배 버프 적용 체크
   if st.session_state.luck_buff_unlocked and (total_pulls % 10 == 0):
-    # 상위 등급(앞쪽 아이템들)의 가중치를 2배로 높여 행운 증가
     current_weights[:4] = [w * 2 for w in current_weights[:4]]
+    st.session_state.luck_active_flag = True
 
   result = random.choices(items, weights=current_weights, k=1)[0]
 
@@ -313,6 +317,17 @@ with tab_gacha:
     perform_roll()
     time.sleep(1)
     st.rerun()
+
+  # 행운 2배 발동 알림 배너
+  if st.session_state.luck_active_flag:
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 12px; background-color: #004d40; color: #66ffcc; border-radius: 8px; margin-top: 10px; border: 1px solid #00b0ff; font-weight: bold; font-size: 18px;">
+            🍀 [행운 2배 활성화!] 이번 10번째 뽑기 행운이 2배로 적용되었습니다! 🍀
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
   if st.session_state.last_result:
     res = st.session_state.last_result
@@ -506,9 +521,16 @@ with tab_shop:
     with col_l2:
       st.write("")
       if st.session_state.luck_buff_unlocked:
-        st.button("구매 완료", disabled=True, key="buy_luck_done", use_container_width=True)
+        st.button(
+            "구매 완료",
+            disabled=True,
+            key="buy_luck_done",
+            use_container_width=True,
+        )
       else:
-        if st.button("구매 (200 G)", key="buy_luck_buff", use_container_width=True):
+        if st.button(
+            "구매 (200 G)", key="buy_luck_buff", use_container_width=True
+        ):
           if st.session_state.coins >= 200:
             st.session_state.coins -= 200
             st.session_state.luck_buff_unlocked = True
@@ -569,6 +591,7 @@ with tab_shop:
     st.session_state.auto_roll_unlocked = False
     st.session_state.auto_roll_active = False
     st.session_state.luck_buff_unlocked = False
+    st.session_state.luck_active_flag = False
     st.session_state.last_result = None
     st.session_state.is_cutscene = False
     st.session_state.selected_codex = items[0]
