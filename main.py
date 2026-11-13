@@ -70,7 +70,7 @@ border_colors = {
     "일반": "#555555",
 }
 
-# 모든 등급 아우라 이미지 경로 매핑 (최종 완성)
+# 모든 등급 아우라 이미지 경로 매핑
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
     "희귀": "images/SmartSelect_20261113_115402_NAVER.jpg",
@@ -259,7 +259,7 @@ with tab_gacha:
     st.text("아직 뽑기 기록이 없습니다.")
 
 # ------------------------------------------
-# [탭 2] 스토리지 (인벤토리) - 보유한 아우라만 추가되는 방식
+# [탭 2] 스토리지 (인벤토리)
 # ------------------------------------------
 with tab_inventory:
   owned_items = [
@@ -392,10 +392,24 @@ with tab_codex:
         )
 
 # ------------------------------------------
-# [탭 4] 상점
+# [탭 4] 상점 (개발자 치트키 추가)
 # ------------------------------------------
 with tab_shop:
   st.subheader("🛒 상점")
+
+  # 🛠️ 개발자 전용 치트키 박스
+  with st.container(border=True):
+    st.markdown("### 💻 개발자 전용 메뉴")
+    st.write(
+        "버튼을 누르면 모든 아우라를 즉시 1개씩 획득하여 도감과 스토리지를"
+        " 해금합니다."
+    )
+    if st.button("🔓 [개발자] 모든 도감 & 스토리지 즉시 해금", type="primary"):
+      for item in items:
+        if st.session_state.counts[item] == 0:
+          st.session_state.counts[item] = 1
+      st.success("모든 도감이 해금되었습니다!")
+      st.rerun()
 
   with st.container(border=True):
     col_a1, col_a2 = st.columns([2, 1])
