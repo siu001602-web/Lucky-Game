@@ -654,6 +654,9 @@ def perform_rolls(roll_count=1):
   )
   is_day, _ = get_world_time_status()
 
+  # 이번 뽑기 직전의 보유 상태 백업 (최초 획득 판정용)
+  prior_counts = {item: st.session_state.counts.get(item, 0) for item in items}
+
   for _ in range(roll_count):
     next_pull = sum(st.session_state.counts.values()) + 1
     luck_mult = get_current_luck_multiplier(next_pull)
@@ -696,9 +699,15 @@ def perform_rolls(roll_count=1):
     st.session_state.history.insert(0, result)
     st.session_state.coins += coin_gain_per_roll
 
-  cutscene_targets = [r for r in results if r in cutscene_auras]
-  if cutscene_targets:
-    rarest_aura = min(cutscene_targets, key=lambda x: items.index(x))
+  # [수정됨] 이전에 보유한 적이 없는(최초 획득인) 컷씬 아우라만 컷씬 재생 대상에 포함
+  new_cutscene_targets = [
+      r
+      for r in results
+      if r in cutscene_auras and prior_counts.get(r, 0) == 0
+  ]
+
+  if new_cutscene_targets:
+    rarest_aura = min(new_cutscene_targets, key=lambda x: items.index(x))
     st.session_state.is_cutscene = True
     play_cutscene(rarest_aura)
     st.session_state.is_cutscene = False
@@ -1081,7 +1090,7 @@ with tab_codex:
         st.markdown("---")
 
         if sel in cutscene_auras:
-          st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
+          st.info("이 아우らは 전용 연출 컷씬이 존재합니다!")
           if st.button("🎬 컷씬 다시 보기", use_container_width=True):
             play_cutscene(sel)
         else:
