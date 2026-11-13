@@ -313,6 +313,7 @@ def save_user_data_to_db():
       "triple_roll_unlocked": st.session_state.get(
           "triple_roll_unlocked", False
       ),
+      "five_roll_unlocked": st.session_state.get("five_roll_unlocked", False),
       "potions": st.session_state.get("potions", {}),
   }
   conn = sqlite3.connect("users.db", check_same_thread=False)
@@ -372,6 +373,9 @@ if not st.session_state.logged_in:
           st.session_state.triple_roll_unlocked = saved_data.get(
               "triple_roll_unlocked", False
           )
+          st.session_state.five_roll_unlocked = saved_data.get(
+              "five_roll_unlocked", False
+          )
           st.session_state.potions = {
               p: saved_data.get("potions", {}).get(p, 0) for p in potion_items
           }
@@ -415,6 +419,7 @@ if not st.session_state.logged_in:
               "inventory_slots": 50,
               "luck_buff_unlocked": False,
               "triple_roll_unlocked": False,
+              "five_roll_unlocked": False,
               "potions": {p: 0 for p in potion_items},
           }
           cursor.execute(
@@ -644,7 +649,7 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수 (버튼 잠금 현상 완전 제거)
+# 1회 또는 다회 뽑기 실행 공통 함수
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
@@ -874,7 +879,28 @@ with tab_gacha:
 
   st.write("")
 
-  if st.session_state.triple_roll_unlocked:
+  # 3회 또는 5회 연속 뽑기 버튼 분기 처리
+  has_triple = st.session_state.get("triple_roll_unlocked", False)
+  has_five = st.session_state.get("five_roll_unlocked", False)
+
+  if has_five:
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+      if st.button("🎲 1회 무료 뽑기", type="secondary", use_container_width=True):
+        perform_rolls(1)
+        st.rerun()
+    with col_b2:
+      five_bonus_coins = (
+          50 if st.session_state.get("equipped") == "스펙트라플로우" else 25
+      )
+      if st.button(
+          f"⚡ 5회 연속 뽑기 (+{five_bonus_coins} G)",
+          type="primary",
+          use_container_width=True,
+      ):
+        perform_rolls(5)
+        st.rerun()
+  elif has_triple:
     col_b1, col_b2 = st.columns(2)
     with col_b1:
       if st.button("🎲 1회 무료 뽑기", type="secondary", use_container_width=True):
@@ -1200,6 +1226,44 @@ with tab_shop:
           else:
             st.error("코인이 부족합니다! (500 G 필요)")
 
+  # 3회 뽑기를 구매해야만 열리는 5회 연속 뽑기 상점 항목
+  with st.container(border=True):
+    col_f1, col_f2 = st.columns([2, 1])
+    with col_f1:
+      st.markdown("### ⚡ 5회씩 연속 뽑기 (영구)")
+      st.write(
+          "3회 연속 뽑기를 보유한 상태에서, 한 번에 5회씩 아우라를 소환할 수"
+          " 있는 강력한 기능을 해금합니다."
+      )
+    with col_f2:
+      st.write("")
+      if st.session_state.five_roll_unlocked:
+        st.button(
+            "보유 완료",
+            disabled=True,
+            key="buy_five_done",
+            use_container_width=True,
+        )
+      elif not st.session_state.triple_roll_unlocked:
+        st.button(
+            "3회 뽑기 선행 구매 필요",
+            disabled=True,
+            key="buy_five_locked",
+            use_container_width=True,
+        )
+      else:
+        if st.button(
+            "구매 (1000 G)", key="buy_five_roll", use_container_width=True
+        ):
+          if st.session_state.coins >= 1000:
+            st.session_state.coins -= 1000
+            st.session_state.five_roll_unlocked = True
+            save_user_data_to_db()
+            st.success("5회 연속 뽑기 기능이 해금되었습니다!")
+            st.rerun()
+          else:
+            st.error("코인이 부족합니다! (1000 G 필요)")
+
   with st.container(border=True):
     col_l1, col_l2 = st.columns([2, 1])
     with col_l1:
@@ -1280,6 +1344,7 @@ with tab_shop:
     st.session_state.inventory_slots = 50
     st.session_state.luck_buff_unlocked = False
     st.session_state.triple_roll_unlocked = False
+    st.session_state.five_roll_unlocked = False
     st.session_state.potions = {p: 0 for p in potion_items}
     st.session_state.active_potion_mult = 1
     st.session_state.active_potion_end = 0.0
