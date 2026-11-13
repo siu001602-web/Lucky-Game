@@ -1,7 +1,9 @@
 import base64
-import json
+from datetime import datetime
+import hashlib
 import os
 import random
+import sqlite3
 import threading
 import time
 import streamlit as st
@@ -274,51 +276,187 @@ potion_config = {
 
 
 # ==========================================
-# 🛡️ 세션 초기화 및 스레드 안전 락 설정
+# 🗄️ SQLite 데이터베이스 설정 및 관리 함수
 # ==========================================
-def init_session_state():
-  defaults = {
-      "history": [],
-      "counts": {item: 0 for item in items},
-      "equipped": None,
-      "coins": 0,
-      "inventory_slots": 50,
-      "auto_roll_unlocked": False,
-      "auto_roll_active": False,
-      "luck_buff_unlocked": False,
-      "triple_roll_unlocked": False,
-      "potions": {p: 0 for p in potion_items},
-      "active_potion_mult": 1,
-      "active_potion_end": 0.0,
-      "active_potion_name": None,
-      "million_ticket_active": False,
-      "last_results": [],
-      "last_luck_mult": 1,
-      "is_cutscene": False,
-      "selected_codex": items[0],
+def init_db():
+  conn = sqlite3.connect("users.db", check_same_thread=False)
+  cursor = conn.cursor()
+  cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            password TEXT,
+            data TEXT
+        )
+    """)
+  conn.commit()
+  conn.close()
+
+
+init_db()
+
+
+def hash_password(password):
+  return hashlib.sha256(password.encode()).hexdigest()
+
+
+def load_user_data(username):
+  conn = sqlite3.connect("users.db", check_same_thread=False)
+  cursor = conn.cursor()
+  cursor.execute(
+      "SELECT data FROM users WHERE username = ?", (username,)
+  )
+  row = cursor.fetchone()
+  conn.close()
+  if row:
+    return json.loads(row[0])
+  return None
+
+
+def save_user_data_to_db():
+  if not st.session_state.get("logged_in", False):
+    return
+  username = st.session_state.username
+  save_data = {
+      "history": st.session_state.history,
+      "counts": st.session_state.counts,
+      "equipped": st.session_state.equipped,
+      "coins": st.session_state.coins,
+      "inventory_slots": st.session_state.inventory_slots,
+      "auto_roll_unlocked": st.session_state.auto_roll_unlocked,
+      "luck_buff_unlocked": st.session_state.luck_buff_unlocked,
+      "triple_roll_unlocked": st.session_state.triple_roll_unlocked,
+      "potions": st.session_state.potions,
   }
-
-  for key, val in defaults.items():
-    if key not in st.session_state:
-      st.session_state[key] = val
-
-  for item in items:
-    if item not in st.session_state.counts:
-      st.session_state.counts[item] = 0
-
-  for p in potion_items:
-    if p not in st.session_state.potions:
-      st.session_state.potions[p] = 0
+  conn = sqlite3.connect("users.db", check_same_thread=False)
+  cursor = conn.cursor()
+  cursor.execute(
+      "UPDATE users SET data = ? WHERE username = ?",
+      (json.dumps(save_data, ensure_ascii=False), username),
+  )
+  conn.commit()
+  conn.close()
 
 
-init_session_state()
-
-# 백그라운드 오토 스레드 충돌 방지 락
+# 세션 기본값 설정
+if "logged_in" not in st.session_state:
+  st.session_state.logged_in = False
+if "username" not in st.session_state:
+  st.session_state.username = ""
 if "state_lock" not in st.session_state:
   st.session_state.state_lock = threading.Lock()
 
 
+# ==========================================
+# 🔐 로그인 / 회원가입 화면
+# ==========================================
+if not st.session_state.logged_in:
+  st.title("✨ 아우라 가챠 & 도감 — 로그인")
+  tab_login, tab_register = st.tabs(["로그인", "회원가입"])
+
+  with tab_login:
+    st.subheader("로그인")
+    l_user = st.text_input("아이디", key="login_user")
+    l_pass = st.text_input("비밀번호", type="password", key="login_pass")
+    if st.button("로그인", type="primary", use_container_width=True):
+      if l_user.strip() and l_pass.strip():
+        conn = sqlite3.connect("users.db", check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT password, data FROM users WHERE username = ?", (l_user,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+
+        if row and row[0] == hash_password(l_pass):
+          st.session_state.logged_in = True
+          st.session_state.username = l_user
+          # 데이터 불러오기
+          saved_data = json.loads(row[1])
+          st.session_state.history = saved_data.get("history", [])
+          st.session_state.counts = {
+              item: saved_data.get("counts", {}).get(item, 0) for item in items
+          }
+          st.session_state.equipped = saved_data.get("equipped", None)
+          st.session_state.coins = saved_data.get("coins", 0)
+          st.session_state.inventory_slots = saved_data.get(
+              "inventory_slots", 50
+          )
+          st.session_state.auto_roll_unlocked = saved_data.get(
+              "auto_roll_unlocked", False
+          )
+          st.session_state.auto_roll_active = False
+          st.session_state.luck_buff_unlocked = saved_data.get(
+              "luck_buff_unlocked", False
+          )
+          st.session_state.triple_roll_unlocked = saved_data.get(
+              "triple_roll_unlocked", False
+          )
+          st.session_state.potions = {
+              p: saved_data.get("potions", {}).get(p, 0) for p in potion_items
+          }
+          st.session_state.active_potion_mult = 1
+          st.session_state.active_potion_end = 0.0
+          st.session_state.active_potion_name = None
+          st.session_state.million_ticket_active = False
+          st.session_state.last_results = []
+          st.session_state.last_luck_mult = 1
+          st.session_state.is_cutscene = False
+          st.session_state.selected_codex = items[0]
+
+          st.success(f"환영합니다, {l_user}님! 게임을 시작합니다.")
+          time.sleep(0.8)
+          st.rerun()
+        else:
+          st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
+      else:
+        st.warning("아이디와 비밀번호를 모두 입력해주세요.")
+
+  with tab_register:
+    st.subheader("회원가입")
+    r_user = st.text_input("사용할 아이디", key="reg_user")
+    r_pass = st.text_input("사용할 비밀번호", type="password", key="reg_pass")
+    if st.button("가입하기", type="secondary", use_container_width=True):
+      if r_user.strip() and r_pass.strip():
+        conn = sqlite3.connect("users.db", check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT username FROM users WHERE username = ?", (r_user,)
+        )
+        exist = cursor.fetchone()
+        if exist:
+          conn.close()
+          st.error("이미 존재하는 아이디입니다.")
+        else:
+          # 초기 유저 데이터 생성
+          init_data = {
+              "history": [],
+              "counts": {item: 0 for item in items},
+              "equipped": None,
+              "coins": 0,
+              "inventory_slots": 50,
+              "auto_roll_unlocked": False,
+              "luck_buff_unlocked": False,
+              "triple_roll_unlocked": False,
+              "potions": {p: 0 for p in potion_items},
+          }
+          cursor.execute(
+              "INSERT INTO users (username, password, data) VALUES (?, ?, ?)",
+              (r_user, hash_password(r_pass), json.dumps(init_data)),
+          )
+          conn.commit()
+          conn.close()
+          st.success(
+              "회원가입이 완료되었습니다! 로그인 탭에서 로그인해 주세요."
+          )
+      else:
+        st.warning("아이디와 비밀번호를 모두 입력해주세요.")
+
+  st.stop()  # 로그인 전에는 아래 게임 코드를 실행하지 않음
+
+
+# ==========================================
 # ☀️🌙 [현재 낮/밤 판별 함수: 3분(180초) 주기로 교체]
+# ==========================================
 def get_world_time_status():
   cycle_time = int(time.time()) % 360
   is_day = cycle_time < 180
@@ -525,7 +663,7 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수 (스레드 안전 락 적용)
+# 1회 또는 다회 뽑기 실행 공통 함수 (DB 자동 저장 포함)
 def perform_rolls(roll_count=1):
   with st.session_state.state_lock:
     results = []
@@ -587,18 +725,19 @@ def perform_rolls(roll_count=1):
 
     st.session_state.last_results = results
     st.session_state.last_luck_mult = max_luck_applied
+
+    # 뽑기 완료 후 DB에 자동 영구 저장
+    save_user_data_to_db()
     return results
 
 
-# ==========================================
-# ⚡ [백그라운드 데몬 스레드 오토 롤러]
-# ==========================================
+# 백그라운드 오토 스레드 오토 롤러
 def background_auto_roller():
   while True:
     time.sleep(1.0)
-    if st.session_state.get("auto_roll_active", False) and not st.session_state.get(
-        "is_cutscene", False
-    ):
+    if st.session_state.get(
+        "auto_roll_active", False
+    ) and not st.session_state.get("is_cutscene", False):
       roll_amt = 3 if st.session_state.get("triple_roll_unlocked", False) else 1
       perform_rolls(roll_amt)
 
@@ -609,11 +748,26 @@ if "background_thread_started" not in st.session_state:
   bg_thread.start()
 
 
+# ==========================================
+# 🎮 메인 게임 화면
+# ==========================================
 st.title("✨ 아우라 가챠 & 도감 시스템")
 
-# ==========================================
+# 상단 유저 정보 및 로그아웃 바
+c_u1, c_u2 = st.columns([4, 1])
+with c_u1:
+  st.markdown(
+      f"👤 현재 접속 계정: **`{st.session_state.username}`**님 (자동 영구 저장"
+      " 활성화됨)"
+  )
+with c_u2:
+  if st.button("로그아웃", use_container_width=True):
+    save_user_data_to_db()
+    st.session_state.logged_in = False
+    st.session_state.username = ""
+    st.rerun()
+
 # ☀️🌙 월드 시간 상태바 (3분마다 낮/밤 교체)
-# ==========================================
 is_day_now, rem_seconds_now = get_world_time_status()
 m_rem = rem_seconds_now // 60
 s_rem = rem_seconds_now % 60
@@ -643,9 +797,7 @@ else:
       unsafe_allow_html=True,
   )
 
-# ==========================================
 # 🌟 [항상 상단 고정] 현재 장착 중인 아우라 영역
-# ==========================================
 with st.container(border=True):
   st.markdown("### 👤 현재 장착 중인 아우라")
   equipped_aura = st.session_state.equipped
@@ -685,6 +837,7 @@ with st.container(border=True):
         st.caption("🌌 전용 배경 테마가 적용되어 있습니다.")
       if st.button("❌ 장착 해제", key="top_unequip_btn"):
         st.session_state.equipped = None
+        save_user_data_to_db()
         st.rerun()
   else:
     st.session_state.equipped = None
@@ -767,6 +920,7 @@ with tab_gacha:
               st.session_state.active_potion_name = p_name
             elif cfg["type"] == "ticket":
               st.session_state.million_ticket_active = True
+            save_user_data_to_db()
             st.rerun()
 
   with st.expander("📋 등급별 기본 확률표 보기"):
@@ -920,6 +1074,7 @@ with tab_inventory:
                 "장착", key=f"inv_btn_{item}", use_container_width=True
             ):
               st.session_state.equipped = item
+              save_user_data_to_db()
               st.rerun()
       st.write("")
   else:
@@ -1002,7 +1157,7 @@ with tab_codex:
         )
 
 # ------------------------------------------
-# [탭 4] 상점 (업그레이드, 행운권 상자, 데이터 저장/로드)
+# [탭 4] 상점 (업그레이드, 행운권 상자, 데이터 초기화)
 # ------------------------------------------
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 관리")
@@ -1035,6 +1190,7 @@ with tab_shop:
               potion_items, weights=potion_weights, k=1
           )[0]
           st.session_state.potions[won_item] += 1
+          save_user_data_to_db()
           st.success(f"🎉 행운권 상자에서 **[{won_item}]**을(를) 획득했습니다!")
           st.balloons()
           time.sleep(1.2)
@@ -1065,6 +1221,7 @@ with tab_shop:
           if st.session_state.coins >= 500:
             st.session_state.coins -= 500
             st.session_state.triple_roll_unlocked = True
+            save_user_data_to_db()
             st.success("3회 연속 뽑기 기능이 해금되었습니다!")
             st.rerun()
           else:
@@ -1091,6 +1248,7 @@ with tab_shop:
           if st.session_state.coins >= 200:
             st.session_state.coins -= 200
             st.session_state.luck_buff_unlocked = True
+            save_user_data_to_db()
             st.success("10뽑마다 행운 2배 버프가 해금되었습니다!")
             st.rerun()
           else:
@@ -1111,6 +1269,7 @@ with tab_shop:
             st.session_state.coins -= 100
             st.session_state.auto_roll_unlocked = True
             st.session_state.auto_roll_active = True
+            save_user_data_to_db()
             st.success("오토 뽑기 기능이 해금되었습니다!")
             st.rerun()
           else:
@@ -1129,75 +1288,11 @@ with tab_shop:
         if st.session_state.coins >= 50:
           st.session_state.coins -= 50
           st.session_state.inventory_slots += 20
+          save_user_data_to_db()
           st.success("가방 칸수가 확장되었습니다!")
           st.rerun()
         else:
           st.error("코인이 부족합니다!")
-
-  # 💾 세이브 데이터 백업 및 복구 패널
-  with st.container(border=True):
-    st.markdown("### 💾 게임 데이터 저장 및 불러오기")
-    st.write(
-        "플레이 데이터를 파일로 저장하거나, 저장된 파일을 업로드하여"
-        " 언제든 이어서 할 수 있습니다."
-    )
-
-    save_data = {
-        "history": st.session_state.history,
-        "counts": st.session_state.counts,
-        "equipped": st.session_state.equipped,
-        "coins": st.session_state.coins,
-        "inventory_slots": st.session_state.inventory_slots,
-        "auto_roll_unlocked": st.session_state.auto_roll_unlocked,
-        "luck_buff_unlocked": st.session_state.luck_buff_unlocked,
-        "triple_roll_unlocked": st.session_state.triple_roll_unlocked,
-        "potions": st.session_state.potions,
-    }
-    json_str = json.dumps(save_data, ensure_ascii=False, indent=4)
-
-    st.download_button(
-        label="📥 게임 데이터 저장하기 (파일 다운로드)",
-        data=json_str,
-        file_name="sols_rng_save.json",
-        mime="application/json",
-        use_container_width=True,
-    )
-
-    st.write("")
-    uploaded_file = st.file_uploader(
-        "📤 저장한 데이터 불러오기 (JSON 파일 업로드)", type=["json"]
-    )
-    if uploaded_file is not None:
-      try:
-        loaded_data = json.load(uploaded_file)
-        st.session_state.history = loaded_data.get("history", [])
-        saved_counts = loaded_data.get("counts", {})
-        for item in items:
-          st.session_state.counts[item] = saved_counts.get(item, 0)
-        st.session_state.equipped = loaded_data.get("equipped", None)
-        st.session_state.coins = loaded_data.get("coins", 0)
-        st.session_state.inventory_slots = loaded_data.get(
-            "inventory_slots", 50
-        )
-        st.session_state.auto_roll_unlocked = loaded_data.get(
-            "auto_roll_unlocked", False
-        )
-        st.session_state.luck_buff_unlocked = loaded_data.get(
-            "luck_buff_unlocked", False
-        )
-        st.session_state.triple_roll_unlocked = loaded_data.get(
-            "triple_roll_unlocked", False
-        )
-        saved_potions = loaded_data.get("potions", {})
-        for p in potion_items:
-          st.session_state.potions[p] = saved_potions.get(p, 0)
-        st.success(
-            "성공적으로 게임 데이터를 불러왔습니다! 화면이 갱신됩니다."
-        )
-        time.sleep(1)
-        st.rerun()
-      except Exception as e:
-        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
 
   with st.container(border=True):
     st.markdown("### 💻 개발자 인증 패널")
@@ -1212,6 +1307,7 @@ with tab_shop:
           st.session_state.counts[item] = max(
               1, st.session_state.counts.get(item, 1)
           )
+        save_user_data_to_db()
         st.success(
             "개발자 인증 성공! 모든 아우라 도감과 스토리지에 해금되었습니다!"
         )
@@ -1221,7 +1317,7 @@ with tab_shop:
 
   st.write("")
   if st.button(
-      "🔄 모든 게임 데이터 초기화",
+      "🔄 현재 계정 데이터 초기화",
       type="secondary",
       use_container_width=True,
   ):
@@ -1243,4 +1339,5 @@ with tab_shop:
     st.session_state.last_luck_mult = 1
     st.session_state.is_cutscene = False
     st.session_state.selected_codex = items[0]
+    save_user_data_to_db()
     st.rerun()
