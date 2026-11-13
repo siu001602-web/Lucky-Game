@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import time
@@ -143,7 +144,7 @@ aura_images = {
 
 
 # ==========================================
-# 🛡️ [업데이트 안전 호환] 세션 상태 초기화 및 누락 데이터 자동 보정
+# 🛡️ [업데이트 안전 호환] 세션 초기화 및 데이터 보정
 # ==========================================
 def init_session_state():
   defaults = {
@@ -165,7 +166,7 @@ def init_session_state():
     if key not in st.session_state:
       st.session_state[key] = val
 
-  # 나중에 새로운 아우라가 추가되더라도 기존 counts 딕셔너리에 키가 없으면 에러 안 나게 자동 추가
+  # 신규 등급이 추가되어도 기존 데이터에 키가 없으면 0으로 자동 채움
   for item in items:
     if item not in st.session_state.counts:
       st.session_state.counts[item] = 0
@@ -253,7 +254,6 @@ def perform_roll():
   current_weights = list(base_weights)
   st.session_state.luck_active_flag = False
 
-  # 10뽑마다 행운 2배 버프 적용 체크 (상위 등급 대상)
   if st.session_state.luck_buff_unlocked and (total_pulls % 10 == 0):
     current_weights[:5] = [w * 2 for w in current_weights[:5]]
     st.session_state.luck_active_flag = True
@@ -378,7 +378,6 @@ with tab_gacha:
     time.sleep(1)
     st.rerun()
 
-  # 행운 2배 발동 알림 배너
   if st.session_state.luck_active_flag:
     st.markdown(
         """
@@ -553,10 +552,69 @@ with tab_codex:
         )
 
 # ------------------------------------------
-# [탭 4] 상점 (개발자 비번 인증)
+# [탭 4] 상점 (개발자 비번 인증 및 세이브/로드 시스템)
 # ------------------------------------------
 with tab_shop:
-  st.subheader("🛒 상점")
+  st.subheader("🛒 상점 & 데이터 관리")
+
+  # 💾 [신규 기능] 세이브 데이터 백업 및 복구 패널
+  with st.container(border=True):
+    st.markdown("### 💾 게임 데이터 저장 및 불러오기")
+    st.write(
+        "플레이 데이터를 파일로 저장하거나, 저장된 파일을 업로드하여"
+        " 언제든 이어서 할 수 있습니다."
+    )
+
+    # 1. 저장 데이터 JSON 생성
+    save_data = {
+        "history": st.session_state.history,
+        "counts": st.session_state.counts,
+        "equipped": st.session_state.equipped,
+        "coins": st.session_state.coins,
+        "inventory_slots": st.session_state.inventory_slots,
+        "auto_roll_unlocked": st.session_state.auto_roll_unlocked,
+        "luck_buff_unlocked": st.session_state.luck_buff_unlocked,
+    }
+    json_str = json.dumps(save_data, ensure_ascii=False, indent=4)
+
+    st.download_button(
+        label="📥 게임 데이터 저장하기 (파일 다운로드)",
+        data=json_str,
+        file_name="sols_rng_save.json",
+        mime="application/json",
+        use_container_width=True,
+    )
+
+    st.write("")
+    uploaded_file = st.file_uploader(
+        "📤 저장한 데이터 불러오기 (JSON 파일 업로드)", type=["json"]
+    )
+    if uploaded_file is not None:
+      try:
+        loaded_data = json.load(uploaded_file)
+        # 안전하게 세션에 반영 (새로운 항목이 추가되었어도 에러 안 나게 방어)
+        st.session_state.history = loaded_data.get("history", [])
+        saved_counts = loaded_data.get("counts", {})
+        for item in items:
+          st.session_state.counts[item] = saved_counts.get(item, 0)
+        st.session_state.equipped = loaded_data.get("equipped", None)
+        st.session_state.coins = loaded_data.get("coins", 0)
+        st.session_state.inventory_slots = loaded_data.get(
+            "inventory_slots", 50
+        )
+        st.session_state.auto_roll_unlocked = loaded_data.get(
+            "auto_roll_unlocked", False
+        )
+        st.session_state.luck_buff_unlocked = loaded_data.get(
+            "luck_buff_unlocked", False
+        )
+        st.success(
+            "성공적으로 게임 데이터를 불러왔습니다! 화면이 갱신됩니다."
+        )
+        time.sleep(1)
+        st.rerun()
+      except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
 
   with st.container(border=True):
     st.markdown("### 💻 개발자 인증 패널")
