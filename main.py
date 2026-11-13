@@ -26,8 +26,8 @@ items = [
     "일반",
 ]
 
-# 각 분수 확률에 따른 가중치 설정 (기준: 200,000)
-weights = [1, 1, 1, 6, 12, 24, 48, 97, 781, 1562, 12500, 25000, 50000, 100000]
+# 기본 분수 확률에 따른 가중치 설정 (기준: 200,000)
+base_weights = [1, 1, 1, 6, 12, 24, 48, 97, 781, 1562, 12500, 25000, 50000, 100000]
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
@@ -119,6 +119,8 @@ if "auto_roll_unlocked" not in st.session_state:
   st.session_state.auto_roll_unlocked = False
 if "auto_roll_active" not in st.session_state:
   st.session_state.auto_roll_active = False
+if "luck_buff_unlocked" not in st.session_state:
+  st.session_state.luck_buff_unlocked = False  # 10뽑마다 행운 2배 버프 구매 여부
 if "last_result" not in st.session_state:
   st.session_state.last_result = None
 if "is_cutscene" not in st.session_state:
@@ -127,7 +129,7 @@ if "selected_codex" not in st.session_state:
   st.session_state.selected_codex = items[0]
 
 
-# ✨ [깨짐 연출 제거] 화면 전체 풀스크린: 별 회전 -> 멘트 출력 후 깔끔하게 종료
+# ✨ [풀스크린 컷씬] 화면 전체에서 별이 회전하며 커지는 연출
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
@@ -183,19 +185,25 @@ def play_fullscreen_star_cutscene(aura_name):
   with placeholder.container():
     st.markdown(fullscreen_html, unsafe_allow_html=True)
 
-  # 연출 재생 후 깔끔하게 종료
   time.sleep(2.5)
   placeholder.empty()
 
 
-# 기타 상위 등급 컷씬 관리자
 def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
 # 1회 뽑기 실행 공통 함수
 def perform_roll():
-  result = random.choices(items, weights=weights, k=1)[0]
+  total_pulls = sum(st.session_state.counts.values()) + 1
+
+  # 현재 가중치 계산 (버프 구매 + 10뽑마다 행운 2배 적용 시)
+  current_weights = list(base_weights)
+  if st.session_state.luck_buff_unlocked and (total_pulls % 10 == 0):
+    # 상위 등급(앞쪽 아이템들)의 가중치를 2배로 높여 행운 증가
+    current_weights[:4] = [w * 2 for w in current_weights[:4]]
+
+  result = random.choices(items, weights=current_weights, k=1)[0]
 
   if result in cutscene_auras:
     st.session_state.is_cutscene = True
@@ -266,12 +274,18 @@ tab_gacha, tab_inventory, tab_codex, tab_shop = st.tabs(
 # ------------------------------------------
 with tab_gacha:
   st.subheader("🎲 행운의 아우라 소환 (1회당 +5 G)")
+  if st.session_state.luck_buff_unlocked:
+    st.success("🍀 [행운 버프 활성화됨] 매 10번째 뽑기마다 행운 2배 적용 중!")
 
   with st.expander("📋 등급별 확률표 보기"):
-    weights_sum = sum(weights)
-    for item, weight in zip(items, weights):
+    weights_sum = sum(base_weights)
+    for item, weight in zip(items, base_weights):
       prob = (weight / weights_sum) * 100
-      st.markdown(f"- **{icons[item]} {item}** : `{prob:.4f}%` ({fractions[item]})")
+      if prob < 0.01:
+        prob_str = f"{prob:.6f}%"
+      else:
+        prob_str = f"{prob:.4f}%"
+      st.markdown(f"- **{icons[item]} {item}** : `{prob_str}` ({fractions[item]})")
 
   st.write("")
 
@@ -485,6 +499,25 @@ with tab_shop:
         st.error("비밀번호가 틀렸습니다!")
 
   with st.container(border=True):
+    col_l1, col_l2 = st.columns([2, 1])
+    with col_l1:
+      st.markdown("### 🍀 10뽑마다 행운 2배 버프 (영구)")
+      st.write("매 10번째 뽑기마다 상위 아우라를 얻을 확률이 2배로 증가합니다!")
+    with col_l2:
+      st.write("")
+      if st.session_state.luck_buff_unlocked:
+        st.button("구매 완료", disabled=True, key="buy_luck_done", use_container_width=True)
+      else:
+        if st.button("구매 (200 G)", key="buy_luck_buff", use_container_width=True):
+          if st.session_state.coins >= 200:
+            st.session_state.coins -= 200
+            st.session_state.luck_buff_unlocked = True
+            st.success("10뽑마다 행운 2배 버프가 해금되었습니다!")
+            st.rerun()
+          else:
+            st.error("코인이 부족합니다!")
+
+  with st.container(border=True):
     col_a1, col_a2 = st.columns([2, 1])
     with col_a1:
       st.markdown("### ⚡ 오토 뽑기 기능 (영구)")
@@ -535,6 +568,7 @@ with tab_shop:
     st.session_state.inventory_slots = 50
     st.session_state.auto_roll_unlocked = False
     st.session_state.auto_roll_active = False
+    st.session_state.luck_buff_unlocked = False
     st.session_state.last_result = None
     st.session_state.is_cutscene = False
     st.session_state.selected_codex = items[0]
