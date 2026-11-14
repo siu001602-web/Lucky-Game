@@ -1369,29 +1369,7 @@ with tab_inventory:
                 save_user_data_to_db()
                 st.rerun()
 
-            # 스킨 장착 영역 (해당 아우라에 매칭되는 스킨이 존재할 경우)
-            if matching_skins:
-              st.markdown("---")
-              st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 스킨 장착 칸</div>", unsafe_allow_html=True)
-              for s_name in matching_skins:
-                s_owned_cnt = st.session_state.skins.get(s_name, 0)
-                is_this_skin_equipped = st.session_state.get("equipped_skin") == s_name
-
-                if s_owned_cnt > 0:
-                  if is_this_skin_equipped:
-                    st.markdown(f"<div style='text-align:center; font-size:10px; color:#00ffcc;'><b>[{s_name} 장착중]</b></div>", unsafe_allow_html=True)
-                    if st.button("스킨 해제", key=f"unequip_skin_grid_{item}_{s_name}", use_container_width=True):
-                      st.session_state.equipped_skin = None
-                      save_user_data_to_db()
-                      st.rerun()
-                  else:
-                    if st.button(f"{s_name} 장착", key=f"equip_skin_grid_{item}_{s_name}", use_container_width=True, type="secondary"):
-                      st.session_state.equipped_skin = s_name
-                      save_user_data_to_db()
-                      st.rerun()
-                else:
-                  st.markdown(f"<div style='text-align:center; font-size:10px; color:#777;'>🔒 {s_name} (미보유)</div>", unsafe_allow_html=True)
-
+            # 레벨업 버튼 (장착 바로 밑에 위치)
             if lvl < 7:
               can_upgrade = count >= next_req
               if st.button(
@@ -1434,6 +1412,29 @@ with tab_inventory:
                 st.rerun()
             else:
               st.button("MAX 완료", key=f"max_btn_{item}", disabled=True, use_container_width=True)
+
+            # 스킨 장착 영역 (레벨업 버튼 아래쪽 카드 최하단에 배치)
+            if matching_skins:
+              st.markdown("---")
+              st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 스킨 장착 칸</div>", unsafe_allow_html=True)
+              for s_name in matching_skins:
+                s_owned_cnt = st.session_state.skins.get(s_name, 0)
+                is_this_skin_equipped = st.session_state.get("equipped_skin") == s_name
+
+                if s_owned_cnt > 0:
+                  if is_this_skin_equipped:
+                    st.markdown(f"<div style='text-align:center; font-size:10px; color:#00ffcc;'><b>[{s_name} 장착중]</b></div>", unsafe_allow_html=True)
+                    if st.button("스킨 해제", key=f"unequip_skin_grid_{item}_{s_name}", use_container_width=True):
+                      st.session_state.equipped_skin = None
+                      save_user_data_to_db()
+                      st.rerun()
+                  else:
+                    if st.button(f"{s_name} 장착", key=f"equip_skin_grid_{item}_{s_name}", use_container_width=True, type="secondary"):
+                      st.session_state.equipped_skin = s_name
+                      save_user_data_to_db()
+                      st.rerun()
+                else:
+                  st.markdown(f"<div style='text-align:center; font-size:10px; color:#777;'>🔒 {s_name} (미보유)</div>", unsafe_allow_html=True)
   else:
     st.markdown(
         """
