@@ -58,8 +58,8 @@ denominators = {
 }
 
 halloween_auras = [
-    "펌프", "룬(나이트)", "바이탈", "밤나팔꽃", "묘화", "영혼 사냥꾼", "듀라한",
-    "악몽의 하늘", "수확가", "사도:베일"
+    "사도:베일", "수확가", "악몽의 하늘", "듀라한", "영혼 사냥꾼",
+    "묘화", "밤나팔꽃", "바이탈", "룬(나이트)", "펌프"
 ]
 
 aura_colors = {
@@ -1009,9 +1009,9 @@ def perform_rolls(roll_count=1):
       first_get_titles = {
           "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝕍𝖊𝖎𝖑 𓆪",
           "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝖊𝖗 𓆪",
-          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
+          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
-          "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬h𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
+          "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
           "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
           "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊✨ 𝐏𝐑𝐈𝐌𝐎𝐑𝐃𝐈𝐀𝐋 𝐀𝐁𝐘𝐒𝐒 ✨🌊",
           "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "• ⋆༺무한의 환상༻⋆",
@@ -1566,10 +1566,7 @@ with tab_potions:
         if st.button(f"날씨 변경권 사용 ({use_wt_qty}개)", key="btn_use_weather_ticket", type="primary", use_container_width=True):
           st.session_state.weather_tickets -= use_wt_qty
           
-          # [핵심 수정] 즉시 날씨 오프셋을 재계산하여 새 날씨와 타이머(1분 또는 할로윈 5분)로 전환되도록 강제 고정
           current_real_time = int(time.time())
-          
-          # 다음 날씨가 할로윈일 확률 테스트
           test_offset_seed = current_real_time + random.randint(10000, 999999)
           test_big_cycle = test_offset_seed // 300
           random.seed(test_big_cycle * 999)
@@ -1628,20 +1625,50 @@ with tab_potions:
 
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
+  
+  # 할로윈 2024 미보유(LOCKED) 버튼의 글자와 테두리를 주황색으로 표시하는 CSS 주입
+  halloween_locked_css_rules = []
+  for idx_h, h_item in enumerate(halloween_auras):
+    is_h_owned = st.session_state.counts.get(h_item, 0) > 0 or st.session_state.levels.get(h_item, 1) > 1
+    if not is_h_owned:
+      halloween_locked_css_rules.append(f"""
+      .st-key-codex_hween_select_{idx_h} button p {{
+          color: #ff8c00 !important;
+          font-weight: 800 !important;
+      }}
+      .st-key-codex_hween_select_{idx_h} button {{
+          border-color: rgba(255, 140, 0, 0.55) !important;
+      }}
+      """)
+  if halloween_locked_css_rules:
+    st.markdown(f"<style>{''.join(halloween_locked_css_rules)}</style>", unsafe_allow_html=True)
+
+  normal_codex_items = [it for it in items if it not in halloween_auras]
+
   col_left, col_right = st.columns([1, 1.5])
   with col_left:
-    st.markdown("#### 📜 등급 목록")
-    for item in items:
+    st.markdown("#### 📜 일반 등급 목록")
+    for item in normal_codex_items:
       is_owned = st.session_state.counts.get(item, 0) > 0 or st.session_state.levels.get(item, 1) > 1
       display_name = f"{icons.get(item, '✨')} {item}" if is_owned else "🔒 [LOCKED] ???"
       if st.button(display_name, key=f"codex_select_{item}", use_container_width=True):
         st.session_state.selected_codex = item
+
+    st.divider()
+    st.markdown("#### 🎃 할로윈 2024 전용 도감")
+    for idx_h, h_item in enumerate(halloween_auras):
+      is_owned = st.session_state.counts.get(h_item, 0) > 0 or st.session_state.levels.get(h_item, 1) > 1
+      display_name = f"{icons.get(h_item, '🎃')} {h_item}" if is_owned else "🔒 [LOCKED] ???"
+      if st.button(display_name, key=f"codex_hween_select_{idx_h}", use_container_width=True):
+        st.session_state.selected_codex = h_item
 
   with col_right:
     sel = st.session_state.get("selected_codex", items[0])
     if sel not in items:
       sel = items[0]
     is_owned = st.session_state.counts.get(sel, 0) > 0 or st.session_state.levels.get(sel, 1) > 1
+    is_sel_halloween = sel in halloween_auras
+    
     st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
     with st.container(border=True):
       if is_owned:
@@ -1687,7 +1714,16 @@ with tab_codex:
           if st.button("🎬 컷씬 다시 보기", use_container_width=True):
             play_cutscene(sel)
       else:
-        st.markdown("<div style='text-align: center; padding: 40px; color: #777;'><h2>🔒</h2><h3>아직 획득하지 못한 아우라입니다.</h3></div>", unsafe_allow_html=True)
+        if is_sel_halloween:
+          st.markdown(
+              "<div style='text-align: center; padding: 40px; color: #ff8c00;'>"
+              "<h2>🔒 [LOCKED]</h2>"
+              "<h3>할로윈 2024 바이옴 전용 미획득 아우라입니다.</h3>"
+              "</div>",
+              unsafe_allow_html=True,
+          )
+        else:
+          st.markdown("<div style='text-align: center; padding: 40px; color: #777;'><h2>🔒</h2><h3>아직 획득하지 못한 아우라입니다.</h3></div>", unsafe_allow_html=True)
 
 with tab_titles:
   st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
