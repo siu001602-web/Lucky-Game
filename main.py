@@ -512,7 +512,7 @@ def get_styled_title_html(title_name):
   if not title_name:
     return ""
 
-  if "GOD OF ICE" in title_name or "ANCIENT KING" in title_name:
+  if "GOD OF ICE" in title_name or "ANCIENT KING" in title_name or "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭" in title_name:
     style = (
         "background: linear-gradient(90deg, #00ffff, #00bfff, #ffffff, #1e90ff);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
@@ -526,12 +526,26 @@ def get_styled_title_html(title_name):
         " font-weight: 800; text-shadow: 0 0 10px rgba(0,191,255,0.7);"
         " font-size: 1.05em; padding: 0 4px;"
     )
-  elif "초월자" in title_name or "몽상가" in title_name or "환상" in title_name:
+  elif "초월자" in title_name or "몽상가" in title_name or "환상" in title_name or "𝓟𝓻𝓲𝓼𝓶" in title_name:
     style = (
         "background: linear-gradient(90deg, #ff007f, #7928ca, #0070f3, #00dfd8);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
         " font-weight: 900; text-shadow: 0 0 10px rgba(255,0,127,0.6),"
         " 0 0 20px rgba(0,223,216,0.5); font-size: 1.05em; padding: 0 4px;"
+    )
+  elif "𝓦𝓪𝓽𝓬𝓱𝓮𝓻" in title_name or "𝓛𝓾𝓵𝓵𝓪𝓫𝔂" in title_name or "𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽" in title_name:
+    style = (
+        "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 800; text-shadow: 0 0 12px rgba(179,102,255,0.7);"
+        " font-size: 1.05em; padding: 0 4px;"
+    )
+  elif "𝓗𝓮𝓵𝓲𝓸𝓼" in title_name or "𝓐𝓻𝓬𝓪𝓷𝓮" in title_name or "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮" in title_name:
+    style = (
+        "background: linear-gradient(90deg, #ffd700, #ff6600, #ff0055);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 800; text-shadow: 0 0 12px rgba(255,153,0,0.7);"
+        " font-size: 1.05em; padding: 0 4px;"
     )
   elif "잔광" in title_name:
     style = (
@@ -1152,16 +1166,20 @@ with tab_inventory:
                 new_lvl = st.session_state.levels[item]
 
                 if new_lvl == 7:
-                  if item == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
-                    t_name = "꧁༺ 스펙트럼의 초월자 ༻꧂"
-                  elif item == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
-                    t_name = "• ⋆༺무한의 환상༻⋆"
-                  elif item == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
-                    t_name = "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂"
-                  elif item == "𝓘𝓬𝓮𝓐𝓰𝓮":
-                    t_name = "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂"
-                  else:
-                    t_name = f"{item}의 달인"
+                  custom_max_titles = {
+                      "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
+                      "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
+                      "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
+                      "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
+                      "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
+                      "아케인": "◇ 𝓐𝓻𝓬𝓪𝓷𝓮 ◇",
+                      "대마법사": "◇ 𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮 ◇",
+                      "황혼": "◇𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽 ◇",
+                      "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "• ⋆༺무한의 환상༻⋆",
+                      "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
+                      "𝓘𝓬𝓮𝓐𝓰𝓮": "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
+                  }
+                  t_name = custom_max_titles.get(item, f"{item}의 달인")
 
                   if "titles" not in st.session_state:
                     st.session_state.titles = []
@@ -1208,13 +1226,17 @@ with tab_potions:
           with col_p2:
             st.markdown(f"#### {p_name}")
             st.write(f"보유 수량: **{count}개**")
-            use_qty = st.slider(
-                "사용할 수량",
-                min_value=1,
-                max_value=count,
-                value=1,
-                key=f"slider_qty_{p_name}",
-            )
+            if count == 1:
+              st.caption("사용할 수량: 1개")
+              use_qty = 1
+            else:
+              use_qty = st.slider(
+                  "사용할 수량",
+                  min_value=1,
+                  max_value=count,
+                  value=1,
+                  key=f"slider_qty_{p_name}",
+              )
           with col_p3:
             st.write("")
             st.write("")
@@ -1411,15 +1433,18 @@ with tab_shop:
         st.markdown("- **0.9%**: 10000배 행운 포션 (10초) — 최소 1/16,384 이상 보장")
         st.markdown("- **0.1%**: 백만배 행운권 (1회) — 최소 1/1,000,000 (아케인 이상) 확정!")
 
-      max_buy_boxes = max(1, st.session_state.coins // 300)
-      if st.session_state.coins < 300:
+      affordable_boxes = st.session_state.coins // 300
+      if affordable_boxes < 1:
         st.warning("코인이 부족합니다! (상자 1개당 300 G 필요)")
+        buy_box_qty = 1
+      elif affordable_boxes == 1:
+        st.caption("구매 가능한 수량: 1개")
         buy_box_qty = 1
       else:
         buy_box_qty = st.slider(
             "구매할 상자 수량",
             min_value=1,
-            max_value=max_buy_boxes,
+            max_value=affordable_boxes,
             value=1,
             key="slider_buy_boxes",
         )
@@ -1429,7 +1454,7 @@ with tab_shop:
     with col_box2:
       st.write("")
       st.write("")
-      can_buy = st.session_state.coins >= 300
+      can_buy = affordable_boxes >= 1
       if st.button(
           f"상자 {buy_box_qty}개 구매 & 개봉",
           type="primary",
