@@ -15,11 +15,14 @@ st.set_page_config(
 
 # 등급 리스트 정의 (희귀도 높은 순)
 items = [
+    "아이스 에이지",
+    "맘모스",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻",
     "스펙트라플로우",
     "감시자",
     "크로마틱",
     "자장가",
+    "블리자드",
     "헬리오스",
     "황혼",
     "대마법사",
@@ -28,10 +31,12 @@ items = [
     "바운디드",
     "재즈",
     "스펙터",
+    "만년서리",
     "태양",
     "달",
     "와트",
     "힘",
+    "빙하",
     "석영",
     "시데리움",
     "자력",
@@ -43,43 +48,51 @@ items = [
     "일반",
 ]
 
-# 각 분수 확률에 따른 기본 가중치 설정 (기준: 2,222,222,222)
+# 각 분수 확률에 따른 기본 가중치 설정 (기준: 1,500,000,000,000)
 base_weights = [
     1,
-    22,
-    49,
-    111,
-    131,
-    247,
-    370,
-    1258,
-    2222,
-    3367,
-    11111,
-    13889,
-    15873,
-    44444,
-    44444,
-    67817,
-    135634,
-    271267,
-    542535,
-    1085069,
-    8680556,
-    17361111,
-    138888889,
-    277777778,
-    555555556,
-    1111111111,
+    5,
+    675,
+    15000,
+    33333,
+    75000,
+    88847,
+    54915,
+    166667,
+    250000,
+    849089,
+    1500000,
+    2272727,
+    7500000,
+    9375000,
+    10714286,
+    20408,
+    30000000,
+    30000000,
+    45776365,
+    91552734,
+    651042,
+    183105469,
+    366210938,
+    732421875,
+    5859375000,
+    11718750000,
+    93750000000,
+    187500000000,
+    375000000000,
+    750000000000,
 ]
 
 # 각 아우라의 실제 분모 수치 (행운 배율 필터링 기준)
 denominators = {
+    "아이스 에이지": 1500000000,
+    "맘모스": 300000000,
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222,
     "스펙트라플로우": 100000000,
     "감시자": 45000000,
     "크로마틱": 20000000,
     "자장가": 17000000,
+    "블리자드": 27315000,
     "헬리오스": 9000000,
     "황혼": 6000000,
     "대마법사": 1766000,
@@ -88,10 +101,12 @@ denominators = {
     "바운디드": 200000,
     "재즈": 160000,
     "스펙터": 140000,
+    "만년서리": 73500,
     "태양": 50000,
     "달": 50000,
     "와트": 32768,
     "힘": 16384,
+    "빙하": 2304,
     "석영": 8192,
     "시데리움": 4096,
     "자력": 2048,
@@ -105,13 +120,16 @@ denominators = {
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
+    "아이스 에이지": "1 in 1,500,000,000 (눈올 때 행운 10배)",
+    "맘모스": "1 in 300,000,000 (눈 확률 10% 증가)",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": (
-        "1 in 2,222,222,222 (밤 버프 시 2배 / 장착 시 밤 행운 100배)"
+        "1 in 2,222,222,222 (밤 버프 시 2배 / 장착 시 밤 행운 10배)"
     ),
     "스펙트라플로우": "1 in 100,000,000",
     "감시자": "1 in 45,000,000",
     "크로마틱": "1 in 20,000,000",
     "자장가": "1 in 17,000,000 (밤 버프 시 1 in 1,700,000)",
+    "블리자드": "1 in 27,315,000 (눈올 때 확률 3배)",
     "헬리오스": "1 in 9,000,000",
     "황혼": "1 in 6,000,000 (밤 버프 시 1 in 600,000)",
     "대마법사": "1 in 1,766,000",
@@ -120,10 +138,12 @@ fractions = {
     "바운디드": "1 in 200,000",
     "재즈": "1 in 160,000",
     "스펙터": "1 in 140,000",
+    "만년서리": "1 in 73,500 (눈올 때 확률 3배)",
     "태양": "1 in 50,000 (낮 버프 시 1 in 5,000)",
     "달": "1 in 50,000 (밤 버프 시 1 in 5,000)",
     "와트": "1 in 32,768",
     "힘": "1 in 16,384",
+    "빙하": "1 in 2,304 (눈올 때 확률 3배)",
     "석영": "1 in 8,192",
     "시데리움": "1 in 4,096",
     "자력": "1 in 2,048",
@@ -137,11 +157,14 @@ fractions = {
 
 # 컷씬이 존재하는 아우라 목록
 cutscene_auras = [
+    "아이스 에이지",
+    "맘모스",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻",
     "스펙트라플로우",
     "감시자",
     "크로마틱",
     "자장가",
+    "블리자드",
     "헬리오스",
     "황혼",
     "대마법사",
@@ -160,11 +183,14 @@ cutscene_auras = [
 
 # 등급별 이모티콘 매핑
 icons = {
+    "아이스 에이지": "❄️🧊👑",
+    "맘모스": "🦣❄️🧊",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋",
     "스펙트라플로우": "🌌💠💫",
     "감시자": "👁️‍🗨️⚡",
     "크로마틱": "🌈💫",
     "자장가": "🌌🎵💤",
+    "블리자드": "❄️🌨️🌀",
     "헬리오스": "☀️🔥",
     "황혼": "🌆✨💜",
     "대마법사": "🧙‍♂️✨",
@@ -173,10 +199,12 @@ icons = {
     "바운디드": "🌌👑",
     "재즈": "🎶🎷",
     "스펙터": "👻🔮",
+    "만년서리": "❄️💎",
     "태양": "☀️✨",
     "달": "🌙✨",
     "와트": "⚡👑⚡",
     "힘": "⚡🔥",
+    "빙하": "🧊❄️",
     "석영": "💎✨",
     "시데리움": "🌟🛡️",
     "자력": "🧲💫",
@@ -199,7 +227,9 @@ aura_images = {
     "자력": "images/SmartSelect_20261113_123943_Chrome.jpg",
     "시데리움": "images/SmartSelect_20261113_123957_Chrome.jpg",
     "석영": "images/SmartSelect_20261113_124024_Chrome.jpg",
+    "빙하": "images/SmartSelect_20261114_102325_NAVER.jpg",
     "힘": "images/SmartSelect_20261113_124048_Chrome.jpg",
+    "만년서리": "images/SmartSelect_20261114_102346_NAVER.jpg",
     "와트": "images/SmartSelect_20261113_125018_NAVER.jpg",
     "스펙터": "images/SmartSelect_20261113_125325_Chrome.jpg",
     "재즈": "images/SmartSelect_20261113_125353_Chrome.jpg",
@@ -210,16 +240,22 @@ aura_images = {
     "헬리오스": "images/SmartSelect_20261113_230344_Chrome.jpg",
     "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
     "감시자": "images/SmartSelect_20261113_233734_Chrome.jpg",
+    "블리자드": "images/SmartSelect_20261114_102513_NAVER.jpg",
     "스펙트라플로우": "images/SmartSelect_20261113_234508_Chrome.jpg",
     "태양": "images/SmartSelect_20261113_235302_Chrome.jpg",
     "달": "images/SmartSelect_20261113_235408_Chrome.jpg",
     "황혼": "images/SmartSelect_20261113_235637_Chrome.jpg",
     "자장가": "images/SmartSelect_20261113_235654_Chrome.jpg",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "images/SmartSelect_20261113_235729_Chrome.jpg",
+    "맘모스": "images/file_00000000485082099074341e8735beff.png",
+    "아이스 에이지": "images/file_000000009c888209b0b962261732b998.png",
 }
 
 # 특수 장착 배경 이미지 매핑
 equipped_backgrounds = {
+    "아이스 에이지": "Background/SmartSelect_20261114_105008_NAVER.jpg",
+    "맘모스": "Background/SmartSelect_20261114_104343_NAVER.jpg",
+    "블리자드": "Background/SmartSelect_20261114_104034_NAVER.jpg",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "Background/SmartSelect_20261114_000447_Chrome.jpg",
     "스펙트라플로우": "Background/SmartSelect_20261113_234652_NAVER.jpg",
     "감시자": "Background/SmartSelect_20261113_234106_Chrome.jpg",
@@ -426,13 +462,23 @@ if not st.session_state.logged_in:
 
 
 # ==========================================
-# ☀️🌙 [현재 낮/밤 판별 함수: 3분(180초) 주기로 교체]
+# ❄️ [계절 및 날씨 시스템: 1분(60초) 주기, 30% 눈 확률 (맘모스 장착 시 +10%)]
 # ==========================================
-def get_world_time_status():
-  cycle_time = int(time.time()) % 360
-  is_day = cycle_time < 180
-  rem_sec = 180 - (cycle_time % 180)
-  return is_day, rem_sec
+def get_world_weather_status():
+  cycle_time = int(time.time()) % 60
+  rem_sec = 60 - (cycle_time % 60)
+
+  minute_seed = int(time.time()) // 60
+  random.seed(minute_seed)
+
+  snow_chance = 0.30
+  if st.session_state.get("equipped") == "맘모스":
+    snow_chance = 0.40
+
+  is_snow = random.random() < snow_chance
+  random.seed()
+
+  return is_snow, rem_sec, int(snow_chance * 100)
 
 
 # 🎨 [특수 아우라 장착 배경 및 가독성 향상 CSS 적용 함수]
@@ -486,8 +532,21 @@ def get_styled_title_html(title_name):
   if not title_name:
     return ""
 
-  if "초월자" in title_name or "몽상가" in title_name or "환상" in title_name:
-    # 최상급/초월급 칭호 (무지개 네온 + 글로우)
+  if "GOD OF ICE" in title_name or "ANCIENT KING" in title_name:
+    style = (
+        "background: linear-gradient(90deg, #00ffff, #00bfff, #ffffff, #1e90ff);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 900; text-shadow: 0 0 12px rgba(0,255,255,0.7),"
+        " 0 0 20px rgba(0,191,255,0.6); font-size: 1.05em; padding: 0 4px;"
+    )
+  elif "ICE MONARCH" in title_name or "FROST EMPEROR" in title_name:
+    style = (
+        "background: linear-gradient(90deg, #e0ffff, #00bfff);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 800; text-shadow: 0 0 10px rgba(0,191,255,0.7);"
+        " font-size: 1.05em; padding: 0 4px;"
+    )
+  elif "초월자" in title_name or "몽상가" in title_name or "환상" in title_name:
     style = (
         "background: linear-gradient(90deg, #ff007f, #7928ca, #0070f3, #00dfd8);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
@@ -495,7 +554,6 @@ def get_styled_title_html(title_name):
         " 0 0 20px rgba(0,223,216,0.5); font-size: 1.05em; padding: 0 4px;"
     )
   elif "잔광" in title_name:
-    # 스펙트라플로우 전용 (청록빛 네온)
     style = (
         "background: linear-gradient(90deg, #00ffff, #0077ff);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
@@ -503,7 +561,6 @@ def get_styled_title_html(title_name):
         " font-size: 1.05em; padding: 0 4px;"
     )
   elif "달인" in title_name:
-    # 만렙 달인 칭호 (황금빛 영롱한 빛)
     style = (
         "background: linear-gradient(90deg, #ffe600, #ff8c00);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
@@ -511,7 +568,6 @@ def get_styled_title_html(title_name):
         " font-size: 1.05em; padding: 0 4px;"
     )
   else:
-    # 일반 칭호 (선명한 금빛 장식 + 어두운 외곽선 그림자)
     style = (
         "color: #ffeb3b; font-weight: bold; text-shadow: 0 0 6px rgba(0,0,0,0.9),"
         " 0 0 12px rgba(255,235,59,0.5); font-size: 1.02em; padding: 0 4px;"
@@ -544,9 +600,15 @@ def get_current_luck_multiplier(next_pull_number):
   if st.session_state.luck_buff_unlocked and (next_pull_number % 10 == 0):
     mult *= 2
 
-  is_day, _ = get_world_time_status()
+  is_snow, _, _ = get_world_weather_status()
+  if is_snow and st.session_state.get("equipped") == "아이스 에이지":
+    mult *= 10
+
+  # 드림캐쳐 장착 시 밤 시간대 행운 10배
+  cycle_time = int(time.time()) % 360
+  is_day = cycle_time < 180
   if not is_day and st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
-    mult *= 100
+    mult *= 10
 
   return mult
 
@@ -555,7 +617,27 @@ def get_current_luck_multiplier(next_pull_number):
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  if aura_name == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
+  if aura_name == "아이스 에이지":
+    star_color = "#00ffff"
+    bg_style = "radial-gradient(circle, #001a33 0%, #00050f 90%)"
+    star_symbol = "❄️🧊👑"
+    ment = "❄️ [ICE AGE] 빙하기의 절대적인 한기가 온 세상을 영원의 빙하로 뒤덮습니다!"
+    duration = 4.5
+  elif aura_name == "맘모스":
+    star_color = "#add8e6"
+    bg_style = "radial-gradient(circle, #102030 0%, #050a10 90%)"
+    star_symbol = "🦣❄️"
+    ment = (
+        "🦣 [MAMMOTH] 고대 빙하의 수호자 맘모스가 거대한 눈보라와 함께 포효합니다!"
+    )
+    duration = 4.0
+  elif aura_name == "블리자드":
+    star_color = "#87ceeb"
+    bg_style = "radial-gradient(circle, #002244 0%, #050a15 90%)"
+    star_symbol = "❄️🌨️"
+    ment = "🌨️ [BLIZZARD] 모든 것을 얼어붙게 만드는 거대한 눈폭풍이 몰아칩니다!"
+    duration = 3.5
+  elif aura_name == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
     star_color = "#e066ff"
     bg_style = "radial-gradient(circle, #2e004d 0%, #05000a 90%)"
     star_symbol = "🕸️🌙✨🦋"
@@ -582,75 +664,12 @@ def play_fullscreen_star_cutscene(aura_name):
         " 깨어납니다!"
     )
     duration = 3.5
-  elif aura_name == "크로마틱":
-    star_color = "#ff00ff"
-    bg_style = "radial-gradient(circle, #330033 0%, #05000a 90%)"
-    star_symbol = "🌟💫🌈"
-    ment = (
-        "⚠️ [UNIVERSE BREAK] 우주의 모든 스펙트럼이 융합하여 절대적인 빛이"
-        " 탄생합니다!"
-    )
-    duration = 3.2
-  elif aura_name == "자장가":
-    star_color = "#7a5cff"
-    bg_style = "radial-gradient(circle, #1a0d4d 0%, #05000a 90%)"
-    star_symbol = "🌌🎵💤✨"
-    ment = (
-        "🌌 [LULLABY] 깊은 밤의 성좌들이 노래하며 영원한 안식의 선율이 울려"
-        " 퍼집니다!"
-    )
-    duration = 3.2
-  elif aura_name == "황혼":
-    star_color = "#b366ff"
-    bg_style = "radial-gradient(circle, #33114d 0%, #0a050d 90%)"
-    star_symbol = "🌆✨💜"
-    ment = (
-        "🌆 [TWILIGHT] 낮과 밤의 경계가 교차하며 몽환적인 보랏빛 하늘이"
-        " 열립니다!"
-    )
-    duration = 3.0
-  elif aura_name == "태양":
-    star_color = "#ffcc00"
-    bg_style = "radial-gradient(circle, #4d3300 0%, #0a0500 90%)"
-    star_symbol = "☀️🔥✨"
-    ment = (
-        "☀️ [SOLARIS] 찬란한 태양의 권능이 온 세상을 황금빛으로 비춥니다!"
-    )
-    duration = 2.8
-  elif aura_name == "달":
-    star_color = "#0099ff"
-    bg_style = "radial-gradient(circle, #001a33 0%, #00050a 90%)"
-    star_symbol = "🌙✨❄️"
-    ment = (
-        "🌙 [LUNARIS] 신비로운 달빛의 기운이 어둠 속에서 찬란하게 피어납니다!"
-    )
-    duration = 2.8
-  elif aura_name == "헬리오스":
-    star_color = "#ff6600"
-    bg_style = "radial-gradient(circle, #4d1a00 0%, #0a0500 90%)"
-    star_symbol = "☀️🔥"
-    ment = "🔥 [SOLAR FLARE] 태양계의 모든 권능이 폭발하며 차원을 불태웁니다!"
-    duration = 3.0
-  elif aura_name == "대마법사":
-    star_color = "#b84dff"
-    bg_style = "radial-gradient(circle, #260033 0%, #05000a 90%)"
-    star_symbol = "🧙‍♂️✨🔮"
-    ment = "🔮 [ARCHMAGE] 금지된 고대의 아르카나 마력이 온 세상에 해방됩니다!"
-    duration = 2.8
-  elif aura_name == "아케인":
-    star_color = "#00ffff"
-    bg_style = "radial-gradient(circle, #003333 0%, #00050a 90%)"
-    star_symbol = "🔮👑"
-    ment = (
-        "태고의 신비로운 아케인 에너지가 온 차원을 뒤덮고 영원히 빛납니다..."
-    )
-    duration = 2.5
   else:
     star_color = "#ffd700"
     bg_style = "rgba(5, 5, 10, 0.95)"
     star_symbol = "✦"
     ment = "전설적인 에너지가 요동칩니다..."
-    duration = 2.2
+    duration = 2.5
 
   fullscreen_html = f"""
     <style>
@@ -709,14 +728,14 @@ def get_max_requirement(denom):
   return get_level_requirements(denom)[7]
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수 (Max 달성 시 중복 방지 반영)
+# 1회 또는 다회 뽑기 실행 공통 함수 (눈올 때 빙하·만년서리·블리자드 3배, 맘모스·아이스 에이지 2배)
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
   coin_gain_per_roll = (
       10 if st.session_state.get("equipped") == "스펙트라플로우" else 5
   )
-  is_day, _ = get_world_time_status()
+  is_snow, _, _ = get_world_weather_status()
 
   prior_counts = {item: st.session_state.counts.get(item, 0) for item in items}
 
@@ -729,13 +748,14 @@ def perform_rolls(roll_count=1):
       st.session_state.million_ticket_active = False
 
     current_weights = list(base_weights)
-    if is_day:
-      current_weights[items.index("태양")] *= 10
-    else:
-      current_weights[items.index("달")] *= 10
-      current_weights[items.index("황혼")] *= 10
-      current_weights[items.index("자장가")] *= 10
-      current_weights[items.index("𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻")] *= 2
+
+    # 눈이 올 때 확률 배율 적용
+    if is_snow:
+      current_weights[items.index("빙하")] *= 3
+      current_weights[items.index("만년서리")] *= 3
+      current_weights[items.index("블리자드")] *= 3
+      current_weights[items.index("맘모스")] *= 2
+      current_weights[items.index("아이스 에이지")] *= 2
 
     if luck_mult > 1:
       eligible_indices = [
@@ -759,13 +779,24 @@ def perform_rolls(roll_count=1):
     results.append(result)
 
     # 최초 획득 칭호 지급
-    if prior_counts.get(result, 0) == 0 and st.session_state.counts.get(result, 0) == 0:
+    if (
+        prior_counts.get(result, 0) == 0
+        and st.session_state.counts.get(result, 0) == 0
+    ):
       if result == "스펙트라플로우":
         t_name = "영광의 잔광"
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
       elif result == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
         t_name = "• ⋆༺무한의 환상༻⋆"
+        if t_name not in st.session_state.titles:
+          st.session_state.titles.append(t_name)
+      elif result == "맘모스":
+        t_name = "❄ 𝐈𝐂𝐄 𝐌𝐎𝐍𝐀𝐑𝐂𝐇 ❄"
+        if t_name not in st.session_state.titles:
+          st.session_state.titles.append(t_name)
+      elif result == "아이스 에이지":
+        t_name = "♛ 𝐅𝐑𝐎𝐒𝐓 𝐄𝐌𝐏𝐄𝐑𝐎𝐑 ♛"
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
 
@@ -817,30 +848,33 @@ with c_u2:
     st.session_state.username = ""
     st.rerun()
 
-is_day_now, rem_seconds_now = get_world_time_status()
-m_rem = rem_seconds_now // 60
-s_rem = rem_seconds_now % 60
-is_dc_equipped = st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"
+is_snow_now, rem_seconds_now, current_snow_pct = get_world_weather_status()
+s_rem = rem_seconds_now
+is_mammoth_equipped = st.session_state.get("equipped") == "맘모스"
+is_ia_equipped = st.session_state.get("equipped") == "아이스 에이지"
 
-if is_day_now:
+if is_snow_now:
+  ia_bonus_text = (
+      " | ❄️ 아이스 에이지 장착 중: 행운 10배 발동 중!"
+      if is_ia_equipped
+      else ""
+  )
   st.markdown(
       f"""
-        <div style="background: linear-gradient(90deg, #ff9900, #ffcc00); padding: 12px; border-radius: 8px; text-align: center; color: black; font-weight: bold; font-size: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255,204,0,0.5);">
-            🌞 [현재 낮 시간대] 태양(☀️) 확률 10배 폭증 중! (남은 시간: {m_rem}분 {s_rem}초 후 밤으로 전환)
+        <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0,191,255,0.5);">
+            🌨️ [현재 날씨: 눈 내리는 중] 확률 {current_snow_pct}% 적용 중! (빙하·만년서리·블리자드 3배 / 맘모스·아이스 에이지 2배 폭증!) (남은 시간: {s_rem}초){ia_bonus_text}
         </div>
         """,
       unsafe_allow_html=True,
   )
 else:
-  dc_bonus_text = (
-      " | 🕸️ 𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻 장착 중: 행운 100배 발동 중!"
-      if is_dc_equipped
-      else ""
+  mammoth_bonus_text = (
+      " | 🦣 맘모스 장착 중: 눈 확률 +10%!" if is_mammoth_equipped else ""
   )
   st.markdown(
       f"""
-        <div style="background: linear-gradient(90deg, #003366, #2b1a66); padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(153,102,255,0.5);">
-            🌙 [현재 밤 시간대] 달·황혼·자장가 10배 / 𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻 2배 폭증 중! (남은 시간: {m_rem}분 {s_rem}초 후 낮으로 전환){dc_bonus_text}
+        <div style="background: linear-gradient(90deg, #333333, #666666); padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(100,100,100,0.5);">
+            ⛅ [현재 날씨: 정상 (맑음)] 눈 내릴 확률 {current_snow_pct}% (남은 시간: {s_rem}초 후 날씨 전환){mammoth_bonus_text}
         </div>
         """,
       unsafe_allow_html=True,
@@ -871,15 +905,16 @@ with st.container(border=True):
       st.write(
           f"보유 수량: **{st.session_state.counts.get(equipped_aura, 0)}개**"
       )
-      if equipped_aura == "스펙트라플로우":
+      if equipped_aura == "맘모스":
+        st.caption("🦣 **[능력 활성화]** 눈이 내릴 확률이 10% 증가합니다!")
+      elif equipped_aura == "아이스 에이지":
+        st.caption("❄️ **[능력 활성화]** 눈이 올 때 행운 10배가 적용됩니다!")
+      elif equipped_aura == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
+        st.caption("🕸️ **[능력 활성화]** 밤 시간대 행운 10배 버프 적용 중!")
+      elif equipped_aura == "스펙트라플로우":
         st.caption(
             "💠 **[특수 능력]** 코인 획득량 2배 (뽑기당 10 G) & 전용 배경"
             " 적용 중!"
-        )
-      elif equipped_aura == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
-        st.caption(
-            "🕸️ **[특수 능력]** 밤 시간대 행운 100배 버프 적용 중! & 전용"
-            " 배경 적용 중!"
         )
       elif equipped_aura in equipped_backgrounds:
         st.caption("🌌 전용 배경 테마가 적용되어 있습니다.")
@@ -1107,7 +1142,11 @@ with tab_inventory:
                   if item == "스펙트라플로우":
                     t_name = "꧁༺ 스펙트럼의 초월자 ༻꧂"
                   elif item == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
-                    t_name = "꧁༺ 영원의 몽상가 ༻꧂"
+                    t_name = "• ⋆༺무한의 환상༻⋆"
+                  elif item == "맘모스":
+                    t_name = "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝐊𝐈𝐍𝐆 ༻꧂"
+                  elif item == "아이스 에이지":
+                    t_name = "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂"
                   else:
                     t_name = f"{item}의 달인"
 
