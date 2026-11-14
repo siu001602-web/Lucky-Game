@@ -28,7 +28,7 @@ items = [
     "레어", "자연", "희귀", "일반",
 ]
 
-# 각 아우라의 실제 분모 수치 (행운 배율 필터링 및 확률 기준)
+# 각 아우ラの 실제 분모 수치 (행운 배율 필터링 및 확률 기준)
 denominators = {
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222, "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000, "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": 200000000,
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000, "감시자": 45000000, "블리자드": 27315000, "크로마틱": 20000000,
@@ -502,12 +502,12 @@ def get_styled_title_html(title_name):
   if title_name in rainbow_max_titles:
     return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">🎖️ [{title_name}]</span>'
 
-  # 1억 이상 아우라 최초 획득 칭호들 (무조건 파스텔 네온 그라데이션 적용)
+  # 1억 이상 아우라 최초 획득 칭호들 (최우선 적용)
   if "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧"])
-  elif "ICE MONARCH" in title_name:
+  elif "ICE MONARCH" in title_name or "𝐀𝐍𝐂𝐈𝐄𝐍𝐓" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓜𝓪𝓶𝓶𝓸𝓽𝓱"])
-  elif "FROST EMPEROR" in title_name:
+  elif "FROST EMPEROR" in title_name or "𝐆𝐎𝐃" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓘𝓬𝓮𝓐𝓰𝓮"])
   elif "무한의 환상" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"])
