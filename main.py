@@ -1,11 +1,12 @@
 import base64
 from datetime import datetime
 import hashlib
-import json
-import os
-import random
-import sqlite3
-import time
+json = __import__("json")
+os = __import__("os")
+random = __import__("random")
+sqlite3 = __import__("sqlite3")
+time = __import__("time")
+colorsys = __import__("colorsys")
 import streamlit as st
 
 # 페이지 설정
@@ -39,6 +40,15 @@ denominators = {
     "출혈": 4444, "시데리움": 4096, "콜라": 3999, "빙하": 2304,
     "재": 2300, "자력": 2048, "분노": 256, "결정화": 128,
     "레어": 16, "자연": 8, "희귀": 4, "일반": 2,
+}
+
+# 아우라 고유 대표 색상 (1억 이상 네온 그라데이션 자동 생성용)
+aura_colors = {
+    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "#b366ff",
+    "𝓘𝓬𝓮𝓐𝓰𝓮": "#00bfff",
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "#add8e6",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "#ff77ff",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "#00ffff",
 }
 
 # 분모를 기반으로 정확한 가중치 자동 생성
@@ -445,12 +455,43 @@ def apply_equipped_background():
 apply_equipped_background()
 
 
-# 🎖️ [칭호 희귀도별 화려하고 예쁜 스타일 적용 HTML 생성 함수]
+# 🎨 [1억 이상 아우라 파스텔 네온 그라데이션 CSS 변환 함수]
+def hex_to_pastel_neon_css(hex_color: str) -> str:
+  hex_color = hex_color.lstrip('#')
+  if len(hex_color) != 6:
+    hex_color = "a855f7"
+
+  r = int(hex_color[0:2], 16) / 255.0
+  g = int(hex_color[2:4], 16) / 255.0
+  b = int(hex_color[4:6], 16) / 255.0
+  h, l, s = colorsys.rgb_to_hls(r, g, b)
+
+  c1 = colorsys.hls_to_rgb((h - 0.12) % 1.0, 0.78, 0.88)
+  c2 = colorsys.hls_to_rgb(h, 0.76, 0.92)
+  c3 = colorsys.hls_to_rgb((h + 0.12) % 1.0, 0.78, 0.88)
+
+  def to_hex(rgb):
+    return "#{:02x}{:02x}{:02x}".format(
+        int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)
+    )
+
+  hex1, hex2, hex3 = to_hex(c1), to_hex(c2), to_hex(c3)
+
+  return (
+      f"background: linear-gradient(90deg, {hex1}, {hex2}, {hex3}); "
+      f"-webkit-background-clip: text; "
+      f"-webkit-text-fill-color: transparent; "
+      f"font-weight: 900; "
+      f"filter: drop-shadow(0 0 9px {hex2}aa); "
+      f"font-size: 1.06em; padding: 0 4px;"
+  )
+
+
+# 🎖️ [칭호 희귀도별 화려하고 예쁜 스타일 적용 HTML 생성 함수 (1억 이상 아우라 네온 적용)]
 def get_styled_title_html(title_name):
   if not title_name:
     return ""
 
-  # 1억 이하(1억 포함) 아우라 만렙(MAX) 달성 시 무지개색(7색 레인보우) 스타일 적용
   rainbow_max_titles = [
       "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
       "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
@@ -458,6 +499,7 @@ def get_styled_title_html(title_name):
       "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
       "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻의 달인",
   ]
+  
   if title_name in rainbow_max_titles:
     style = (
         "background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00,"
@@ -466,39 +508,19 @@ def get_styled_title_html(title_name):
         " text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px"
         " rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;"
     )
-  # 1억 이하(1억 포함) 아우라 최초 획득 시 특별한 전용 네온 색상
   elif "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
-    style = (
-        "background: linear-gradient(90deg, #ff77ff, #00ffff, #fff066);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 900; text-shadow: 0 0 12px rgba(255,119,255,0.8),"
-        " 0 0 20px rgba(0,255,255,0.7); font-size: 1.06em; padding: 0 4px;"
-    )
-  elif "ICE MONARCH" in title_name or "FROST EMPEROR" in title_name:
-    style = (
-        "background: linear-gradient(90deg, #a8ffff, #00bfff, #ffffff);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 900; text-shadow: 0 0 12px rgba(0,191,255,0.85);"
-        " font-size: 1.06em; padding: 0 4px;"
-    )
+    style = hex_to_pastel_neon_css(aura_colors["✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧"])
+  elif "ICE MONARCH" in title_name:
+    style = hex_to_pastel_neon_css(aura_colors["𝓜𝓪𝓶𝓶𝓸𝓽𝓱"])
+  elif "FROST EMPEROR" in title_name:
+    style = hex_to_pastel_neon_css(aura_colors["𝓘𝓬𝓮𝓐𝓰𝓮"])
   elif "무한의 환상" in title_name:
-    style = (
-        "background: linear-gradient(90deg, #d580ff, #ff4da6, #66d9ff);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 900; text-shadow: 0 0 12px rgba(213,128,255,0.85);"
-        " font-size: 1.06em; padding: 0 4px;"
-    )
-  elif "잔광" in title_name:
-    style = (
-        "background: linear-gradient(90deg, #00ffff, #3399ff, #b3ffff);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 900; text-shadow: 0 0 12px rgba(0,255,255,0.85);"
-        " font-size: 1.06em; padding: 0 4px;"
-    )
+    style = hex_to_pastel_neon_css(aura_colors["𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"])
+  elif "영광의 잔광" in title_name:
+    style = hex_to_pastel_neon_css(aura_colors["𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐"])
   elif (
       "𝓦𝓪𝓽𝓬𝓱𝓮𝓻" in title_name
       or "𝓛𝓾𝓵𝓵𝓪𝓫𝔂" in title_name
-      or "𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽" in title_name
       or "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲" in title_name
       or "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭" in title_name
   ):
