@@ -1272,8 +1272,8 @@ with tab_titles:
   st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
   st.write("아우라 최초 획득 또는 만렙(MAX) 달성 시 획득한 칭호들이 이곳에 추가됩니다.")
 
-  if "titles" not in st.session:
-    st.session.state.titles = []
+  if "titles" not in st.session_state:
+    st.session_state.titles = []
 
   user_titles = st.session_state.titles
   if user_titles:
