@@ -218,28 +218,33 @@ equipped_backgrounds = {
     "그래피티": "Background/SmartSelect_20261114_171237_Google.jpg",
 }
 
-# 스킨 리스트 및 매칭 아우라 정의 ('빼빼로데이2026' 테마 적용)
+# 스킨 리스트 및 매칭 아우라 정의 ('빼빼로데이 2026' 테마 적용 - 무조건 1개만 보유 가능)
 skin_items = [
-    "빼빼로데이2026 (대마법사)",
-    "빼빼로데이2026 (감시자)",
-    "빼빼로데이2026 (카와이)",
+    "빼빼로데이 2026 (대마법사)",
+    "빼빼로데이 2026 (감시자)",
+    "빼빼로데이 2026 (카와이)",
 ]
+skin_theme_names = {
+    "빼빼로데이 2026 (대마법사)": "빼빼로데이 2026",
+    "빼빼로데이 2026 (감시자)": "빼빼로데이 2026",
+    "빼빼로데이 2026 (카와이)": "빼빼로데이 2026",
+}
 skin_images = {
-    "빼빼로데이2026 (대마법사)": "Skin/SmartSelect_20261114_234213_Gallery.jpg",
-    "빼빼로데이2026 (감시자)": "Skin/SmartSelect_20261114_234230_Gallery.jpg",
-    "빼빼로데이2026 (카와이)": "Skin/file_00000000568c8206bd1c2f53ae66e8ca.png",
+    "빼빼로데이 2026 (대마법사)": "Skin/SmartSelect_20261114_234213_Gallery.jpg",
+    "빼빼로데이 2026 (감시자)": "Skin/SmartSelect_20261114_234230_Gallery.jpg",
+    "빼빼로데이 2026 (카와이)": "Skin/file_00000000568c8206bd1c2f53ae66e8ca.png",
 }
 skin_required_aura = {
-    "빼빼로데이2026 (대마법사)": "대마법사",
-    "빼빼로데이2026 (감시자)": "감시자",
-    "빼빼로데이2026 (카와이)": "카와이",
+    "빼빼로데이 2026 (대마법사)": "대마법사",
+    "빼빼로데이 2026 (감시자)": "감시자",
+    "빼빼로데이 2026 (카와이)": "카와이",
 }
 
-# 아우라별 매칭되는 스킨 리스트 역매핑
+# 아우라별 매칭되는 스킨 리스트 역매핑 (추후 같은 아우라에 새 스킨 추가 가능)
 aura_to_skins = {
-    "대마법사": ["빼빼로데이2026 (대마법사)"],
-    "감시자": ["빼빼로데이2026 (감시자)"],
-    "카와이": ["빼빼로데이2026 (카와이)"],
+    "대마법사": ["빼빼로데이 2026 (대마법사)"],
+    "감시자": ["빼빼로데이 2026 (감시자)"],
+    "카와이": ["빼빼로데이 2026 (카와이)"],
 }
 
 # 행운권 상자 아이템 목록 및 메타데이터
@@ -283,6 +288,11 @@ def hash_password(password):
 
 
 def get_current_save_dict():
+  # 스킨은 무조건 최대 1개까지만 저장
+  normalized_skins = {
+      s: min(1, int(st.session_state.get("skins", {}).get(s, 0)))
+      for s in skin_items
+  }
   return {
       "counts": st.session_state.get("counts", {}),
       "levels": st.session_state.get("levels", {}),
@@ -299,7 +309,7 @@ def get_current_save_dict():
       "five_roll_unlocked": st.session_state.get("five_roll_unlocked", False),
       "potions": st.session_state.get("potions", {}),
       "cases": st.session_state.get("cases", 0),
-      "skins": st.session_state.get("skins", {}),
+      "skins": normalized_skins,
   }
 
 
@@ -345,7 +355,7 @@ def apply_loaded_data_to_session(saved_data):
   }
   st.session_state.cases = saved_data.get("cases", 0)
   st.session_state.skins = {
-      s: saved_data.get("skins", {}).get(s, 0) for s in skin_items
+      s: min(1, int(saved_data.get("skins", {}).get(s, 0))) for s in skin_items
   }
   st.session_state.active_potion_mult = 1
   st.session_state.active_potion_end = 0.0
@@ -356,6 +366,8 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.last_results = []
   st.session_state.last_luck_mult = 1
   st.session_state.selected_codex = items[0]
+  st.session_state.codex_skin_menu_open = False
+  st.session_state.codex_selected_skin = None
 
 
 # 세션 기본값 설정
@@ -1052,7 +1064,7 @@ with st.container(border=True):
   with c_eq2:
     st.write("**[스킨]**")
     if equipped_skin and equipped_skin in skin_images:
-      st.markdown(f"🎨 **{equipped_skin}** (전용 아우라: {skin_required_aura[equipped_skin]})")
+      st.markdown(f"🎨 **{equipped_skin}**")
       if st.button("❌ 스킨 장착 해제", key="top_unequip_skin_btn"):
         st.session_state.equipped_skin = None
         save_user_data_to_db()
@@ -1215,8 +1227,8 @@ with tab_gacha:
     )
 
 with tab_cases:
-  st.subheader("🎁 빼빼로데이2026 케이스 오픈 시스템")
-  st.write("100배 행운 포션 10개로 **케이스 1개**를 구매할 수 있으며, 케이스를 열어 빼빼로데이 스킨이나 500배 포션을 획득할 수 있습니다!")
+  st.subheader("🎁 케이스 오픈 시스템")
+  st.write("100배 행운 포션 10개로 **케이스 1개**를 구매할 수 있으며, 케이스를 열어 한정 스킨(최대 1개 보유)이나 500배 포션을 획득할 수 있습니다!")
 
   if "cases" not in st.session_state:
     st.session_state.cases = 0
@@ -1263,9 +1275,14 @@ with tab_cases:
         st.session_state.last_case_result = ("포션", f"🧪 [500배 행운 포션 (30초)] 1개를 획득했습니다!")
       else:
         won_skin = random.choice(skin_items)
-        st.session_state.skins[won_skin] = st.session_state.skins.get(won_skin, 0) + 1
-        st.session_state.last_case_result = ("스킨", f"🎨 빼빼로데이 스킨 [{won_skin}]을(를) 획득했습니다!")
-        st.balloons()
+        already_owned = st.session_state.skins.get(won_skin, 0) >= 1
+        # 스킨은 무조건 수량 1개만 보유 가능
+        st.session_state.skins[won_skin] = 1
+        if already_owned:
+          st.session_state.last_case_result = ("스킨", f"🎨 스킨 [{won_skin}]이(가) 등장했습니다! (이미 보유 중인 스킨입니다)")
+        else:
+          st.session_state.last_case_result = ("스킨", f"🎨 스킨 [{won_skin}]을(를) 획득했습니다!")
+          st.balloons()
 
       save_user_data_to_db()
       st.rerun()
@@ -1283,25 +1300,24 @@ with tab_cases:
     )
 
   st.divider()
-  st.markdown("### 🎨 보유 중인 빼빼로데이2026 스킨 목록")
-  owned_skins = [s for s in skin_items if st.session_state.skins.get(s, 0) > 0]
-  if owned_skins:
-    cols_skin = st.columns(3)
-    for idx, skin_name in enumerate(skin_items):
-      cnt = st.session_state.skins.get(skin_name, 0)
-      req_aura = skin_required_aura[skin_name]
-      with cols_skin[idx]:
-        with st.container(border=True):
+  st.markdown("### 🎨 스킨 수집 현황")
+  cols_skin = st.columns(3)
+  for idx, skin_name in enumerate(skin_items):
+    is_owned_skin = st.session_state.skins.get(skin_name, 0) >= 1
+    req_aura = skin_required_aura[skin_name]
+    theme_label = skin_theme_names[skin_name]
+    with cols_skin[idx]:
+      with st.container(border=True):
+        if is_owned_skin:
           if skin_images.get(skin_name) and os.path.exists(skin_images[skin_name]):
             st.image(skin_images[skin_name], use_container_width=True)
           st.markdown(f"<div style='text-align:center; font-weight:bold;'>{skin_name}</div>", unsafe_allow_html=True)
-          st.markdown(f"<div style='text-align:center; color:#aaa; font-size:12px;'>보유: {cnt}개 (전용 아우라: {req_aura})</div>", unsafe_allow_html=True)
-          if cnt > 0:
-            st.success("✅ 수집 완료 (스토리지에서 장착 가능)")
-          else:
-            st.caption("미획득 (케이스에서 획득 가능)")
-  else:
-    st.info("아직 획득한 스킨이 없습니다. 케이스를 열어 빼빼로데이 스킨을 수집해보세요!")
+          st.markdown(f"<div style='text-align:center; color:#aaa; font-size:12px;'>전용 아우라: {req_aura}</div>", unsafe_allow_html=True)
+          st.success("✅ 보유 완료")
+        else:
+          st.markdown(f"<div style='text-align:center; font-size:42px; padding:25px 0;'>🔒</div>", unsafe_allow_html=True)
+          st.markdown(f"<div style='text-align:center; font-weight:bold; color:#888;'>[{theme_label}]? ({req_aura})</div>", unsafe_allow_html=True)
+          st.caption("미보유 (케이스에서 획득 가능)")
 
 with tab_inventory:
   owned_items = [
@@ -1314,7 +1330,7 @@ with tab_inventory:
       f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
   )
   st.write(
-      "아우라 카드를 확인하고 장착, 레벨업 또는 **빼빼로데이2026 스킨 장착**을 진행하세요. (한 줄에 5개씩 배치)"
+      "아우라 카드를 확인하고 장착, 레벨업 또는 **전용 스킨 장착**을 진행하세요. (한 줄에 5개씩 배치)"
   )
 
   if owned_items:
@@ -1420,25 +1436,26 @@ with tab_inventory:
             # 스킨 장착 영역 (레벨업 버튼 아래쪽 카드 최하단에 배치)
             if matching_skins:
               st.markdown("---")
-              st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 빼빼로데이 스킨 장착 칸</div>", unsafe_allow_html=True)
+              st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 스킨 장착 칸</div>", unsafe_allow_html=True)
               for s_name in matching_skins:
-                s_owned_cnt = st.session_state.skins.get(s_name, 0)
+                is_owned_skin = st.session_state.skins.get(s_name, 0) >= 1
                 is_this_skin_equipped = st.session_state.get("equipped_skin") == s_name
+                theme_label = skin_theme_names.get(s_name, s_name)
 
-                if s_owned_cnt > 0:
+                if is_owned_skin:
                   if is_this_skin_equipped:
-                    st.markdown(f"<div style='text-align:center; font-size:10px; color:#00ffcc;'><b>[{s_name} 장착중]</b></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='text-align:center; font-size:10px; color:#00ffcc;'><b>[{theme_label} 장착중]</b></div>", unsafe_allow_html=True)
                     if st.button("스킨 해제", key=f"unequip_skin_grid_{item}_{s_name}", use_container_width=True):
                       st.session_state.equipped_skin = None
                       save_user_data_to_db()
                       st.rerun()
                   else:
-                    if st.button(f"스킨 장착", key=f"equip_skin_grid_{item}_{s_name}", use_container_width=True, type="secondary"):
+                    if st.button(f"{theme_label} 장착", key=f"equip_skin_grid_{item}_{s_name}", use_container_width=True, type="secondary"):
                       st.session_state.equipped_skin = s_name
                       save_user_data_to_db()
                       st.rerun()
                 else:
-                  st.markdown(f"<div style='text-align:center; font-size:10px; color:#777;'>🔒 미보유</div>", unsafe_allow_html=True)
+                  st.markdown(f"<div style='text-align:center; font-size:10px; color:#777;'>🔒 [{theme_label}]?</div>", unsafe_allow_html=True)
   else:
     st.markdown(
         """
@@ -1534,7 +1551,7 @@ with tab_potions:
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
   st.write(
-      "왼쪽 목록에서 아우라를 선택하여 상세 정보, 컷씬 및 **빼빼로데이 스킨**을 확인할 수 있습니다."
+      "왼쪽 목록에서 아우라를 선택하여 상세 정보, 컷씬 및 **스킨**을 확인할 수 있습니다."
   )
 
   col_left, col_right = st.columns([1, 1.5])
@@ -1556,8 +1573,9 @@ with tab_codex:
           use_container_width=True,
       ):
         st.session_state.selected_codex = item
-        # 아우라를 바꿀 때 스킨 보기 모드 초기화
-        st.session_state.codex_viewing_skin = False
+        # 아우라를 바꿀 때 스킨 메뉴/선택 상태 초기화
+        st.session_state.codex_skin_menu_open = False
+        st.session_state.codex_selected_skin = None
 
   with col_right:
     sel = st.session_state.selected_codex
@@ -1568,38 +1586,57 @@ with tab_codex:
         or st.session_state.levels.get(sel, 1) > 1
     )
 
-    if "codex_viewing_skin" not in st.session_state:
-      st.session_state.codex_viewing_skin = False
+    if "codex_skin_menu_open" not in st.session_state:
+      st.session_state.codex_skin_menu_open = False
+    if "codex_selected_skin" not in st.session_state:
+      st.session_state.codex_selected_skin = None
 
     matching_skins_for_codex = aura_to_skins.get(sel, [])
-    is_viewing_skin = st.session_state.codex_viewing_skin and matching_skins_for_codex
+    selected_skin = st.session_state.codex_selected_skin
 
-    if is_viewing_skin:
-      target_skin = matching_skins_for_codex[0]
-      skin_cnt = st.session_state.skins.get(target_skin, 0)
-      st.markdown(f"#### 상세 정보: `{target_skin}` (스킨 모드)")
+    if selected_skin and selected_skin in matching_skins_for_codex:
+      is_skin_owned = st.session_state.skins.get(selected_skin, 0) >= 1
+      theme_label = skin_theme_names.get(selected_skin, selected_skin)
+      header_skin_name = theme_label if is_skin_owned else f"[{theme_label}]?"
+      st.markdown(f"#### 상세 정보: `{header_skin_name}` (스킨)")
     else:
       st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
 
     with st.container(border=True):
       if is_owned:
-        if is_viewing_skin:
-          target_skin = matching_skins_for_codex[0]
-          skin_img_path = skin_images.get(target_skin)
-          skin_cnt = st.session_state.skins.get(target_skin, 0)
+        # 1) 특정 스킨을 선택한 상태
+        if selected_skin and selected_skin in matching_skins_for_codex:
+          is_skin_owned = st.session_state.skins.get(selected_skin, 0) >= 1
+          theme_label = skin_theme_names.get(selected_skin, selected_skin)
+          skin_img_path = skin_images.get(selected_skin)
 
-          if skin_img_path and os.path.exists(skin_img_path):
-            st.image(skin_img_path, width=180)
-          else:
-            st.markdown("<div style='font-size: 40px;'>🎨</div>", unsafe_allow_html=True)
+          if is_skin_owned:
+            if skin_img_path and os.path.exists(skin_img_path):
+              st.image(skin_img_path, width=180)
+            else:
+              st.markdown("<div style='font-size: 40px;'>🎨</div>", unsafe_allow_html=True)
 
-          st.markdown(f"### [{target_skin}]")
-          st.write(f"**전용 원본 아우라:** {sel}")
-          st.write(f"**보유 수량:** {skin_cnt}개")
-          if skin_cnt > 0:
+            st.markdown(f"### [{theme_label}] ({sel})")
+            st.write(f"**전용 원본 아우라:** {sel}")
             st.success("✅ 보유 중인 스킨입니다!")
           else:
-            st.warning("🔒 미보유 스킨입니다 (케이스에서 획득 가능)")
+            st.markdown(
+                f"""
+                <div style="text-align: center; padding: 30px; color: #888;">
+                    <h2>🔒</h2>
+                    <h3>[{theme_label}]?</h3>
+                    <p>아직 획득하지 못한 스킨입니다. 케이스에서 획득할 수 있습니다!</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+          st.markdown("---")
+          if st.button("✨ 원본 아우라 정보로 돌아가기", use_container_width=True, type="primary"):
+            st.session_state.codex_selected_skin = None
+            st.rerun()
+
+        # 2) 기본 원본 아우라 정보 화면
         else:
           img_path = aura_images.get(sel)
           if img_path and os.path.exists(img_path):
@@ -1615,25 +1652,30 @@ with tab_codex:
           st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
           st.write(f"**현재 레벨:** Lv. {st.session_state.levels.get(sel, 1)} / 6")
 
-        st.markdown("---")
+          st.markdown("---")
 
-        if matching_skins_for_codex:
-          if is_viewing_skin:
-            if st.button("✨ 원본 아우라 정보로 돌아가기", use_container_width=True, type="primary"):
-              st.session_state.codex_viewing_skin = False
-              st.rerun()
-          else:
-            if st.button("🎨 빼빼로데이 스킨 보기", use_container_width=True, type="secondary"):
-              st.session_state.codex_viewing_skin = True
-              st.rerun()
-
-        if not is_viewing_skin:
           if sel in cutscene_auras:
             st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
             if st.button("🎬 컷씬 다시 보기", use_container_width=True):
               play_cutscene(sel)
           else:
             st.caption("이 아우라에는 별도의 컷씬 연출이 없습니다.")
+
+          # 컷씬 다시 보기 버튼 밑에 '스킨 보기' 버튼 및 하위 스킨 목록 배치
+          if matching_skins_for_codex:
+            if st.button("🎨 스킨 보기", use_container_width=True, type="secondary"):
+              st.session_state.codex_skin_menu_open = not st.session_state.codex_skin_menu_open
+              st.rerun()
+
+            if st.session_state.codex_skin_menu_open:
+              st.markdown("**📂 보유/미보유 스킨 선택:**")
+              for s_item in matching_skins_for_codex:
+                s_owned = st.session_state.skins.get(s_item, 0) >= 1
+                t_label = skin_theme_names.get(s_item, s_item)
+                btn_label = f"🎨 {t_label}" if s_owned else f"🔒 [{t_label}]?"
+                if st.button(btn_label, key=f"codex_pick_skin_{s_item}", use_container_width=True):
+                  st.session_state.codex_selected_skin = s_item
+                  st.rerun()
       else:
         st.markdown(
             """
@@ -1982,5 +2024,7 @@ with tab_shop:
     st.session_state.last_results = []
     st.session_state.last_luck_mult = 1
     st.session_state.selected_codex = items[0]
+    st.session_state.codex_skin_menu_open = False
+    st.session_state.codex_selected_skin = None
     save_user_data_to_db()
     st.rerun()
