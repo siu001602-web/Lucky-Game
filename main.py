@@ -301,7 +301,6 @@ def hash_password(password):
 
 def get_current_save_dict():
   return {
-      "history": st.session_state.get("history", []),
       "counts": st.session_state.get("counts", {}),
       "levels": st.session_state.get("levels", {}),
       "titles": st.session_state.get("titles", []),
@@ -334,7 +333,6 @@ def save_user_data_to_db():
 
 
 def apply_loaded_data_to_session(saved_data):
-  st.session_state.history = saved_data.get("history", [])
   st.session_state.counts = {
       item: saved_data.get("counts", {}).get(item, 0) for item in items
   }
@@ -426,7 +424,6 @@ if not st.session_state.logged_in:
           st.error("이미 존재하는 아이디입니다.")
         else:
           new_user_init_data = {
-              "history": [],
               "counts": {item: 0 for item in items},
               "levels": {item: 1 for item in items},
               "titles": [],
@@ -768,7 +765,6 @@ def perform_rolls(roll_count=1):
     if curr_lvl < 7:
       st.session_state.counts[result] += 1
 
-    st.session_state.history.insert(0, result)
     st.session_state.coins += coin_gain_per_roll
 
   new_cutscene_targets = [
@@ -1022,17 +1018,6 @@ with tab_gacha:
         """,
         unsafe_allow_html=True,
     )
-
-  st.divider()
-  st.subheader("📜 최근 뽑기 기록")
-  if st.session_state.history:
-    recent = st.session_state.history[:8]
-    for i, res in enumerate(recent):
-      st.text(
-          f"{len(st.session_state.history) - i}번째: {icons.get(res, '✨')} [{res}]"
-      )
-  else:
-    st.text("아직 뽑기 기록이 없습니다.")
 
 with tab_inventory:
   owned_items = [
@@ -1551,7 +1536,6 @@ with tab_shop:
       type="secondary",
       use_container_width=True,
   ):
-    st.session_state.history = []
     st.session_state.counts = {item: 0 for item in items}
     st.session_state.levels = {item: 1 for item in items}
     st.session_state.titles = []
