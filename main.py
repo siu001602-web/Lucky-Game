@@ -1208,7 +1208,6 @@ with tab_potions:
           with col_p2:
             st.markdown(f"#### {p_name}")
             st.write(f"보유 수량: **{count}개**")
-            # 수량 선택 슬라이더 (1개 ~ 보유 개수)
             use_qty = st.slider(
                 "사용할 수량",
                 min_value=1,
@@ -1237,7 +1236,6 @@ with tab_potions:
                 ):
                   st.session_state.active_potion_end += add_duration
                 else:
-                  # 이미 끝났거나 다른 포션이었을 경우
                   base_time = (
                       max(now, st.session_state.active_potion_end)
                       if st.session_state.active_potion_mult > 1
@@ -1247,7 +1245,6 @@ with tab_potions:
                   st.session_state.active_potion_mult = cfg["mult"]
                   st.session_state.active_potion_name = p_name
               elif cfg["type"] == "ticket":
-                # 백만배 행운권은 1개 초과 사용 시 남은 만큼 장전 횟수로 누적
                 if "million_ticket_count" not in st.session_state:
                   st.session_state.million_ticket_count = 0
                 st.session_state.million_ticket_count += use_qty
@@ -1402,10 +1399,10 @@ with tab_shop:
   with st.container(border=True):
     col_box1, col_box2 = st.columns([2, 1])
     with col_box1:
-      st.markdown("### 🎁 행운권 상자 (즉시 개봉)")
+      st.markdown("### 🎁 행운권 상자 (원하는 수량 구매)")
       st.write(
           "초고배율 행운 포션이나 백만배 행운권을 획득할 수 있는 미스터리"
-          " 상자입니다."
+          " 상자입니다. (개당 300 G)"
       )
       with st.expander("📋 상자 구성품 확률 보기"):
         st.markdown("- **90%**: 100배 행운 포션 (1분) — 최소 1/128 이상 보장")
@@ -1413,27 +1410,49 @@ with tab_shop:
         st.markdown("- **2%**: 1000배 행운 포션 (15초) — 최소 1/2,048 이상 보장")
         st.markdown("- **0.9%**: 10000배 행운 포션 (10초) — 최소 1/16,384 이상 보장")
         st.markdown("- **0.1%**: 백만배 행운권 (1회) — 최소 1/1,000,000 (아케인 이상) 확정!")
+
+      max_buy_boxes = max(1, st.session_state.coins // 300)
+      buy_box_qty = st.slider(
+          "구매할 상자 수량",
+          min_value=1,
+          max_value=max_buy_boxes,
+          value=1,
+          key="slider_buy_boxes",
+      )
+      total_box_price = buy_box_qty * 300
+      st.write(f"총 필요 코인: **{total_box_price:,} G**")
+
     with col_box2:
       st.write("")
+      st.write("")
       if st.button(
-          "상자 구매 및 열기 (300 G)",
+          f"상자 {buy_box_qty}개 구매 & 개봉",
           type="primary",
-          key="buy_luck_box",
+          key="buy_luck_box_qty",
           use_container_width=True,
       ):
-        if st.session_state.coins >= 300:
-          st.session_state.coins -= 300
-          won_item = random.choices(
-              potion_items, weights=potion_weights, k=1
-          )[0]
-          st.session_state.potions[won_item] += 1
+        if st.session_state.coins >= total_box_price:
+          st.session_state.coins -= total_box_price
+          won_summary = {}
+          for _ in range(buy_box_qty):
+            won_item = random.choices(
+                potion_items, weights=potion_weights, k=1
+            )[0]
+            st.session_state.potions[won_item] += 1
+            won_summary[won_item] = won_summary.get(won_item, 0) + 1
+
           save_user_data_to_db()
-          st.success(f"🎉 행운권 상자에서 **[{won_item}]**을(를) 획득했습니다!")
+          summary_str = ", ".join(
+              [f"**{k}** {v개}개" for k, v in won_summary.items()]
+          )
+          st.success(
+              f"🎉 행운권 상자 {buy_box_qty}개 개봉 결과: {summary_str} 획득!"
+          )
           st.balloons()
           time.sleep(1.2)
           st.rerun()
         else:
-          st.error("코인이 부족합니다! (300 G 필요)")
+          st.error(f"코인이 부족합니다! ({total_box_price:,} G 필요)")
 
   with st.container(border=True):
     col_t1, col_t2 = st.columns([2, 1])
