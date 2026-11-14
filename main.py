@@ -34,7 +34,6 @@ items = [
     "굿", "희귀", "일반",
 ]
 
-# 각 아우라의 실제 분모 수치
 denominators = {
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": 7500000000, "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222,
     "사도:베일": 800000000, "수확가": 666000000, "악몽의 하늘": 190000000,
@@ -446,8 +445,6 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.last_results = []
   st.session_state.last_luck_mult = 1
   st.session_state.selected_codex = items[0]
-  st.session_state.codex_skin_menu_open = False
-  st.session_state.codex_selected_skin = None
 
 
 if "logged_in" not in st.session_state:
@@ -489,7 +486,7 @@ if not st.session_state.logged_in:
           apply_loaded_data_to_session(saved_data)
 
           st.success(f"환영합니다, {l_user}님! 게임을 시작합니다.")
-          time.sleep(0.8)
+          time.sleep(0.5)
           st.rerun()
         else:
           st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
@@ -711,7 +708,7 @@ def get_styled_title_html(title_name):
 
   halloween_titles = [
       "𓆩 𝓟𝓾𝓶𝓹 𓆪", "𓆩 𝕽𝖚𝓷𝖊 𝕶𝓷𝓲𝓰𝓱𝓽 𓆪", "𓆩 𝓥𝓲𝓽𝓪𝓵 𓆪",
-      "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪", "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝓷𝖙𝖊𝓻 𓆪", "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
+      "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪", "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝓾𝓷𝖙𝖊𝓻 𓆪", "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
       "𓆩 𝕯𝖗𝖊𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝖊𝖗 𓆪", "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝕍𝖊𝖎𝖑 𓆪",
       "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝓰𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
       "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
@@ -1012,9 +1009,9 @@ def perform_rolls(roll_count=1):
       first_get_titles = {
           "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝕍𝖊𝖎𝖑 𓆪",
           "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝖊𝖗 𓆪",
-          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
+          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
-          "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
+          "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬h𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
           "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
           "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊✨ 𝐏𝐑𝐈𝐌𝐎𝐑𝐃𝐈𝐀𝐋 𝐀𝐁𝐘𝐒𝐒 ✨🌊",
           "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "• ⋆༺무한의 환상༻⋆",
@@ -1498,7 +1495,7 @@ with tab_inventory:
                       "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
                       "사도:베일": "꧁༺ 🎃𝕯𝖎𝖛𝖎𝖓𝖊 𝕬𝖗𝖇𝖎𝖙𝖊𝖗 𝕺𝓋 𝕿𝖍𝖊 𝕁𝖔𝖎𝓭🎃 ༻꧂",
                       "수확가": "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
-                      "악몽의 하늘": "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝓮𝓲𝓰𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
+                      "악몽의 하늘": "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝓰𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
                       "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
                       "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
                       "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
@@ -1507,7 +1504,7 @@ with tab_inventory:
                       "아쿠아리움": "𓆩 𝓐𝓺𝓾𝓪𝓻𝓲𝓾𝓶 𓆪",
                       "선원": "𓆩 𝓢𝓪𝓲𝓵𝓸𝓻 𓆩",
                       "샤킨": "𓆩 𝕾𝖍𝖆𝖗𝖐𝖎𝓷 𓆩",
-                      "포세이돈": "𓆩 𝕻𝖔𝖘𝖊𝖎𝓏𝖔𝓷 𓆪",
+                      "포세이돈": "𓆩 𝕻𝖔𝖘𝖊𝖎𝕉𝖔𝓷 𓆪",
                       "에바네샌트": "𓆩 𝓔𝓿𝓪𝓷𝓮𝓼𝓬𝓮𝓷𝓽 𓆩",
                       "기원": "𓆩 𝕺𝖗𝓲g𝓲𝓷 𝕾𝓹𝖆𝓻𝚔 𓆪",
                       "망령": "𓆩 𝕬𝓹𝓱𝓪𝓷𝓽 𓆪",
@@ -1569,33 +1566,22 @@ with tab_potions:
         if st.button(f"날씨 변경권 사용 ({use_wt_qty}개)", key="btn_use_weather_ticket", type="primary", use_container_width=True):
           st.session_state.weather_tickets -= use_wt_qty
           
-          # [핵심 수정] 날씨 변경권 사용 시 현재 시각 기반으로 새로운 날씨를 추첨하고
-          # 일반 날씨는 정확히 1분(60초), 할로윈 바이옴은 5분(300초) 타이머의 시작점(오프셋)으로 강제 고정합니다.
-          cur_real_time = int(time.time())
+          # [핵심 수정] 즉시 날씨 오프셋을 재계산하여 새 날씨와 타이머(1분 또는 할로윈 5분)로 전환되도록 강제 고정
+          current_real_time = int(time.time())
           
-          # 무작위로 다음 변경될 날씨가 할로윈일지 일반일지 미리 결정
-          # (기존 확률 규칙: 할로윈은 0.2% 확률)
-          test_offset_seed = cur_real_time + random.randint(1000, 999999)
+          # 다음 날씨가 할로윈일 확률 테스트
+          test_offset_seed = current_real_time + random.randint(10000, 999999)
           test_big_cycle = test_offset_seed // 300
           random.seed(test_big_cycle * 999)
           is_hween = random.random() < 0.002
           random.seed()
           
-          if is_hween:
-            # 할로윈 바이옴 당첨 시: 5분(300초) 단위 구간의 시작점으로 오프셋 설정
-            target_duration = 300
-          else:
-            # 일반 날씨(비, 눈, 맑음) 당첨 시: 1분(60초) 단위 구간의 시작점으로 오프셋 설정
-            target_duration = 60
-            
-          new_offset = target_duration - (cur_real_time % target_duration) + (random.randint(1, 50) * target_duration)
+          target_duration = 300 if is_hween else 60
+          new_offset = target_duration - (current_real_time % target_duration) + (random.randint(1, 100) * target_duration)
           st.session_state.weather_offset = new_offset
 
           save_user_data_to_db()
-          st.success(f"🎉 날씨 변경권 {use_wt_qty}장을 사용하여 날씨와 지속시간을 즉시 초기화했습니다!")
-          
-          # [핵심 수정] 즉시 화면 새로고침(rerun)을 수행하여 지연 없이 바로 반영되도록 처리
-          time.sleep(0.3)
+          st.success(f"🎉 날씨 변경권 {use_wt_qty}장을 사용하여 날씨와 타이머를 즉시 초기화했습니다!")
           st.rerun()
 
   all_potions_count = sum(st.session_state.potions.values())
@@ -1636,7 +1622,6 @@ with tab_potions:
                 st.session_state.million_ticket_active = True
               save_user_data_to_db()
               st.success(f"🎉 [{p_name}] {use_qty}개가 성공적으로 사용되었습니다!")
-              time.sleep(0.8)
               st.rerun()
   if all_potions_count == 0 and weather_ticket_count == 0:
     st.markdown("<div style='text-align: center; padding: 50px; color: #777;'><h3>🧪 포션 인벤토리가 비어 있습니다!</h3></div>", unsafe_allow_html=True)
@@ -1651,11 +1636,9 @@ with tab_codex:
       display_name = f"{icons.get(item, '✨')} {item}" if is_owned else "🔒 [LOCKED] ???"
       if st.button(display_name, key=f"codex_select_{item}", use_container_width=True):
         st.session_state.selected_codex = item
-        st.session_state.codex_skin_menu_open = False
-        st.session_state.codex_selected_skin = None
 
   with col_right:
-    sel = st.session_state.selected_codex
+    sel = st.session_state.get("selected_codex", items[0])
     if sel not in items:
       sel = items[0]
     is_owned = st.session_state.counts.get(sel, 0) > 0 or st.session_state.levels.get(sel, 1) > 1
@@ -1799,7 +1782,6 @@ with tab_shop:
         apply_loaded_data_to_session(loaded_data)
         save_user_data_to_db()
         st.success("🎉 세이브 데이터가 성공적으로 복구되었습니다!")
-        time.sleep(1.0)
         st.rerun()
       except Exception as e:
         st.error(f"❌ 파일 읽기 실패: 올바른 세이브 JSON 파일이 아닙니다. ({e})")
