@@ -14,12 +14,12 @@ st.set_page_config(
     page_title="아우라 가챠 & 도감", page_icon="✨", layout="wide"
 )
 
-# 등급 리스트 정의 (희귀도 높은 순 - 신규 아우라 정밀 배치)
+# 등급 리스트 정의 (희귀도 높은 순)
 items = [
-    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "사도:베일", "수확가", "악몽의 하늘", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒", "감시자",
     "아쿠아리움", "선원", "샤킨", "포세이돈", "에바네샌트",
-    "기원", "망령",
+    "기원", "망령", "듀라한", "영혼 사냥꾼", "묘화", "밤나팔꽃", "바이탈", "룬(나이트)", "펌프",
     "블리자드", "이상", "크로마틱", "자장가",
     "그래피티", "헬리오스", "속력", "황혼",
     "아파타이트", "대마법사", "아케인", "워록",
@@ -34,13 +34,17 @@ items = [
     "굿", "희귀", "일반",
 ]
 
-# 각 아우라의 실제 분모 수치 (행운 배율 필터링 및 확률 기준)
+# 각 아우라의 실제 분모 수치
 denominators = {
-    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": 7500000000, "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222, "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000,
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": 7500000000, "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222,
+    "사도:베일": 800000000, "수확가": 666000000, "악몽의 하늘": 190000000,
+    "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000,
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": 200000000, "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": 175000000, "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000,
     "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": 1730400000, "감시자": 45000000,
     "아쿠아리움": 80000000, "선원": 12000000, "샤킨": 10000000, "포세이돈": 4000000, "에바네샌트": 3360000,
     "기원": 6500000, "망령": 4100000,
+    "사도:베일": 800000000, "수확가": 666000000, "악몽의 하늘": 190000000,
+    "듀라한": 72000000, "영혼 사냥꾼": 40000000, "묘화": 21000000, "밤나팔꽃": 10000000, "바이탈": 6000000, "룬(나이트)": 1000000, "펌프": 200000,
     "블리자드": 27315000, "이상": 24691356, "크로마틱": 20000000, "자장가": 17000000,
     "그래피티": 12000000, "헬리오스": 9000000, "속력": 7630000, "황혼": 6000000,
     "아파타이트": 3133133, "대마법사": 1766000, "아케인": 1000000, "워록": 660000,
@@ -55,10 +59,18 @@ denominators = {
     "굿": 5, "희귀": 4, "일반": 2,
 }
 
-# 아우라 고유 대표 색상 (1억 이상 네온 그라데이션 자동 생성용)
+# 할로윈 2024 바이옴 전용 아우라 목록
+halloween_auras = [
+    "펌프", "룬(나이트)", "바이탈", "밤나팔꽃", "묘화", "영혼 사냥꾼", "듀라한",
+    "악몽의 하늘", "수확가", "사도:베일"
+]
+
 aura_colors = {
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "#ffd700",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "#b366ff",
+    "사도:베일": "#ff3366",
+    "수확가": "#ff6600",
+    "악몽의 하늘": "#9900cc",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "#00bfff",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "#add8e6",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "#ff77ff",
@@ -67,13 +79,14 @@ aura_colors = {
     "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "#00aaee",
 }
 
-# 분모를 기반으로 정확한 가중치 자동 생성 (75억 기준 스케일링)
 base_weights = [max(1, int(7500000000000 / denominators[item])) for item in items]
 
-# 각 아우라의 분수 표시 문자열
 fractions = {
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "1 in 7,500,000,000 (운명조작: 장착 시 1회당 10뽑 가능)",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "1 in 2,222,222,222 (밤 버프 시 2배 / 장착 시 밤 행운 10배)",
+    "사도:베일": "1 in 800,000,000 (할로윈 전용 / 장착 시 뽑기마다 0.1% 확률로 500배 행운 포션 드랍)",
+    "수확가": "1 in 666,000,000 (할로윈 전용 / 장착 시 100뽑마다 행운 2배 증가)",
+    "악몽의 하늘": "1 in 190,000,000 (할로윈 전용 / 장착 시 3턴 내 1% 확률로 10배~1000배 행운 발현)",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "1 in 1,500,000,000 (눈올 때 행운 10배)",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "1 in 300,000,000 (눈 확률 10% 증가)",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "1 in 200,000,000 (장착 시 크로마틱 확률 2배 증가)",
@@ -88,6 +101,13 @@ fractions = {
     "에바네샌트": "1 in 3,360,000 (비올 때 확률 4배)",
     "기원": "1 in 6,500,000",
     "망령": "1 in 4,100,000",
+    "듀라한": "1 in 72,000,000 (할로윈 2024 바이옴 전용)",
+    "영혼 사냥꾼": "1 in 40,000,000 (할로윈 2024 바이옴 전용)",
+    "묘화": "1 in 21,000,000 (할로윈 2024 바이옴 전용)",
+    "밤나팔꽃": "1 in 10,000,000 (할로윈 2024 바이옴 전용)",
+    "바이탈": "1 in 6,000,000 (할로윈 2024 바이옴 전용)",
+    "룬(나이트)": "1 in 1,000,000 (할로윈 2024 바이옴 전용)",
+    "펌프": "1 in 200,000 (할로윈 2024 바이옴 전용)",
     "블리자드": "1 in 27,315,000 (눈올 때 확률 3배)",
     "이상": "1 in 24,691,356",
     "크로마틱": "1 in 20,000,000",
@@ -115,12 +135,12 @@ fractions = {
     "카와이": "1 in 12,300",
     "석영": "1 in 8,192",
     "출혈": "1 in 4,444",
-    "시데리움": "1 in 4,096",
-    "콜라": "1 in 3,999",
-    "빙하": "1 in 2,304 (눈올 때 확률 3배)",
-    "재": "1 in 2,300",
-    "자력": "1 in 2,048",
-    "글록": "1 in 1,700",
+    "시데리움": "1 in 4096",
+    "콜라": "1 in 3999",
+    "빙하": "1 in 2304 (눈올 때 확률 3배)",
+    "재": "1 in 2300",
+    "자력": "1 in 2048",
+    "글록": "1 in 1700",
     "아쿠아마린": "1 in 900",
     "사파이어": "1 in 800",
     "잉크": "1 in 700",
@@ -130,8 +150,8 @@ fractions = {
     "토파즈": "1 in 150",
     "결정화": "1 in 128",
     "현기증": "1 in 123",
-    "원자": "1 in 1,180",
-    "수소": "1 in 1,111",
+    "원자": "1 in 1180",
+    "수소": "1 in 1111",
     "레어": "1 in 16",
     "자연": "1 in 8",
     "굿": "1 in 5",
@@ -139,12 +159,11 @@ fractions = {
     "일반": "1 in 2",
 }
 
-# 컷씬이 존재하는 아우라 목록
 cutscene_auras = [
-    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "사도:베일", "수확가", "악몽의 하늘", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒", "감시자",
     "아쿠아리움", "선원", "샤킨", "포세이돈", "에바네샌트",
-    "기원", "망령",
+    "기원", "망령", "듀라한", "영혼 사냥꾼", "묘화", "밤나팔꽃", "바이탈", "룬(나이트)", "펌프",
     "블리자드", "이상", "크로마틱", "자장가",
     "그래피티", "헬리오스", "속력", "황혼",
     "아파타이트", "대마법사", "아케인", "워록",
@@ -153,13 +172,15 @@ cutscene_auras = [
     "카와이", "석영", "시데리움",
 ]
 
-# 등급별 이모티콘 매핑
 icons = {
-    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "🖐️✨🌌👑", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋", "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊",
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "🖐️✨🌌👑", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋",
+    "사도:베일": "🎃👁️", "수확가": "🎃🗡️", "악몽의 하늘": "🎃🌌",
+    "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "🌈💎✨", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "🎼🎻✨♠️", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫",
     "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊🐉🌀", "감시자": "👁️‍🗨️⚡",
     "아쿠아리움": "🐠🌊🏛️", "선원": "⚓⛵🌊", "샤킨": "🦈🌊⚡", "포세이돈": "🔱🌊🌊", "에바네샌트": "🌀✨🌌",
     "기원": "🌌✨", "망령": "👻⚡",
+    "듀라한": "🎃🗡️", "영혼 사냥꾼": "🎃👻", "묘화": "🎃🔥", "밤나팔꽃": "🎃🌸", "바이탈": "🎃💉", "룬(나이트)": "🎃🛡️", "펌프": "🎃✨",
     "블리자드": "❄️🌨️🌀", "이상": "🌀❓🌌", "크로마틱": "🌈💫", "자장가": "🌌🎵💤",
     "그래피티": "🎨✨", "헬리오스": "☀️🔥", "속력": "⚡💨", "황혼": "🌆✨💜",
     "아파타이트": "💠💎", "대마법사": "🧙‍♂️✨", "아케인": "🔮👑", "워록": "💀🔥",
@@ -174,7 +195,6 @@ icons = {
     "굿": "👍✨", "희귀": "💧📘", "일반": "⚪📦",
 }
 
-# 모든 등급 아우라 이미지 경로 매핑 (신규 5종 포함)
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
     "희귀": "images/SmartSelect_20261113_115402_NAVER.jpg",
@@ -225,6 +245,16 @@ aura_images = {
     "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
     "이상": "images/SmartSelect_20261114_223653_Chrome.jpg",
     "블리자드": "images/SmartSelect_20261114_102513_NAVER.jpg",
+    "펌프": "Halloween/SmartSelect_20261115_025739_Chrome.jpg",
+    "룬(나이트)": "Halloween/SmartSelect_20261115_025805_Chrome.jpg",
+    "바이탈": "Halloween/SmartSelect_20261115_025830_Chrome.jpg",
+    "밤나팔꽃": "Halloween/SmartSelect_20261115_025911_Chrome.jpg",
+    "묘화": "Halloween/SmartSelect_20261115_025927_Chrome.jpg",
+    "영혼 사냥꾼": "Halloween/SmartSelect_20261115_025943_Chrome.jpg",
+    "듀라한": "Halloween/SmartSelect_20261115_030001_Chrome.jpg",
+    "악몽의 하늘": "Halloween/SmartSelect_20261115_032306_Chrome.jpg",
+    "수확가": "Halloween/SmartSelect_20261115_032331_Chrome.jpg",
+    "사도:베일": "Halloween/SmartSelect_20261115_032347_Chrome.jpg",
     "기원": "images/SmartSelect_20261115_024250_NAVER.jpg",
     "망령": "images/SmartSelect_20261115_024226_NAVER.jpg",
     "에바네샌트": "images/SmartSelect_20261115_020409_Chrome.jpg",
@@ -243,7 +273,6 @@ aura_images = {
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "images/SmartSelect_20261114_223837_Chrome.jpg",
 }
 
-# 특수 장착 배경 이미지 매핑
 equipped_backgrounds = {
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "Background/SmartSelect_20261114_230443_Chrome.jpg",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "Background/SmartSelect_20261114_105008_NAVER.jpg",
@@ -259,12 +288,18 @@ equipped_backgrounds = {
     "아쿠아리움": "Background/SmartSelect_20261115_022254_Google.jpg",
     "선원": "Background/SmartSelect_20261115_022157_Google.jpg",
     "샤킨": "Background/SmartSelect_20261115_021602_Google.jpg",
+    "밤나팔꽃": "Background/SmartSelect_20261115_030923_Google.jpg",
+    "묘화": "Background/SmartSelect_20261115_031435_Google.jpg",
+    "영혼 사냥꾼": "Background/SmartSelect_20261115_031528_Google.jpg",
+    "듀라한": "Background/SmartSelect_20261115_031612_Google.jpg",
+    "악몽의 하늘": "Background/SmartSelect_20261115_033218_Google.jpg",
+    "수확가": "Background/SmartSelect_20261115_033608_Google.jpg",
+    "사도:베일": "Background/SmartSelect_20261115_033436_Google.jpg",
     "크로마틱": "images/SmartSelect_20261113_233022_Google.jpg",
     "자장가": "Background/SmartSelect_20261114_000015_Chrome.jpg",
     "그래피티": "Background/SmartSelect_20261114_171237_Google.jpg",
 }
 
-# 스킨 리스트 및 매칭 아우라 정의
 skin_items = [
     "빼빼로데이 2026 (대마법사)",
     "빼빼로데이 2026 (감시자)",
@@ -292,7 +327,6 @@ aura_to_skins = {
     "카와이": ["빼빼로데이 2026 (카와이)"],
 }
 
-# 행운권 상자 아이템 목록 및 메타데이터
 potion_items = [
     "100배 행운 포션 (1분)", "500배 행운 포션 (30초)",
     "1000배 행운 포션 (15초)", "10000배 행운 포션 (10초)",
@@ -308,9 +342,6 @@ potion_config = {
 }
 
 
-# ==========================================
-# 🗄️ SQLite 데이터베이스 설정 및 관리 함수
-# ==========================================
 def init_db():
   conn = sqlite3.connect("users.db", check_same_thread=False)
   cursor = conn.cursor()
@@ -346,7 +377,9 @@ def get_current_save_dict():
       "equipped_skin": st.session_state.get("equipped_skin", None),
       "coins": st.session_state.get("coins", 0),
       "inventory_slots": st.session_state.get("inventory_slots", 50),
-      "luck_buff_unlocked": st.session_state.get("luck_buff_unlocked", False),
+      "luck_buff_unlocked": st.session_state.get(
+          "luck_buff_unlocked", False
+      ),
       "triple_roll_unlocked": st.session_state.get(
           "triple_roll_unlocked", False
       ),
@@ -414,7 +447,6 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.codex_selected_skin = None
 
 
-# 세션 기본값 설정
 if "logged_in" not in st.session_state:
   st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -425,9 +457,6 @@ if "symphony_last_minute" not in st.session_state:
   st.session_state.symphony_last_minute = None
 
 
-# ==========================================
-# 🔐 로그인 / 회원가입 화면
-# ==========================================
 if not st.session_state.logged_in:
   st.title("✨ 아우라 가챠 & 도감 — 로그인")
   tab_login, tab_register = st.tabs(["로그인", "회원가입"])
@@ -511,9 +540,6 @@ if not st.session_state.logged_in:
   st.stop()
 
 
-# ==========================================
-# 🎼 [심포니(𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤) 능력: 황금선율 체크 및 중첩 관리]
-# ==========================================
 def update_symphony_golden_melody():
   now = time.time()
   st.session_state.symphony_buff_ends = [
@@ -549,9 +575,6 @@ def update_symphony_golden_melody():
   return active_stacks, symphony_mult, max_rem_sec
 
 
-# ==========================================
-# ☀️🌙 [낮/밤 시스템: 3분(180초) 주기]
-# ==========================================
 def get_world_time_status():
   current_time = int(time.time())
   cycle_time = current_time % 360
@@ -560,30 +583,48 @@ def get_world_time_status():
   return is_day, rem_sec
 
 
-# ==========================================
-# 🌧️❄️ [계절 및 날씨 시스템: 1분(60초) 독립 주기, 기본 50% / 비 25% / 눈 25%]
-# ==========================================
 def get_world_weather_status():
   current_time = int(time.time())
-  cycle_time = current_time % 60
-  rem_sec = 60 - cycle_time
+  
+  # [핵심 규칙] 할로윈 2024가 걸렸을 때는 5분(300초) 주기, 일반 날씨는 항상 1분(60초) 주기 랜덤 전환
+  # 이를 구현하기 위해 60초 블록별로 랜덤을 돌리되, 할로윈이 당첨되면 직후 5분 동안 유지되도록 계산
+  
+  # 먼저 전체 시간을 60초 단위 블록으로 환산하여 체크
+  # 혹은 시뮬레이션을 위해 고정 알고리즘 사용:
+  # 5분(300초) 단위로 대구간을 나눔
+  big_cycle_idx = current_time // 300
+  big_rem_sec = 300 - (current_time % 300)
+  
+  random.seed(big_cycle_idx * 999)
+  halloween_chance = 0.002
+  eq_now = st.session_state.get("equipped")
+  if eq_now in halloween_auras:
+    halloween_chance += 0.003  # 장착 시 +0.3%
 
-  minute_seed = current_time // 60
-  random.seed(minute_seed)
-
-  roll = random.random()
-  if roll < 0.50:
-    weather_type = "normal"
-  elif roll < 0.75:
-    weather_type = "rain"
-  else:
-    weather_type = "snow"
-
+  is_halloween_macro = random.random() < halloween_chance
   random.seed()
-  return weather_type, rem_sec
+
+  if is_halloween_macro:
+    # 할로윈이 걸린 5분 구간
+    return "halloween_2024", big_rem_sec
+  else:
+    # 일반 날씨는 1분(60초)마다 완전히 랜덤하게 전환
+    small_cycle_idx = current_time // 60
+    small_rem_sec = 60 - (current_time % 60)
+
+    random.seed(small_cycle_idx)
+    sub_roll = random.random()
+    if sub_roll < 0.5:
+      w_type = "normal"
+    elif sub_roll < 0.75:
+      w_type = "rain"
+    else:
+      w_type = "snow"
+    random.seed()
+
+    return w_type, small_rem_sec
 
 
-# 🎨 [특수 아우라 장착 배경 및 스킨 배경 적용 함수]
 def apply_equipped_background():
   eq = st.session_state.get("equipped")
   eq_skin = st.session_state.get("equipped_skin")
@@ -632,7 +673,6 @@ def apply_equipped_background():
 apply_equipped_background()
 
 
-# 🎨 [1억 이상 아우라 파스텔 네온 그라데이션 CSS 변환 함수]
 def hex_to_pastel_neon_css(hex_color: str) -> str:
   hex_color = hex_color.lstrip('#')
   if len(hex_color) != 6:
@@ -664,10 +704,20 @@ def hex_to_pastel_neon_css(hex_color: str) -> str:
   )
 
 
-# 🎖️ [칭호 희귀도별 화려하고 예쁜 스타일 적용 HTML 생성 함수]
 def get_styled_title_html(title_name):
   if not title_name:
     return ""
+
+  halloween_titles = [
+      "𓆩 𝓟𝓾𝓶𝓹 𓆪", "𓆩 𝕽𝖚𝓷𝖊 𝕶𝓷𝓲𝓰𝓱𝓽 𓆪", "𓆩 𝓥𝓲𝓽𝓪𝓵 𓆪",
+      "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪", "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝖓𝖙𝖊𝖗 𓆪", "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
+      "𓆩 𝕯𝖗𝖊𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝖙𝓮𝖗 𓆪", "𓆩 𝕳𝖊𝖗𝖆𝖑𝖯 𝕺𝓯 𝕿𝖍𝖊 𝖁𝖊𝖎𝖑 𓆪",
+      "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝖌𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
+      "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
+      "꧁༺ 🎃𝕯𝖎𝖛𝖎𝖓𝖊 𝕬𝖗𝖇𝖎𝖙𝖊𝖗 𝕺𝓋 𝕿𝖍𝖊 𝕁𝖔𝖎𝓭🎃 ༻꧂"
+  ]
+  if title_name in halloween_titles:
+    return f'<span style="background: linear-gradient(90deg, #ff6600, #ff9900, #ffcc00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,102,0,0.7); font-size: 1.08em; padding: 0 4px;">{title_name}</span>'
 
   rainbow_max_titles = [
       "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
@@ -679,8 +729,8 @@ def get_styled_title_html(title_name):
       "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
       "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
       "🌊✨ 𝐏𝐑𝐈𝐌𝐎𝐑𝐃𝐈𝐀𝐋 𝐀𝐁𝐘𝐒𝐒 ✨🌊",
-      "𓆩 𝕺𝖗𝖎𝖌𝖎𝖓 𝕾𝖕𝖆𝖗𝖐 𓆪",
-      "𓆩 𝕬𝖕𝖍𝖆𝖓𝖙 𓆪",
+      "𓆩 𝕺𝖗𝓲𝖌𝖎𝓷 𝕾𝓹𝖆𝓻𝚔 𓆪",
+      "𓆩 𝕬𝓹𝓱𝓪𝓷𝓽 𓆪",
   ]
   if title_name in rainbow_max_titles:
     return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">{title_name}</span>'
@@ -701,19 +751,12 @@ def get_styled_title_html(title_name):
     style = hex_to_pastel_neon_css(aura_colors["𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"])
   elif "영광의 잔광" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐"])
-  elif any(k in title_name for k in ["𝓦𝓪𝓽𝓬𝓱𝓮𝓻", "𝓛𝓾𝓵𝓵𝓪𝓫𝔂", "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲", "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭", "𝓑𝓮𝔂𝓸𝓷𝓭", "𝓒𝓱𝓻𝓸𝓶𝓪𝓽𝓲𝓬", "𝓐𝓺𝓾𝓪𝓻𝓲𝓾𝓶"]):
-    style = "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(179,102,255,0.7); font-size: 1.05em; padding: 0 4px;"
-  elif any(k in title_name for k in ["𝓗𝓮𝓵𝓲𝓸𝓼", "𝓐𝓻𝓬𝓪𝓷𝓮", "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮", "𝓐𝓹𝓪𝓽𝓲𝓽𝓮", "𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂", "𝕻𝖔𝖘𝖊𝖎𝖉𝖔𝖓", "𝕾𝖍𝖆𝖗𝖐"]):
-    style = "background: linear-gradient(90deg, #ffd700, #ff6600, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(255,153,0,0.7); font-size: 1.05em; padding: 0 4px;"
-  elif "달인" in title_name:
-    style = "background: linear-gradient(90deg, #ffe600, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 10px rgba(255,215,0,0.7); font-size: 1.05em; padding: 0 4px;"
   else:
     style = "color: #ffeb3b; font-weight: bold; text-shadow: 0 0 6px rgba(0,0,0,0.9), 0 0 12px rgba(255,235,59,0.5); font-size: 1.02em; padding: 0 4px;"
 
   return f'<span style="{style}">{title_name}</span>'
 
 
-# 현재 적용 중인 총 행운 배율 계산 함수
 def get_current_luck_multiplier(next_pull_number):
   now = time.time()
   if (
@@ -740,18 +783,50 @@ def get_current_luck_multiplier(next_pull_number):
   if st.session_state.luck_buff_unlocked and (next_pull_number % 10 == 0):
     mult *= 2
 
-  weather_type, _ = get_world_weather_status()
-  if weather_type == "snow" and st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮":
+  equipped_now = st.session_state.get("equipped")
+
+  if equipped_now == "수확가":
+    harvest_stacks = next_pull_number // 100
+    if harvest_stacks > 0:
+      mult *= (2 ** harvest_stacks)
+
+  if equipped_now == "악몽의 하늘":
+    if "nightmare_turn" not in st.session_state:
+      st.session_state.nightmare_turn = 1
+    
+    turn = st.session_state.nightmare_turn
+    triggered = False
+    if turn >= 3:
+      triggered = True
+    else:
+      if random.random() < 0.01 or random.random() < 0.5:
+        triggered = True
+
+    if triggered:
+      if turn == 1:
+        mult *= 10
+        st.toast("🎃 [악몽의 하늘 발동!] 1턴 성공! 행운 10배 폭증!", icon="🌌")
+      elif turn == 2:
+        mult *= 100
+        st.toast("🎃 [악몽의 하늘 발동!] 2턴 성공! 행운 100배 폭증!", icon="🌌")
+      else:
+        mult *= 1000
+        st.toast("🎃 [악몽의 하늘 발동!] 3턴 성공! 행운 1000배 폭증!", icon="🌌")
+      st.session_state.nightmare_turn = 1
+    else:
+      st.session_state.nightmare_turn += 1
+
+  biome_type, _ = get_world_weather_status()
+  if biome_type == "snow" and equipped_now == "𝓘𝓬𝓮𝓐𝓰𝓮":
     mult *= 10
 
   is_day, _ = get_world_time_status()
-  if not is_day and st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
+  if not is_day and equipped_now == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
     mult *= 10
 
   return mult
 
 
-# ✨ [확률별 맞춤형 화려한 풀스크린 컷씬 (최초 1회만 재생)]
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
@@ -761,48 +836,36 @@ def play_fullscreen_star_cutscene(aura_name):
     star_symbol = "🖐️✨🌌👑"
     ment = "🖐️ [THE ORIGIN HAND] 태초의 창조주가 손을 뻗어 우주의 모든 법칙과 운명을 새롭게 빚어냅니다!"
     duration = 5.0
+  elif aura_name == "사도:베일":
+    star_color = "#ff3366"
+    bg_style = "radial-gradient(circle, #33001a 0%, #080005 90%)"
+    star_symbol = "🎃👁️"
+    ment = "🎃 [사도:베일] 공허의 베일 속에서 찬란한 심판의 눈동자가 떠오릅니다!"
+    duration = 4.8
+  elif aura_name == "수확가":
+    star_color = "#ff6600"
+    bg_style = "radial-gradient(circle, #331100 0%, #080200 90%)"
+    star_symbol = "🎃🗡️"
+    ment = "🎃 [수확가] 종말의 낫이 휘둘러지며 영혼의 거대한 수확이 시작됩니다!"
+    duration = 4.8
+  elif aura_name == "악몽의 하늘":
+    star_color = "#9900cc"
+    bg_style = "radial-gradient(circle, #220033 0%, #05000a 90%)"
+    star_symbol = "🎃🌌"
+    ment = "🎃 [악몽의 하늘] 뒤틀린 밤하늘의 공포가 온 세상의 시공간을 잠식합니다!"
+    duration = 4.8
   elif aura_name == "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒":
     star_color = "#00ffff"
     bg_style = "radial-gradient(circle, #001a33 0%, #000308 90%)"
     star_symbol = "🌊🐉🌀"
     ment = "🌊 [LEVIATHAN] 심해의 절대 군주가 깨어나 세상 모든 것을 포식할 파도를 일으킵니다!"
     duration = 4.8
-  elif aura_name == "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤":
-    star_color = "#ffaa33"
-    bg_style = "radial-gradient(circle, #331a00 0%, #0a0500 90%)"
-    star_symbol = "🎼🎻✨♠️"
-    ment = "🎼 [SYMPHONY] 천상을 울리는 황금빛 교향곡이 시공간의 모든 선율을 지배합니다!"
-    duration = 4.2
-  elif aura_name == "아쿠아리움":
-    star_color = "#00bcd4"
-    bg_style = "radial-gradient(circle, #002233 0%, #000511 90%)"
-    star_symbol = "🐠🌊🏛️"
-    ment = "🐠 [AQUARIUM] 신비로운 심해 아쿠아리움의 환상적인 물결이 밀려옵니다!"
-    duration = 4.0
-  elif aura_name == "𝓘𝓬𝓮𝓐𝓰𝓮":
-    star_color = "#00ffff"
-    bg_style = "radial-gradient(circle, #001a33 0%, #00050f 90%)"
-    star_symbol = "❄️🧊👑"
-    ment = "❄️ [ICE AGE] 빙하기의 절대적인 한기가 온 세상을 영원의 빙하로 뒤덮습니다!"
-    duration = 4.5
-  elif aura_name == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
-    star_color = "#add8e6"
-    bg_style = "radial-gradient(circle, #102030 0%, #050a10 90%)"
-    star_symbol = "🦣❄️"
-    ment = "🦣 [MAMMOTH] 고대 빙하의 수호자 맘모스가 거대한 눈보라와 함께 포효합니다!"
-    duration = 4.0
-  elif aura_name == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
-    star_color = "#ff77ff"
-    bg_style = "radial-gradient(circle, #33004d 0%, #050014 90%)"
-    star_symbol = "🌈💎✨"
-    ment = "🌈 [HYPER PRISM] 초월적인 프리즘의 빛이 모든 차원의 스펙트럼을 찬란하게 굴절시킵니다!"
-    duration = 4.2
   else:
-    star_color = "#ffd700"
-    bg_style = "rgba(5, 5, 10, 0.95)"
-    star_symbol = "✦"
-    ment = "전설적인 에너지가 요동칩니다..."
-    duration = 2.5
+    star_color = "#ff6600"
+    bg_style = "radial-gradient(circle, #331100 0%, #080200 90%)"
+    star_symbol = "🎃"
+    ment = f"🎃 [{aura_name}] 할로윈 2024의 어둠과 마법이 깨어납니다!"
+    duration = 3.5
 
   fullscreen_html = f"""
     <style>
@@ -845,29 +908,26 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 아우라 레벨업 요구치 계산 함수 (분모 기준)
-def get_level_requirements(denom):
-  if denom > 100000000:  # 1억 초과
+def get_level_requirements(item_name, denom):
+  if item_name in halloween_auras:
+    return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7, 7: 10}
+
+  if denom > 100000000:
     return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
-  elif denom >= 1000000:  # 100만 이상 ~ 1억 이하
+  elif denom >= 1000000:
     return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
-  elif denom > 100000:  # 10만 초과 ~ 100만 미만
+  elif denom > 100000:
     return {1: 1, 2: 30, 3: 50, 4: 100, 5: 500, 6: 1000, 7: 1500}
-  else:  # 10만 이하
+  else:
     return {1: 1, 2: 10, 3: 20, 4: 30, 5: 50, 6: 100, 7: 300}
 
 
-def get_max_requirement(denom):
-  return get_level_requirements(denom)[7]
-
-
-# 1회 또는 다회 뽑기 실행 공통 함수
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
   equipped_now = st.session_state.get("equipped")
   coin_gain_per_roll = 10 if equipped_now == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 5
-  weather_type, _ = get_world_weather_status()
+  biome_type, _ = get_world_weather_status()
   is_day, _ = get_world_time_status()
 
   prior_counts = {item: st.session_state.counts.get(item, 0) for item in items}
@@ -879,6 +939,11 @@ def perform_rolls(roll_count=1):
 
     if st.session_state.million_ticket_active:
       st.session_state.million_ticket_active = False
+
+    if equipped_now == "사도:베일" and random.random() < 0.001:
+      p500_name = "500배 행운 포션 (30초)"
+      st.session_state.potions[p500_name] = st.session_state.potions.get(p500_name, 0) + 1
+      st.toast("🎃 [사도:베일 능력 발동!] 뽑기 중 500배 행운 포션 (30초)을 획득했습니다!", icon="🧪")
 
     current_weights = list(base_weights)
 
@@ -893,19 +958,23 @@ def perform_rolls(roll_count=1):
       current_weights[items.index("자장가")] *= 10
       current_weights[items.index("𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻")] *= 2
 
-    if weather_type == "snow":
+    if biome_type == "snow":
       current_weights[items.index("빙하")] *= 3
       current_weights[items.index("만년서리")] *= 3
       current_weights[items.index("블리자드")] *= 3
       current_weights[items.index("𝓜𝓪𝓶𝓶𝓸𝓽𝓱")] *= 2
       current_weights[items.index("𝓘𝓬𝓮𝓐𝓰𝓮")] *= 2
-    elif weather_type == "rain":
+    elif biome_type == "rain":
       current_weights[items.index("에바네샌트")] *= 4
       current_weights[items.index("포세이돈")] *= 4
       current_weights[items.index("샤킨")] *= 4
       current_weights[items.index("선원")] *= 4
       current_weights[items.index("아쿠아리움")] *= 4
       current_weights[items.index("༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒")] *= 2
+    
+    if biome_type != "halloween_2024":
+      for h_aura in halloween_auras:
+        current_weights[items.index(h_aura)] = 0
 
     if luck_mult > 1:
       eligible_indices = [
@@ -927,7 +996,6 @@ def perform_rolls(roll_count=1):
 
     result = random.choices(items, weights=current_weights, k=1)[0]
 
-    # 🌊 [리바이어던 능력: 절대포식] 장착 시 0.5% 확률로 발생
     if equipped_now == "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒" and random.random() < 0.005:
       eligible_predators = [it for it in items if denominators[it] >= 1000000]
       if eligible_predators:
@@ -941,6 +1009,9 @@ def perform_rolls(roll_count=1):
         and st.session_state.counts.get(result, 0) == 0
     ):
       first_get_titles = {
+          "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝕍𝖊𝖎𝖑 𓆪",
+          "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝖙𝖊𝖗 𓆪",
+          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
           "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
           "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
@@ -979,9 +1050,6 @@ def perform_rolls(roll_count=1):
   return results
 
 
-# ==========================================
-# 🎮 메인 게임 화면
-# ==========================================
 st.title("✨ 아우라 가챠 & 도감 시스템")
 
 c_u1, c_u2 = st.columns([4, 1])
@@ -1008,12 +1076,14 @@ is_day_now, time_rem_sec = get_world_time_status()
 t_min = time_rem_sec // 60
 t_sec = time_rem_sec % 60
 
-weather_type, weather_rem_sec = get_world_weather_status()
-w_sec = weather_rem_sec
+biome_type, biome_rem_sec = get_world_weather_status()
+b_min = biome_rem_sec // 60
+b_sec = biome_rem_sec % 60
 
 is_mammoth_equipped = st.session_state.get("equipped") == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱"
 is_ia_equipped = st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮"
 is_dc_equipped = st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"
+is_hween_equipped = st.session_state.get("equipped") in halloween_auras
 
 if is_day_now:
   st.markdown(
@@ -1035,31 +1105,42 @@ else:
       unsafe_allow_html=True,
   )
 
-if weather_type == "snow":
-  ia_text = " | ❄️ 𝓘𝓬𝓮𝓐𝓰𝓮 장착 중: 행운 10배!" if is_ia_equipped else ""
+if biome_type == "halloween_2024":
+  h_boost = " | 🎃 할로윈 아우라 장착 중: 바이옴 확률 +0.3% 적용!" if is_hween_equipped else ""
   st.markdown(
       f"""
-        <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,191,255,0.4);">
-            🌨️ [현재 날씨: 눈 내리는 중] (빙하·만년서리·블리자드 3배 / 맘모스·아이스에이지 2배) (남은 시간: {w_sec}초){ia_text}
+        <div style="background: linear-gradient(90deg, #ff6600, #331100); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 14px rgba(255,102,0,0.7);">
+            🎃 [현재 바이옴: 할로윈 2024] (5분 유지 / 할로윈 전용 아우라 10종 출현 가능!) (남은 시간: {b_min}분 {b_sec}초){h_boost}
         </div>
         """,
       unsafe_allow_html=True,
   )
-elif weather_type == "rain":
+elif biome_type == "snow":
+  ia_text = " | ❄️ 𝓘𝓬𝓮𝓐𝓰𝓮 장착 중: 행운 10배!" if is_ia_equipped else ""
+  st.markdown(
+      f"""
+        <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,191,255,0.4);">
+            🌨️ [현재 날씨: 눈] (1분마다 랜덤 전환 / 할로윈 아우라 출현 불가) (남은 시간: {b_sec}초){ia_text}
+        </div>
+        """,
+      unsafe_allow_html=True,
+  )
+elif biome_type == "rain":
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #00334d, #006699); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,153,255,0.4);">
-            🌧️ [현재 날씨: 비 내리는 중] (에바네샌트·포세이돈·샤킨·선원·아쿠아리움 4배 / 리바이어던 2배 버프!) (남은 시간: {w_sec}초)
+            🌧️ [현재 날씨: 비] (1분마다 랜덤 전환 / 할로윈 아우라 출현 불가) (남은 시간: {b_sec}초)
         </div>
         """,
       unsafe_allow_html=True,
   )
 else:
   m_text = " | 🦣 𝓜𝓪𝓶𝓶𝓸𝓽𝓱 장착 중: 눈 확률 +15%!" if is_mammoth_equipped else ""
+  h_boost = " | 🎃 할로윈 아우라 장착 중: 바이옴 확률 +0.3% 적용!" if is_hween_equipped else ""
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #333333, #555555); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(100,100,100,0.4);">
-            ⛅ [현재 날씨: 맑음 / 기본] (남은 시간: {w_sec}초){m_text}
+            ⛅ [현재 날씨: 일반] (1분마다 랜덤 전환 / 할로윈 아우라 출현 불가) (남은 시간: {b_sec}초){m_text}{h_boost}
         </div>
         """,
       unsafe_allow_html=True,
@@ -1261,7 +1342,7 @@ with tab_gacha:
 
 with tab_cases:
   st.subheader("🎁 케이스 오픈 시스템")
-  st.write("100배 행운 포션 10개로 **케이스 1개**를 구매할 수 있으며, 케이스를 열어 한정 스킨(최대 1개 보유)이나 500배 포션을 획득할 수 있습니다!")
+  st.write("100배 행운 포션 10개로 **케이스 1개**를 구매할 수 있으며, 케이스를 열어 한정 스킨이나 500배 포션을 획득할 수 있습니다!")
 
   if "cases" not in st.session_state:
     st.session_state.cases = 0
@@ -1294,7 +1375,7 @@ with tab_cases:
 
   with col_open_case:
     st.markdown("### 🔓 케이스 오픈")
-    st.write("• 확률: **꽝 70%** / **500배 포션 20%** / **스킨 10%** (3종 동일 확률)")
+    st.write("• 확률: **꽝 70%** / **500배 포션 20%** / **스킨 10%**")
     can_open_case = current_cases >= 1
     if st.button("🔓 케이스 1개 열기", type="secondary", use_container_width=True, disabled=not can_open_case):
       st.session_state.cases -= 1
@@ -1311,7 +1392,7 @@ with tab_cases:
         already_owned = st.session_state.skins.get(won_skin, 0) >= 1
         st.session_state.skins[won_skin] = 1
         if already_owned:
-          st.session_state.last_case_result = ("스킨", f"🎨 스킨 [{won_skin}]이(가) 등장했습니다! (이미 보유 중인 스킨입니다)")
+          st.session_state.last_case_result = ("스킨", f"🎨 스킨 [{won_skin}]이(가) 등장했습니다! (이미 보유 중)")
         else:
           st.session_state.last_case_result = ("스킨", f"🎨 스킨 [{won_skin}]을(를) 획득했습니다!")
           st.balloons()
@@ -1331,26 +1412,6 @@ with tab_cases:
         unsafe_allow_html=True,
     )
 
-  st.divider()
-  st.markdown("### 🎨 스킨 수집 현황")
-  cols_skin = st.columns(3)
-  for idx, skin_name in enumerate(skin_items):
-    is_owned_skin = st.session_state.skins.get(skin_name, 0) >= 1
-    req_aura = skin_required_aura[skin_name]
-    theme_label = skin_theme_names[skin_name]
-    with cols_skin[idx]:
-      with st.container(border=True):
-        if is_owned_skin:
-          if skin_images.get(skin_name) and os.path.exists(skin_images[skin_name]):
-            st.image(skin_images[skin_name], use_container_width=True)
-          st.markdown(f"<div style='text-align:center; font-weight:bold;'>{skin_name}</div>", unsafe_allow_html=True)
-          st.markdown(f"<div style='text-align:center; color:#aaa; font-size:12px;'>전용 아우라: {req_aura}</div>", unsafe_allow_html=True)
-          st.success("✅ 보유 완료")
-        else:
-          st.markdown(f"<div style='text-align:center; font-size:42px; padding:25px 0;'>🔒</div>", unsafe_allow_html=True)
-          st.markdown(f"<div style='text-align:center; font-weight:bold; color:#888;'>[{theme_label}]? ({req_aura})</div>", unsafe_allow_html=True)
-          st.caption("미보유 (케이스에서 획득 가능)")
-
 with tab_inventory:
   owned_items = [
       item
@@ -1362,7 +1423,7 @@ with tab_inventory:
       f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
   )
   st.write(
-      "아우라 카드를 확인하고 장착, 레벨업 또는 **전용 스킨 장착**을 진행하세요. (한 줄에 5개씩 배치)"
+      "아우라 카드를 확인하고 장착, 레벨업 또는 **전용 스킨 장착**을 진행하세요."
   )
 
   if owned_items:
@@ -1380,7 +1441,7 @@ with tab_inventory:
         is_equipped = st.session_state.get("equipped") == item
 
         denom = denominators.get(item, 2)
-        reqs = get_level_requirements(denom)
+        reqs = get_level_requirements(item, denom)
         next_req = reqs[lvl + 1] if lvl + 1 <= 7 else reqs[7]
 
         matching_skins = aura_to_skins.get(item, [])
@@ -1436,22 +1497,35 @@ with tab_inventory:
                   custom_max_titles = {
                       "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
                       "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
+                      "사도:베일": "꧁༺ 🎃𝕯𝖎𝖛𝖎𝖓𝖊 𝕬𝖗𝖇𝖎𝖙𝖊𝖗 𝕺𝓋 𝕿𝖍𝖊 𝕁𝖔𝖎𝓭🎃 ༻꧂",
+                      "수확가": "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
+                      "악몽의 하늘": "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝖌𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
                       "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
                       "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
                       "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
                       "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
-                      "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
+                      "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆩",
                       "아쿠아리움": "𓆩 𝓐𝓺𝓾𝓪𝓻𝓲𝓾𝓶 𓆪",
-                      "선원": "𓆩 𝓢𝓪𝓲𝓵𝓸𝓻 𓆪",
+                      "선원": "𓆩 𝓢𝓪𝓲𝓵𝓸𝓻 𓆩",
                       "샤킨": "𓆩 𝕾𝖍𝖆𝖗𝖐𝖎𝓷 𓆩",
-                      "포세이돈": "𓆩 𝕻𝖔𝖘𝖊𝖎𝖉𝖔𝓷 𓆪",
-                      "에바네샌트": "𓆩 𝓔𝓿𝓪𝓷𝓮𝓼𝓬𝓮𝓷𝓽 𓆪",
-                      "기원": "𓆩 𝕺𝖗𝖎𝖌𝖎𝓷 𝕾𝖕𝖆𝖗𝖐 𓆪",
-                      "망령": "𓆩 𝕬𝖕𝖍𝖆𝖓𝖙 𓆪",
+                      "포세이돈": "𓆩 𝕻𝖔𝖘𝖊𝖎𝖉𝖔𝓷 𓆩",
+                      "에바네샌트": "𓆩 𝓔𝓿𝓪𝓷𝓮𝓼𝓬𝓮𝓷𝓽 𓆩",
+                      "기원": "𓆩 𝕺𝖗𝓲𝓰𝓲𝓷 𝕾𝓹𝖆𝓻𝚔 𓆩",
+                      "망령": "𓆩 𝕬𝓹𝓱𝓪𝓷𝓽 𓆩",
+                      "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝖯 𝕺𝓯 𝕿𝖍𝖊 𝕍𝖊𝖎𝖑 𓆪",
+                      "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝖙𝖊𝖗 𓆪",
+                      "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
+                      "듀라한": "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
+                      "영혼 사냥꾼": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝓷𝖙𝖊𝖗 𓆪",
+                      "묘화": "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪",
+                      "밤나팔꽃": "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪",
+                      "바이탈": "𓆩 𝓥𝓲𝓽𝓪𝓵 𓆪",
+                      "룬(나이트)": "𓆩 𝕽𝖚𝓷𝖊 𝕶𝓷𝓲𝓰𝓱𝓽 𓆪",
+                      "펌프": "𓆩 𝓟𝓾𝓶𝓹 𓆪",
                       "크로마틱": "𓆩 𝓒𝓱𝓻𝓸𝓶𝓪𝓽𝓲𝓬 𓆪",
-                      "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
-                      "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆪",
-                      "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
+                      "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆩",
+                      "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆩",
+                      "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆩",
                       "이상": "◇𝓑𝓮𝔂𝓸𝓷𝓭 𝓡𝓮𝓪𝓵𝓲𝓽𝔂 ◇",
                       "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
                       "속력": "◇𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂◇",
@@ -1470,35 +1544,11 @@ with tab_inventory:
                 st.rerun()
             else:
               st.button("MAX 완료", key=f"max_btn_{item}", disabled=True, use_container_width=True)
-
-            if matching_skins:
-              st.markdown("---")
-              st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 스킨 장착 칸</div>", unsafe_allow_html=True)
-              for s_name in matching_skins:
-                is_owned_skin = st.session_state.skins.get(s_name, 0) >= 1
-                is_this_skin_equipped = st.session_state.get("equipped_skin") == s_name
-                theme_label = skin_theme_names.get(s_name, s_name)
-
-                if is_owned_skin:
-                  if is_this_skin_equipped:
-                    st.markdown(f"<div style='text-align:center; font-size:10px; color:#00ffcc;'><b>[{theme_label} 장착중]</b></div>", unsafe_allow_html=True)
-                    if st.button("스킨 해제", key=f"unequip_skin_grid_{item}_{s_name}", use_container_width=True):
-                      st.session_state.equipped_skin = None
-                      save_user_data_to_db()
-                      st.rerun()
-                  else:
-                    if st.button(f"{theme_label} 장착", key=f"equip_skin_grid_{item}_{s_name}", use_container_width=True, type="secondary"):
-                      st.session_state.equipped_skin = s_name
-                      save_user_data_to_db()
-                      st.rerun()
-                else:
-                  st.markdown(f"<div style='text-align:center; font-size:10px; color:#777;'>🔒 [{theme_label}]?</div>", unsafe_allow_html=True)
   else:
     st.markdown(
         """
         <div style="text-align: center; padding: 50px; color: #777;">
             <h3>🎒 스토리지가 비어 있습니다!</h3>
-            <p>뽑기를 통해 첫 아우라를 획득해보세요.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1506,12 +1556,6 @@ with tab_inventory:
 
 with tab_potions:
   st.subheader("🧪 포션 인벤토리")
-  st.write(
-      "상점에서 구매한 행운 포션과 백만배 행운권을 사용할 수 있습니다."
-      " (다른 종류의 포션을 사용하면 기존 포션의 남은 시간과 효과는"
-      " 소멸되고 새 포션으로 교체됩니다)"
-  )
-
   all_potions_count = sum(st.session_state.potions.values())
   if all_potions_count > 0:
     for p_name in potion_items:
@@ -1527,36 +1571,17 @@ with tab_potions:
           with col_p2:
             st.markdown(f"#### {p_name}")
             st.write(f"보유 수량: **{count}개**")
-            if count == 1:
-              st.caption("사용할 수량: 1개")
-              use_qty = 1
-            else:
-              use_qty = st.slider(
-                  "사용할 수량",
-                  min_value=1,
-                  max_value=count,
-                  value=1,
-                  key=f"slider_qty_{p_name}",
-              )
+            use_qty = 1 if count == 1 else st.slider("사용할 수량", min_value=1, max_value=count, value=1, key=f"slider_qty_{p_name}")
           with col_p3:
             st.write("")
             st.write("")
-            if st.button(
-                f"선택 사용 ({use_qty}개)",
-                key=f"btn_use_qty_{p_name}",
-                type="primary",
-                use_container_width=True,
-            ):
+            if st.button(f"선택 사용 ({use_qty}개)", key=f"btn_use_qty_{p_name}", type="primary", use_container_width=True):
               st.session_state.potions[p_name] -= use_qty
               cfg = potion_config[p_name]
-
               if cfg["type"] == "potion":
                 now = time.time()
                 add_duration = cfg["duration"] * use_qty
-                if (
-                    st.session_state.active_potion_name == p_name
-                    and now < st.session_state.active_potion_end
-                ):
+                if st.session_state.active_potion_name == p_name and now < st.session_state.active_potion_end:
                   st.session_state.active_potion_end += add_duration
                 else:
                   st.session_state.active_potion_end = now + add_duration
@@ -1567,48 +1592,22 @@ with tab_potions:
                   st.session_state.million_ticket_count = 0
                 st.session_state.million_ticket_count += use_qty
                 st.session_state.million_ticket_active = True
-
               save_user_data_to_db()
-              st.success(
-                  f"🎉 [{p_name}] {use_qty}개가 성공적으로 사용되었습니다!"
-              )
+              st.success(f"🎉 [{p_name}] {use_qty}개가 성공적으로 사용되었습니다!")
               time.sleep(0.8)
               st.rerun()
   else:
-    st.markdown(
-        """
-        <div style="text-align: center; padding: 50px; color: #777;">
-            <h3>🧪 포션 인벤토리가 비어 있습니다!</h3>
-            <p>상점에서 행운권 상자를 구매하여 포션을 획득해보세요.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown("<div style='text-align: center; padding: 50px; color: #777;'><h3>🧪 포션 인벤토리가 비어 있습니다!</h3></div>", unsafe_allow_html=True)
 
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
-  st.write(
-      "왼쪽 목록에서 아우라를 선택하여 상세 정보, 컷씬 및 **스킨**을 확인할 수 있습니다."
-  )
-
   col_left, col_right = st.columns([1, 1.5])
-
   with col_left:
     st.markdown("#### 📜 등급 목록")
     for item in items:
-      is_owned = (
-          st.session_state.counts.get(item, 0) > 0
-          or st.session_state.levels.get(item, 1) > 1
-      )
-      display_name = (
-          f"{icons.get(item, '✨')} {item}" if is_owned else "🔒 [LOCKED] ???"
-      )
-
-      if st.button(
-          display_name,
-          key=f"codex_select_{item}",
-          use_container_width=True,
-      ):
+      is_owned = st.session_state.counts.get(item, 0) > 0 or st.session_state.levels.get(item, 1) > 1
+      display_name = f"{icons.get(item, '✨')} {item}" if is_owned else "🔒 [LOCKED] ???"
+      if st.button(display_name, key=f"codex_select_{item}", use_container_width=True):
         st.session_state.selected_codex = item
         st.session_state.codex_skin_menu_open = False
         st.session_state.codex_selected_skin = None
@@ -1617,149 +1616,42 @@ with tab_codex:
     sel = st.session_state.selected_codex
     if sel not in items:
       sel = items[0]
-    is_owned = (
-        st.session_state.counts.get(sel, 0) > 0
-        or st.session_state.levels.get(sel, 1) > 1
-    )
-
-    if "codex_skin_menu_open" not in st.session_state:
-      st.session_state.codex_skin_menu_open = False
-    if "codex_selected_skin" not in st.session_state:
-      st.session_state.codex_selected_skin = None
-
-    matching_skins_for_codex = aura_to_skins.get(sel, [])
-    selected_skin = st.session_state.codex_selected_skin
-
-    if selected_skin and selected_skin in matching_skins_for_codex:
-      is_skin_owned = st.session_state.skins.get(selected_skin, 0) >= 1
-      theme_label = skin_theme_names.get(selected_skin, selected_skin)
-      header_skin_name = theme_label if is_skin_owned else f"[{theme_label}]?"
-      st.markdown(f"#### 상세 정보: `{header_skin_name}` (스킨)")
-    else:
-      st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
-
+    is_owned = st.session_state.counts.get(sel, 0) > 0 or st.session_state.levels.get(sel, 1) > 1
+    st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
     with st.container(border=True):
       if is_owned:
-        if selected_skin and selected_skin in matching_skins_for_codex:
-          is_skin_owned = st.session_state.skins.get(selected_skin, 0) >= 1
-          theme_label = skin_theme_names.get(selected_skin, selected_skin)
-          skin_img_path = skin_images.get(selected_skin)
-
-          if is_skin_owned:
-            if skin_img_path and os.path.exists(skin_img_path):
-              st.image(skin_img_path, width=180)
-            else:
-              st.markdown("<div style='font-size: 40px;'>🎨</div>", unsafe_allow_html=True)
-
-            st.markdown(f"### [{theme_label}] ({sel})")
-            st.write(f"**전용 원본 아우라:** {sel}")
-            st.success("✅ 보유 중인 스킨입니다!")
-          else:
-            st.markdown(
-                f"""
-                <div style="text-align: center; padding: 30px; color: #888;">
-                    <h2>🔒</h2>
-                    <h3>[{theme_label}]?</h3>
-                    <p>아직 획득하지 못한 스킨입니다. 케이스에서 획득할 수 있습니다!</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-          st.markdown("---")
-          if st.button("✨ 원본 아우라 정보로 돌아가기", use_container_width=True, type="primary"):
-            st.session_state.codex_selected_skin = None
-            st.rerun()
-
+        img_path = aura_images.get(sel)
+        if img_path and os.path.exists(img_path):
+          st.image(img_path, width=150)
         else:
-          img_path = aura_images.get(sel)
-          if img_path and os.path.exists(img_path):
-            st.image(img_path, width=150)
-          else:
-            st.markdown(
-                f"<div style='font-size: 40px;'>{icons.get(sel, '✨')}</div>",
-                unsafe_allow_html=True,
-            )
-
-          st.markdown(f"### [{sel}]")
-          st.write(f"**희귀도 확률:** {fractions.get(sel, 'N/A')}")
-          st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
-          st.write(f"**현재 레벨:** Lv. {st.session_state.levels.get(sel, 1)} / 6")
-
-          st.markdown("---")
-
-          if sel in cutscene_auras:
-            st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
-            if st.button("🎬 컷씬 다시 보기", use_container_width=True):
-              play_cutscene(sel)
-          else:
-            st.caption("이 아우라에는 별도의 컷씬 연출이 없습니다.")
-
-          if matching_skins_for_codex:
-            if st.button("🎨 스킨 보기", use_container_width=True, type="secondary"):
-              st.session_state.codex_skin_menu_open = not st.session_state.codex_skin_menu_open
-              st.rerun()
-
-            if st.session_state.codex_skin_menu_open:
-              st.markdown("**📂 보유/미보유 스킨 선택:**")
-              for s_item in matching_skins_for_codex:
-                s_owned = st.session_state.skins.get(s_item, 0) >= 1
-                t_label = skin_theme_names.get(s_item, s_item)
-                btn_label = f"🎨 {t_label}" if s_owned else f"🔒 [{t_label}]?"
-                if st.button(btn_label, key=f"codex_pick_skin_{s_item}", use_container_width=True):
-                  st.session_state.codex_selected_skin = s_item
-                  st.rerun()
+          st.markdown(f"<div style='font-size: 40px;'>{icons.get(sel, '✨')}</div>", unsafe_allow_html=True)
+        st.markdown(f"### [{sel}]")
+        st.write(f"**희귀도 확률:** {fractions.get(sel, 'N/A')}")
+        st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
+        st.write(f"**현재 레벨:** Lv. {st.session_state.levels.get(sel, 1)} / 6")
+        st.markdown("---")
+        if sel in cutscene_auras:
+          if st.button("🎬 컷씬 다시 보기", use_container_width=True):
+            play_cutscene(sel)
       else:
-        st.markdown(
-            """
-            <div style="text-align: center; padding: 40px; color: #777;">
-                <h2>🔒</h2>
-                <h3>아직 획득하지 못한 아우라입니다.</h3>
-                <p>뽑기를 통해 도감을 해금해보세요!</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.markdown("<div style='text-align: center; padding: 40px; color: #777;'><h2>🔒</h2><h3>아직 획득하지 못한 아우라입니다.</h3></div>", unsafe_allow_html=True)
 
 with tab_titles:
   st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
-  st.write(
-      "획득한 칭호를 한 줄에 5개씩 넉넉하게 정렬하여 장착할 수 있습니다. (장착하지 않아도 고유 스타일 미리보기 가능)"
-  )
-
-  if "titles" not in st.session_state:
-    st.session_state.titles = []
-  if "equipped_title" not in st.session_state:
-    st.session_state.equipped_title = None
-
   user_titles = st.session_state.titles
   if user_titles:
     cols_per_row = 5
     for i in range(0, len(user_titles), cols_per_row):
       row_titles = user_titles[i : i + cols_per_row]
       grid_cols = st.columns(cols_per_row)
-
       for idx, t in enumerate(row_titles):
         is_t_equipped = st.session_state.get("equipped_title") == t
         with grid_cols[idx]:
           with st.container(border=True):
-            st.markdown(
-                "<div style='text-align:center; font-size:26px;'>🎖️</div>",
-                unsafe_allow_html=True,
-            )
+            st.markdown("<div style='text-align:center; font-size:26px;'>🎖️</div>", unsafe_allow_html=True)
             styled_t_html = get_styled_title_html(t)
-            st.markdown(
-                f"<div style='text-align:center; font-size:12px; font-weight:bold; word-break:keep-all; min-height:35px;'>{styled_t_html}</div>",
-                unsafe_allow_html=True,
-            )
-
+            st.markdown(f"<div style='text-align:center; font-size:12px; font-weight:bold; word-break:keep-all; min-height:35px;'>{styled_t_html}</div>", unsafe_allow_html=True)
             if is_t_equipped:
-              st.markdown(
-                  "<div"
-                  " style='text-align:center; font-size:11px; color:#00ffcc;"
-                  " margin-bottom:5px;'><b>[장착중]</b></div>",
-                  unsafe_allow_html=True,
-              )
               if st.button("해제", key=f"grid_unequip_t_{t}", use_container_width=True):
                 st.session_state.equipped_title = None
                 save_user_data_to_db()
@@ -1770,294 +1662,43 @@ with tab_titles:
                 save_user_data_to_db()
                 st.rerun()
   else:
-    st.markdown(
-        """
-        <div style="text-align: center; padding: 50px; color: #777;">
-            <h3>🎖️ 아직 획득한 칭호가 없습니다!</h3>
-            <p>아우라를 뽑거나 레벨업(MAX)을 달성하여 칭호를 수집해보세요.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown("<div style='text-align: center; padding: 50px; color: #777;'><h3>🎖️ 아직 획득한 칭호가 없습니다!</h3></div>", unsafe_allow_html=True)
 
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 관리")
-
   with st.container(border=True):
     col_box1, col_box2 = st.columns([2, 1])
     with col_box1:
-      st.markdown("### 🎁 행운권 상자 (원하는 수량 구매)")
-      st.write(
-          "초고배율 행운 포션이나 백만배 행운권을 획득할 수 있는 미스터리"
-          " 상자입니다. (개당 300 G)"
-      )
-      with st.expander("📋 상자 구성품 확률 보기"):
-        st.markdown("- **90%**: 100배 행운 포션 (1분) — 최소 1/128 이상 보장")
-        st.markdown("- **7%**: 500배 행운 포션 (30초) — 최소 1/2,048 이상 보장")
-        st.markdown("- **2%**: 1000배 행운 포션 (15초) — 최소 1/2,048 이상 보장")
-        st.markdown("- **0.9%**: 10000배 행운 포션 (10초) — 최소 1/16,384 이상 보장")
-        st.markdown("- **0.1%**: 백만배 행운권 (1회) — 최소 1/1,000,000 (아케인 이상) 확정!")
-
+      st.markdown("### 🎁 행운권 상자 구매 (300 G)")
       affordable_boxes = st.session_state.coins // 300
-      if affordable_boxes < 1:
-        st.warning("코인이 부족합니다! (상자 1개당 300 G 필요)")
-        buy_box_qty = 1
-      elif affordable_boxes == 1:
-        st.caption("구매 가능한 수량: 1개")
-        buy_box_qty = 1
-      else:
-        buy_box_qty = st.slider(
-            "구매할 상자 수량",
-            min_value=1,
-            max_value=affordable_boxes,
-            value=1,
-            key="slider_buy_boxes",
-        )
+      buy_box_qty = 1 if affordable_boxes <= 1 else st.slider("구매할 상자 수량", min_value=1, max_value=affordable_boxes, value=1, key="slider_buy_boxes")
       total_box_price = buy_box_qty * 300
       st.write(f"총 필요 코인: **{total_box_price:,} G**")
-
     with col_box2:
       st.write("")
-      st.write("")
-      can_buy = affordable_boxes >= 1
-      if st.button(
-          f"상자 {buy_box_qty}개 구매 & 개봉",
-          type="primary",
-          key="buy_luck_box_qty",
-          use_container_width=True,
-          disabled=not can_buy,
-      ):
+      if st.button(f"상자 {buy_box_qty}개 구매 & 개봉", type="primary", use_container_width=True, disabled=affordable_boxes < 1):
         if st.session_state.coins >= total_box_price:
           st.session_state.coins -= total_box_price
           won_summary = {}
           for _ in range(buy_box_qty):
-            won_item = random.choices(
-                potion_items, weights=potion_weights, k=1
-            )[0]
+            won_item = random.choices(potion_items, weights=potion_weights, k=1)[0]
             st.session_state.potions[won_item] += 1
             won_summary[won_item] = won_summary.get(won_item, 0) + 1
-
           save_user_data_to_db()
-          summary_str = ", ".join(
-              [f"**{k}** {v}개" for k, v in won_summary.items()]
-          )
-          st.success(
-              f"🎉 행운권 상자 {buy_box_qty}개 개봉 결과: {summary_str} 획득!"
-          )
-          st.balloons()
-          time.sleep(1.2)
+          st.success("🎉 행운권 상자 개봉 완료!")
           st.rerun()
-        else:
-          st.error(f"코인이 부족합니다! ({total_box_price:,} G 필요)")
-
-  with st.container(border=True):
-    col_t1, col_t2 = st.columns([2, 1])
-    with col_t1:
-      st.markdown("### 🔥 3회씩 연속 뽑기 (영구)")
-      st.write(
-          "한 번에 3회씩 아우라를 빠르게 소환할 수 있는 기능을 해금합니다."
-      )
-    with col_t2:
-      st.write("")
-      if st.session_state.triple_roll_unlocked:
-        st.button(
-            "보유 완료",
-            disabled=True,
-            key="buy_triple_done",
-            use_container_width=True,
-        )
-      else:
-        if st.button(
-            "구매 (500 G)", key="buy_triple_roll", use_container_width=True
-        ):
-          if st.session_state.coins >= 500:
-            st.session_state.coins -= 500
-            st.session_state.triple_roll_unlocked = True
-            save_user_data_to_db()
-            st.success("3회 연속 뽑기 기능이 해금되었습니다!")
-            st.rerun()
-          else:
-            st.error("코인이 부족합니다! (500 G 필요)")
-
-  with st.container(border=True):
-    col_f1, col_f2 = st.columns([2, 1])
-    with col_f1:
-      st.markdown("### ⚡ 5회씩 연속 뽑기 (영구)")
-      st.write(
-          "3회 연속 뽑기를 보유한 상태에서, 한 번에 5회씩 아우라를 소환할 수"
-          " 있는 강력한 기능을 해금합니다."
-      )
-    with col_f2:
-      st.write("")
-      if st.session_state.five_roll_unlocked:
-        st.button(
-            "보유 완료",
-            disabled=True,
-            key="buy_five_done",
-            use_container_width=True,
-        )
-      elif not st.session_state.triple_roll_unlocked:
-        st.button(
-            "3회 뽑기 선행 구매 필요",
-            disabled=True,
-            key="buy_five_locked",
-            use_container_width=True,
-        )
-      else:
-        if st.button(
-            "구매 (1000 G)", key="buy_five_roll", use_container_width=True
-        ):
-          if st.session_state.coins >= 1000:
-            st.session_state.coins -= 1000
-            st.session_state.five_roll_unlocked = True
-            save_user_data_to_db()
-            st.success("5회 연속 뽑기 기능이 해금되었습니다!")
-            st.rerun()
-          else:
-            st.error("코인이 부족합니다! (1000 G 필요)")
-
-  with st.container(border=True):
-    col_l1, col_l2 = st.columns([2, 1])
-    with col_l1:
-      st.markdown("### 🍀 10뽑마다 행운 2배 버프 (영구)")
-      st.write("매 10번째 뽑기마다 상위 아우라를 얻을 확률이 2배로 증가합니다!")
-    with col_l2:
-      st.write("")
-      if st.session_state.luck_buff_unlocked:
-        st.button(
-            "구매 완료",
-            disabled=True,
-            key="buy_luck_done",
-            use_container_width=True,
-        )
-      else:
-        if st.button(
-            "구매 (200 G)", key="buy_luck_buff", use_container_width=True
-        ):
-          if st.session_state.coins >= 200:
-            st.session_state.coins -= 200
-            st.session_state.luck_buff_unlocked = True
-            save_user_data_to_db()
-            st.success("10뽑마다 행운 2배 버프가 해금되었습니다!")
-            st.rerun()
-          else:
-            st.error("코인이 부족합니다!")
-
-  with st.container(border=True):
-    col_s1, col_s2 = st.columns([2, 1])
-    with col_s1:
-      st.markdown("### 🎒 아우라 가방 확장권")
-      st.write(
-          f"현재 가방 최대 수용 칸수: **{st.session_state.inventory_slots}칸**"
-      )
-    with col_s2:
-      st.write("")
-      if st.button("구매 (50 G)", key="buy_bag", use_container_width=True):
-        if st.session_state.coins >= 50:
-          st.session_state.coins -= 50
-          st.session_state.inventory_slots += 20
-          save_user_data_to_db()
-          st.success("가방 칸수가 확장되었습니다!")
-          st.rerun()
-        else:
-          st.error("코인이 부족합니다!")
-
-  with st.container(border=True):
-    st.markdown("### 💾 데이터 백업 및 파일 불러오기")
-    st.write(
-        "서버가 재시작되어도 데이터가 날아가지 않도록 현재 계정 상태를"
-        " JSON 파일로 저장하거나, 백업 파일을 불러와 즉시 복구할 수 있습니다."
-    )
-
-    col_bk1, col_bk2 = st.columns(2)
-    with col_bk1:
-      current_json_str = json.dumps(
-          get_current_save_dict(), ensure_ascii=False, indent=2
-      )
-      st.download_button(
-          label="📥 내 데이터 백업 파일 저장 (.json)",
-          data=current_json_str,
-          file_name=f"{st.session_state.username}_backup.json",
-          mime="application/json",
-          use_container_width=True,
-      )
-
-    with col_bk2:
-      uploaded_backup = st.file_uploader(
-          "📤 백업 파일(.json) 선택",
-          type=["json"],
-          key="backup_file_uploader",
-          label_visibility="collapsed",
-      )
-      if uploaded_backup is not None:
-        if st.button(
-            "🔄 선택한 백업 파일로 데이터 복구 실행",
-            type="primary",
-            use_container_width=True,
-        ):
-          try:
-            loaded_json = json.load(uploaded_backup)
-            apply_loaded_data_to_session(loaded_json)
-            save_user_data_to_db()
-            st.success("✅ 백업 파일에서 데이터 복구가 완료되었습니다!")
-            time.sleep(0.8)
-            st.rerun()
-          except Exception as e:
-            st.error(f"파일을 불러오는 중 오류가 발생했습니다: {e}")
-
+  
   with st.container(border=True):
     st.markdown("### 💻 개발자 인증 패널")
-    st.write("비밀번호를 입력하고 개발자 권한을 활성화하세요.")
-
-    dev_password = st.text_input(
-        "개발자 비밀번호", type="password", key="dev_pw_input"
-    )
+    dev_password = st.text_input("개발자 비밀번호", type="password", key="dev_pw_input")
     if st.button("🔐 권한 인증 및 모든 도감 해금", type="primary"):
       if dev_password == "0925":
         for item in items:
-          st.session_state.counts[item] = max(
-              1, st.session_state.counts.get(item, 1)
-          )
+          st.session_state.counts[item] = max(1, st.session_state.counts.get(item, 1))
         for s in skin_items:
           st.session_state.skins[s] = 1
         save_user_data_to_db()
-        st.success(
-            "개발자 인증 성공! 모든 아우라 도감과 스킨이 해금되었습니다!"
-        )
+        st.success("개발자 인증 성공! 모든 도감이 해금되었습니다!")
         st.rerun()
       else:
         st.error("비밀번호가 틀렸습니다!")
-
-  st.write("")
-  if st.button(
-      "🔄 현재 계정 데이터 초기화",
-      type="secondary",
-      use_container_width=True,
-  ):
-    st.session_state.counts = {item: 0 for item in items}
-    st.session_state.levels = {item: 1 for item in items}
-    st.session_state.titles = []
-    st.session_state.equipped_title = None
-    st.session_state.equipped = None
-    st.session_state.equipped_skin = None
-    st.session_state.coins = 0
-    st.session_state.inventory_slots = 50
-    st.session_state.luck_buff_unlocked = False
-    st.session_state.triple_roll_unlocked = False
-    st.session_state.five_roll_unlocked = False
-    st.session_state.potions = {p: 0 for p in potion_items}
-    st.session_state.cases = 0
-    st.session_state.skins = {s: 0 for s in skin_items}
-    st.session_state.active_potion_mult = 1
-    st.session_state.active_potion_end = 0.0
-    st.session_state.active_potion_name = None
-    st.session_state.million_ticket_active = False
-    st.session_state.symphony_buff_ends = []
-    st.session_state.symphony_last_minute = None
-    st.session_state.last_results = []
-    st.session_state.last_luck_mult = 1
-    st.session_state.selected_codex = items[0]
-    st.session_state.codex_skin_menu_open = False
-    st.session_state.codex_selected_skin = None
-    save_user_data_to_db()
-    st.rerun()
