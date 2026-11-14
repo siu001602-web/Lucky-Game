@@ -218,24 +218,28 @@ equipped_backgrounds = {
     "그래피티": "Background/SmartSelect_20261114_171237_Google.jpg",
 }
 
-# 스킨 3종 리스트 및 매칭 아우라 정의
-skin_items = ["한정 스킨 A", "한정 스킨 B", "한정 스킨 C"]
+# 스킨 리스트 및 매칭 아우라 정의 ('빼빼로데이2026' 테마 적용)
+skin_items = [
+    "빼빼로데이2026 (대마법사)",
+    "빼빼로데이2026 (감시자)",
+    "빼빼로데이2026 (카와이)",
+]
 skin_images = {
-    "한정 스킨 A": "Skin/SmartSelect_20261114_234213_Gallery.jpg",
-    "한정 스킨 B": "Skin/SmartSelect_20261114_234230_Gallery.jpg",
-    "한정 스킨 C": "Skin/file_00000000568c8206bd1c2f53ae66e8ca.png",
+    "빼빼로데이2026 (대마법사)": "Skin/SmartSelect_20261114_234213_Gallery.jpg",
+    "빼빼로데이2026 (감시자)": "Skin/SmartSelect_20261114_234230_Gallery.jpg",
+    "빼빼로데이2026 (카와이)": "Skin/file_00000000568c8206bd1c2f53ae66e8ca.png",
 }
 skin_required_aura = {
-    "한정 스킨 A": "대마법사",
-    "한정 스킨 B": "감시자",
-    "한정 스킨 C": "카와이",
+    "빼빼로데이2026 (대마법사)": "대마법사",
+    "빼빼로데이2026 (감시자)": "감시자",
+    "빼빼로데이2026 (카와이)": "카와이",
 }
 
-# 아우라별 매칭되는 스킨 리스트 역매핑 (추후 여러 개 추가 대비)
+# 아우라별 매칭되는 스킨 리스트 역매핑
 aura_to_skins = {
-    "대마법사": ["한정 스킨 A"],
-    "감시자": ["한정 스킨 B"],
-    "카와이": ["한정 스킨 C"],
+    "대마법사": ["빼빼로데이2026 (대마법사)"],
+    "감시자": ["빼빼로데이2026 (감시자)"],
+    "카와이": ["빼빼로데이2026 (카와이)"],
 }
 
 # 행운권 상자 아이템 목록 및 메타데이터
@@ -1211,8 +1215,8 @@ with tab_gacha:
     )
 
 with tab_cases:
-  st.subheader("🎁 한정 케이스 오픈 시스템")
-  st.write("100배 행운 포션 10개로 **케이스 1개**를 구매할 수 있으며, 케이스를 열어 한정 스킨이나 500배 포션을 획득할 수 있습니다!")
+  st.subheader("🎁 빼빼로데이2026 케이스 오픈 시스템")
+  st.write("100배 행운 포션 10개로 **케이스 1개**를 구매할 수 있으며, 케이스를 열어 빼빼로데이 스킨이나 500배 포션을 획득할 수 있습니다!")
 
   if "cases" not in st.session_state:
     st.session_state.cases = 0
@@ -1260,7 +1264,7 @@ with tab_cases:
       else:
         won_skin = random.choice(skin_items)
         st.session_state.skins[won_skin] = st.session_state.skins.get(won_skin, 0) + 1
-        st.session_state.last_case_result = ("스킨", f"🎨 한정 스킨 [{won_skin}]을(를) 획득했습니다!")
+        st.session_state.last_case_result = ("스킨", f"🎨 빼빼로데이 스킨 [{won_skin}]을(를) 획득했습니다!")
         st.balloons()
 
       save_user_data_to_db()
@@ -1279,7 +1283,7 @@ with tab_cases:
     )
 
   st.divider()
-  st.markdown("### 🎨 보유 중인 스킨 목록")
+  st.markdown("### 🎨 보유 중인 빼빼로데이2026 스킨 목록")
   owned_skins = [s for s in skin_items if st.session_state.skins.get(s, 0) > 0]
   if owned_skins:
     cols_skin = st.columns(3)
@@ -1297,7 +1301,7 @@ with tab_cases:
           else:
             st.caption("미획득 (케이스에서 획득 가능)")
   else:
-    st.info("아직 획득한 스킨이 없습니다. 케이스를 열어 한정 스킨을 수집해보세요!")
+    st.info("아직 획득한 스킨이 없습니다. 케이스를 열어 빼빼로데이 스킨을 수집해보세요!")
 
 with tab_inventory:
   owned_items = [
@@ -1310,7 +1314,7 @@ with tab_inventory:
       f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
   )
   st.write(
-      "아우라 카드를 확인하고 장착, 레벨업 또는 **전용 스킨 장착**을 진행하세요. (한 줄에 5개씩 배치)"
+      "아우라 카드를 확인하고 장착, 레벨업 또는 **빼빼로데이2026 스킨 장착**을 진행하세요. (한 줄에 5개씩 배치)"
   )
 
   if owned_items:
@@ -1416,7 +1420,7 @@ with tab_inventory:
             # 스킨 장착 영역 (레벨업 버튼 아래쪽 카드 최하단에 배치)
             if matching_skins:
               st.markdown("---")
-              st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 스킨 장착 칸</div>", unsafe_allow_html=True)
+              st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 빼빼로데이 스킨 장착 칸</div>", unsafe_allow_html=True)
               for s_name in matching_skins:
                 s_owned_cnt = st.session_state.skins.get(s_name, 0)
                 is_this_skin_equipped = st.session_state.get("equipped_skin") == s_name
@@ -1429,12 +1433,12 @@ with tab_inventory:
                       save_user_data_to_db()
                       st.rerun()
                   else:
-                    if st.button(f"{s_name} 장착", key=f"equip_skin_grid_{item}_{s_name}", use_container_width=True, type="secondary"):
+                    if st.button(f"스킨 장착", key=f"equip_skin_grid_{item}_{s_name}", use_container_width=True, type="secondary"):
                       st.session_state.equipped_skin = s_name
                       save_user_data_to_db()
                       st.rerun()
                 else:
-                  st.markdown(f"<div style='text-align:center; font-size:10px; color:#777;'>🔒 {s_name} (미보유)</div>", unsafe_allow_html=True)
+                  st.markdown(f"<div style='text-align:center; font-size:10px; color:#777;'>🔒 미보유</div>", unsafe_allow_html=True)
   else:
     st.markdown(
         """
