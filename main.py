@@ -48,42 +48,7 @@ items = [
     "일반",
 ]
 
-# 각 분수 확률에 따른 기본 가중치 설정 (기준: 1,500,000,000,000)
-base_weights = [
-    1,
-    5,
-    675,
-    15000,
-    33333,
-    75000,
-    88847,
-    54915,
-    166667,
-    250000,
-    849089,
-    1500000,
-    2272727,
-    7500000,
-    9375000,
-    10714286,
-    20408,
-    30000000,
-    30000000,
-    45776365,
-    91552734,
-    651042,
-    183105469,
-    366210938,
-    732421875,
-    5859375000,
-    11718750000,
-    93750000000,
-    187500000000,
-    375000000000,
-    750000000000,
-]
-
-# 각 아우라의 실제 분모 수치 (행운 배율 필터링 기준)
+# 각 아우라의 실제 분모 수치 (행운 배율 필터링 및 확률 기준)
 denominators = {
     "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000,
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000,
@@ -117,6 +82,9 @@ denominators = {
     "희귀": 4,
     "일반": 2,
 }
+
+# 분모를 기반으로 정확한 가중치 자동 생성 (확률과 분모 완벽 일치)
+base_weights = [int(1000000000000 / denominators[item]) for item in items]
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
@@ -480,7 +448,6 @@ def get_world_weather_status():
   cycle_time = current_time % 60
   rem_sec = 60 - cycle_time
 
-  # 1분 단위 고유 시드값으로 해당 1분 동안 날씨 고정
   minute_seed = current_time // 60
   random.seed(minute_seed)
 
@@ -489,7 +456,7 @@ def get_world_weather_status():
     snow_chance = 0.40
 
   is_snow = random.random() < snow_chance
-  random.seed()  # 난수 발생기 복구
+  random.seed()
 
   return is_snow, rem_sec, int(snow_chance * 100)
 
@@ -1023,10 +990,12 @@ with tab_gacha:
     st.success("🍀 [영구 버프 활성화됨] 매 10번째 뽑기마다 행운 2배 적용 중!")
 
   with st.expander("📋 등급별 기본 확률표 보기"):
-    weights_sum = sum(base_weights)
-    for item, weight in zip(items, base_weights):
-      prob = (weight / weights_sum) * 100
-      if prob < 0.01:
+    total_w = sum(base_weights)
+    for item, w in zip(items, base_weights):
+      prob = (w / total_w) * 100
+      if prob < 0.000001:
+        prob_str = f"{prob:.10f}%"
+      elif prob < 0.01:
         prob_str = f"{prob:.8f}%"
       else:
         prob_str = f"{prob:.4f}%"
