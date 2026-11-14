@@ -583,7 +583,7 @@ def get_styled_title_html(title_name):
       "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻의 달인",
   ]
   if title_name in rainbow_max_titles:
-    return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">🎖️ [{title_name}]</span>'
+    return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">{title_name}</span>'
 
   if "𝓓𝓲𝓿𝓲𝓷𝓮 𝓒𝓻𝓮𝓪𝓽𝓸𝓻" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭"])
@@ -608,7 +608,7 @@ def get_styled_title_html(title_name):
   else:
     style = "color: #ffeb3b; font-weight: bold; text-shadow: 0 0 6px rgba(0,0,0,0.9), 0 0 12px rgba(255,235,59,0.5); font-size: 1.02em; padding: 0 4px;"
 
-  return f'<span style="{style}">🎖️ [{title_name}]</span>'
+  return f'<span style="{style}">{title_name}</span>'
 
 
 # 현재 적용 중인 총 행운 배율 계산 함수
@@ -914,7 +914,7 @@ c_u1, c_u2 = st.columns([4, 1])
 with c_u1:
   eq_title = st.session_state.get("equipped_title")
   styled_title_html = (
-      f" &nbsp; {get_styled_title_html(eq_title)}" if eq_title else ""
+      f" &nbsp; [{get_styled_title_html(eq_title)}]" if eq_title else ""
   )
   st.markdown(
       f"👤 현재 접속 계정: **`{st.session_state.username}`**님{styled_title_html}"
@@ -1222,15 +1222,14 @@ with tab_inventory:
       f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
   )
   st.write(
-      "아우라 카드를 클릭하여 장착하거나 레벨업을 진행하세요. (한 줄에 5개씩"
-      " 넉넉하게 배치)"
+      "아우라 카드를 확인하고 장착하거나 레벨업을 진행하세요. (한 줄에 5개씩"
+      " 배치)"
   )
 
   if owned_items:
     if "levels" not in st.session_state:
       st.session_state.levels = {item: 1 for item in items}
 
-    # 한 줄에 5개씩 그리드 레이아웃 생성
     cols_per_row = 5
     for i in range(0, len(owned_items), cols_per_row):
       row_items = owned_items[i : i + cols_per_row]
@@ -1241,21 +1240,31 @@ with tab_inventory:
         lvl = st.session_state.levels.get(item, 1)
         is_equipped = st.session_state.get("equipped") == item
 
+        denom = denominators.get(item, 2)
+        reqs = get_level_requirements(denom)
+        next_req = reqs[lvl + 1] if lvl + 1 <= 7 else reqs[7]
+
         with grid_cols[idx]:
           with st.container(border=True):
             st.markdown(
                 f"<div style='text-align:center; font-size:30px;'>{icons.get(item, '✨')}</div>",
                 unsafe_allow_html=True,
             )
-            # 글씨가 잘리지 않도록 폰트 크기 조절 및 줄바꿈 허용
             st.markdown(
                 f"<div style='text-align:center; font-size:13px; font-weight:bold; word-break:keep-all; min-height:38px;'>[{item}]</div>",
                 unsafe_allow_html=True,
             )
-            st.markdown(
-                f"<div style='text-align:center; font-size:12px; color:#aaa; margin-bottom:5px;'>Lv.{lvl} (보유: {count})</div>",
-                unsafe_allow_html=True,
-            )
+            
+            if lvl < 7:
+              st.markdown(
+                  f"<div style='text-align:center; font-size:11px; color:#aaa; margin-bottom:5px;'>Lv.{lvl} ({count}/{next_req})</div>",
+                  unsafe_allow_html=True,
+              )
+            else:
+              st.markdown(
+                  f"<div style='text-align:center; font-size:11px; color:#ffd700; margin-bottom:5px;'>⭐ MAX Lv.6</div>",
+                  unsafe_allow_html=True,
+              )
 
             if is_equipped:
               st.markdown(
@@ -1270,50 +1279,48 @@ with tab_inventory:
                 save_user_data_to_db()
                 st.rerun()
 
-            denom = denominators.get(item, 2)
-            reqs = get_level_requirements(denom)
             if lvl < 7:
-              next_req = reqs[lvl + 1]
-              if count >= next_req:
-                if st.button("업그레이드", key=f"grid_lvl_{item}", use_container_width=True, type="primary"):
-                  st.session_state.counts[item] -= next_req
-                  st.session_state.levels[item] += 1
-                  new_lvl = st.session_state.levels[item]
-                  if new_lvl == 7:
-                    custom_max_titles = {
-                        "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
-                        "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
-                        "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
-                        "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
-                        "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
-                        "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
-                        "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆪",
-                        "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
-                        "이상": "◇𝓑𝓮𝔂𝓸𝓷𝓭 𝓡𝓮𝓪𝓵𝓲𝓽𝔂 ◇",
-                        "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
-                        "속력": "◇𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂◇",
-                        "아케인": "◇ 𝓐𝓻𝓬𝓪𝓷𝓮 ◇",
-                        "대마법사": "◇ 𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮 ◇",
-                        "황혼": "◇𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽 ◇",
-                        "아파타이트": "◇𝓐𝓹𝓪𝓽𝓲𝓽𝓮 ◇",
-                        "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
-                        "𝓘𝓬𝓮𝓐𝓰𝓮": "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
-                    }
-                    t_name = custom_max_titles.get(item, f"{item}의 달인")
-                    if "titles" not in st.session_state:
-                      st.session_state.titles = []
-                    if t_name not in st.session_state.titles:
-                      st.session_state.titles.append(t_name)
-                      st.success(f"🎉 만렙 달성! [{t_name}] 획득!")
-                  save_user_data_to_db()
-                  st.rerun()
+              can_upgrade = count >= next_req
+              if st.button(
+                  f"업그레이드" if can_upgrade else f"재료 부족",
+                  key=f"grid_lvl_{item}",
+                  use_container_width=True,
+                  type="primary" if can_upgrade else "secondary",
+                  disabled=not can_upgrade
+              ):
+                st.session_state.counts[item] -= next_req
+                st.session_state.levels[item] += 1
+                new_lvl = st.session_state.levels[item]
+                if new_lvl == 7:
+                  custom_max_titles = {
+                      "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
+                      "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
+                      "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
+                      "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
+                      "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
+                      "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
+                      "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆪",
+                      "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
+                      "이상": "◇𝓑𝓮𝔂𝓸𝓷𝓭 𝓡𝓮𝓪𝓵𝓲𝓽𝔂 ◇",
+                      "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
+                      "속력": "◇𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂◇",
+                      "아케인": "◇ 𝓐𝓻𝓬𝓪𝓷𝓮 ◇",
+                      "대마법사": "◇ 𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮 ◇",
+                      "황혼": "◇𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽 ◇",
+                      "아파타이트": "◇𝓐𝓹𝓪𝓽𝓲𝓽𝓮 ◇",
+                      "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
+                      "𝓘𝓬𝓮𝓐𝓰𝓮": "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
+                  }
+                  t_name = custom_max_titles.get(item, f"{item}의 달인")
+                  if "titles" not in st.session_state:
+                    st.session_state.titles = []
+                  if t_name not in st.session_state.titles:
+                    st.session_state.titles.append(t_name)
+                    st.success(f"🎉 만렙 달성! [{t_name}] 획득!")
+                save_user_data_to_db()
+                st.rerun()
             else:
-              st.markdown(
-                  "<div"
-                  " style='text-align:center; font-size:11px; color:#ffd700;'"
-                  "><b>⭐ MAX LEVEL</b></div>",
-                  unsafe_allow_html=True,
-              )
+              st.button("MAX 완료", key=f"max_btn_{item}", disabled=True, use_container_width=True)
   else:
     st.markdown(
         """
@@ -1481,7 +1488,7 @@ with tab_codex:
 with tab_titles:
   st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
   st.write(
-      "획득한 칭호를 한 줄에 5개씩 넉넉하게 정렬하여 장착할 수 있습니다."
+      "획득한 칭호를 한 줄에 5개씩 넉넉하게 정렬하여 장착할 수 있습니다. (장착하지 않아도 고유 스타일 미리보기 가능)"
   )
 
   if "titles" not in st.session_state:
@@ -1504,9 +1511,10 @@ with tab_titles:
                 "<div style='text-align:center; font-size:26px;'>🎖️</div>",
                 unsafe_allow_html=True,
             )
-            # 칭호 글씨가 길어도 잘리지 않도록 줄바꿈 허용
+            # 장착 전이어도 고유 스타일이 그대로 보이도록 렌더링
+            styled_t_html = get_styled_title_html(t)
             st.markdown(
-                f"<div style='text-align:center; font-size:12px; font-weight:bold; word-break:keep-all; min-height:35px;'>{t}</div>",
+                f"<div style='text-align:center; font-size:12px; font-weight:bold; word-break:keep-all; min-height:35px;'>{styled_t_html}</div>",
                 unsafe_allow_html=True,
             )
 
