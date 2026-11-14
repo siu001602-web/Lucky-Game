@@ -83,7 +83,7 @@ denominators = {
     "일반": 2,
 }
 
-# 분모를 기반으로 정확한 가중치 자동 생성 (확률과 분모 완벽 일치)
+# 분모를 기반으로 정확한 가중치 자동 생성
 base_weights = [int(1000000000000 / denominators[item]) for item in items]
 
 # 각 아우라의 분수 표시 문자열
@@ -1157,7 +1157,7 @@ with tab_inventory:
                   elif item == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
                     t_name = "• ⋆༺무한의 환상༻⋆"
                   elif item == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
-                    t_name = "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝐊𝐈𝐍𝐆 ༻꧂"
+                    t_name = "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂"
                   elif item == "𝓘𝓬𝓮𝓐𝓰𝓮":
                     t_name = "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂"
                   else:
@@ -1189,62 +1189,76 @@ with tab_inventory:
 with tab_potions:
   st.subheader("🧪 포션 인벤토리")
   st.write(
-      "상점에서 구매한 행운 포션과 백만배 행운권을 확인하고 사용할 수 있습니다."
-      " (같은 종류 포션만 시간 중첩 가능)"
+      "상점에서 구매한 행운 포션과 백만배 행운권을 원하는 수량만큼 선택해서"
+      " 사용할 수 있습니다. (사용 수량만큼 시간이 누적됩니다)"
   )
 
   all_potions_count = sum(st.session_state.potions.values())
   if all_potions_count > 0:
-    p_cols_per_row = 3
-    p_rows = [
-        potion_items[i : i + p_cols_per_row]
-        for i in range(0, len(potion_items), p_cols_per_row)
-    ]
-
-    for row in p_rows:
-      cols = st.columns(p_cols_per_row)
-      for idx, p_name in enumerate(row):
-        count = st.session_state.potions.get(p_name, 0)
-        with cols[idx]:
-          st.markdown(
-              f"""
-              <div style="background-color: #222222; border: 2px solid #00b0ff; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 10px; min-height: 120px;">
-                  <div style="font-size: 28px;">🧪</div>
-                  <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 6px;">{p_name}</div>
-                  <div style="color: #66ffcc; font-size: 12px; margin-top: 4px;">보유: {count}개</div>
-              </div>
-              """,
-              unsafe_allow_html=True,
-          )
-          if count > 0:
+    for p_name in potion_items:
+      count = st.session_state.potions.get(p_name, 0)
+      if count > 0:
+        with st.container(border=True):
+          col_p1, col_p2, col_p3 = st.columns([1, 2, 1])
+          with col_p1:
+            st.markdown(
+                f"<div style='font-size: 38px; text-align: center;'>🧪</div>",
+                unsafe_allow_html=True,
+            )
+          with col_p2:
+            st.markdown(f"#### {p_name}")
+            st.write(f"보유 수량: **{count}개**")
+            # 수량 선택 슬라이더 (1개 ~ 보유 개수)
+            use_qty = st.slider(
+                "사용할 수량",
+                min_value=1,
+                max_value=count,
+                value=1,
+                key=f"slider_qty_{p_name}",
+            )
+          with col_p3:
+            st.write("")
+            st.write("")
             if st.button(
-                "사용하기", key=f"tab_use_pot_{p_name}", use_container_width=True
+                f"선택 사용 ({use_qty}개)",
+                key=f"btn_use_qty_{p_name}",
+                type="primary",
+                use_container_width=True,
             ):
-              st.session_state.potions[p_name] -= 1
+              st.session_state.potions[p_name] -= use_qty
               cfg = potion_config[p_name]
+
               if cfg["type"] == "potion":
                 now = time.time()
+                add_duration = cfg["duration"] * use_qty
                 if (
                     st.session_state.active_potion_name == p_name
                     and now < st.session_state.active_potion_end
                 ):
-                  st.session_state.active_potion_end += cfg["duration"]
+                  st.session_state.active_potion_end += add_duration
                 else:
-                  st.session_state.active_potion_end = now + cfg["duration"]
+                  # 이미 끝났거나 다른 포션이었을 경우
+                  base_time = (
+                      max(now, st.session_state.active_potion_end)
+                      if st.session_state.active_potion_mult > 1
+                      else now
+                  )
+                  st.session_state.active_potion_end = base_time + add_duration
                   st.session_state.active_potion_mult = cfg["mult"]
                   st.session_state.active_potion_name = p_name
               elif cfg["type"] == "ticket":
+                # 백만배 행운권은 1개 초과 사용 시 남은 만큼 장전 횟수로 누적
+                if "million_ticket_count" not in st.session_state:
+                  st.session_state.million_ticket_count = 0
+                st.session_state.million_ticket_count += use_qty
                 st.session_state.million_ticket_active = True
+
               save_user_data_to_db()
+              st.success(
+                  f"🎉 [{p_name}] {use_qty}개가 성공적으로 사용되었습니다!"
+              )
+              time.sleep(0.8)
               st.rerun()
-          else:
-            st.button(
-                "보유 없음",
-                key=f"tab_none_pot_{p_name}",
-                disabled=True,
-                use_container_width=True,
-            )
-      st.write("")
   else:
     st.markdown(
         """
