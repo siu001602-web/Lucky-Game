@@ -1443,7 +1443,7 @@ with tab_shop:
 
           save_user_data_to_db()
           summary_str = ", ".join(
-              [f"**{k}** {v개}개" for k, v in won_summary.items()]
+              [f"**{k}** {v}개" for k, v in won_summary.items()]
           )
           st.success(
               f"🎉 행운권 상자 {buy_box_qty}개 개봉 결과: {summary_str} 획득!"
