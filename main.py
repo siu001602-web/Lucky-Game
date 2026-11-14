@@ -188,36 +188,6 @@ icons = {
     "일반": "⚪📦",
 }
 
-# 등급별 테두리 색상
-border_colors = {
-    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "#e066ff",
-    "스펙트라플로우": "#00ffff",
-    "감시자": "#ff0055",
-    "크로마틱": "#ff00ff",
-    "자장가": "#7a5cff",
-    "헬리오스": "#ff9900",
-    "황혼": "#b366ff",
-    "대마법사": "#9933ff",
-    "아케인": "#00ffff",
-    "워록": "#ff3300",
-    "바운디드": "#9900ff",
-    "재즈": "#ff00aa",
-    "스펙터": "#00ff88",
-    "태양": "#ffcc00",
-    "달": "#0099ff",
-    "와트": "#00FFFF",
-    "힘": "#FF0000",
-    "석영": "#FF4500",
-    "시데리움": "#FFD700",
-    "자력": "#00CED1",
-    "분노": "#FF1493",
-    "결정화": "#9932CC",
-    "레어": "#1E90FF",
-    "자연": "#32CD32",
-    "희귀": "#87CEEB",
-    "일반": "#555555",
-}
-
 # 모든 등급 아우라 이미지 경로 매핑
 aura_images = {
     "일반": "images/SmartSelect_20261113_115337_NAVER.jpg",
@@ -511,6 +481,45 @@ def apply_equipped_background():
 apply_equipped_background()
 
 
+# 🎖️ [칭호 희귀도별 화려하고 예쁜 스타일 적용 HTML 생성 함수]
+def get_styled_title_html(title_name):
+  if not title_name:
+    return ""
+
+  if "초월자" in title_name or "몽상가" in title_name or "환상" in title_name:
+    # 최상급/초월급 칭호 (무지개 네온 + 글로우)
+    style = (
+        "background: linear-gradient(90deg, #ff007f, #7928ca, #0070f3, #00dfd8);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 900; text-shadow: 0 0 10px rgba(255,0,127,0.6),"
+        " 0 0 20px rgba(0,223,216,0.5); font-size: 1.05em; padding: 0 4px;"
+    )
+  elif "잔광" in title_name:
+    # 스펙트라플로우 전용 (청록빛 네온)
+    style = (
+        "background: linear-gradient(90deg, #00ffff, #0077ff);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 800; text-shadow: 0 0 12px rgba(0,255,255,0.7);"
+        " font-size: 1.05em; padding: 0 4px;"
+    )
+  elif "달인" in title_name:
+    # 만렙 달인 칭호 (황금빛 영롱한 빛)
+    style = (
+        "background: linear-gradient(90deg, #ffe600, #ff8c00);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 800; text-shadow: 0 0 10px rgba(255,215,0,0.7);"
+        " font-size: 1.05em; padding: 0 4px;"
+    )
+  else:
+    # 일반 칭호 (선명한 금빛 장식 + 어두운 외곽선 그림자)
+    style = (
+        "color: #ffeb3b; font-weight: bold; text-shadow: 0 0 6px rgba(0,0,0,0.9),"
+        " 0 0 12px rgba(255,235,59,0.5); font-size: 1.02em; padding: 0 4px;"
+    )
+
+  return f'<span style="{style}">🎖️ [{title_name}]</span>'
+
+
 # 현재 적용 중인 총 행운 배율 계산 함수
 def get_current_luck_multiplier(next_pull_number):
   now = time.time()
@@ -793,10 +802,13 @@ st.title("✨ 아우라 가챠 & 도감 시스템")
 c_u1, c_u2 = st.columns([4, 1])
 with c_u1:
   eq_title = st.session_state.get("equipped_title")
-  title_display = f" 🎖️ **[{eq_title}]**" if eq_title else ""
+  styled_title_html = (
+      f" &nbsp; {get_styled_title_html(eq_title)}" if eq_title else ""
+  )
   st.markdown(
-      f"👤 현재 접속 계정: **`{st.session_state.username}`**님{title_display} (자동"
-      " 영구 저장 활성화됨)"
+      f"👤 현재 접속 계정: **`{st.session_state.username}`**님{styled_title_html}"
+      " (자동 영구 저장 활성화됨)",
+      unsafe_allow_html=True,
   )
 with c_u2:
   if st.button("로그아웃", use_container_width=True):
@@ -1124,7 +1136,10 @@ with tab_inventory:
 
 with tab_potions:
   st.subheader("🧪 포션 인벤토리")
-  st.write("상점에서 구매한 행운 포션과 백만배 행운권을 확인하고 사용할 수 있습니다. (같은 종류 포션만 시간 중첩 가능)")
+  st.write(
+      "상점에서 구매한 행운 포션과 백만배 행운권을 확인하고 사용할 수 있습니다."
+      " (같은 종류 포션만 시간 중첩 가능)"
+  )
 
   all_potions_count = sum(st.session_state.potions.values())
   if all_potions_count > 0:
@@ -1157,14 +1172,12 @@ with tab_potions:
               cfg = potion_config[p_name]
               if cfg["type"] == "potion":
                 now = time.time()
-                # 같은 종류의 포션이 활성화되어 있을 때만 남은 시간 합산(중첩)
                 if (
                     st.session_state.active_potion_name == p_name
                     and now < st.session_state.active_potion_end
                 ):
                   st.session_state.active_potion_end += cfg["duration"]
                 else:
-                  # 다른 종류의 포션이면 기존 시간을 초기화하고 새 포션 지속시간으로 덮어씀
                   st.session_state.active_potion_end = now + cfg["duration"]
                   st.session_state.active_potion_mult = cfg["mult"]
                   st.session_state.active_potion_name = p_name
@@ -1203,7 +1216,10 @@ with tab_codex:
   with col_left:
     st.markdown("#### 📜 등급 목록")
     for item in items:
-      is_owned = st.session_state.counts.get(item, 0) > 0 or st.session_state.levels.get(item, 1) > 1
+      is_owned = (
+          st.session_state.counts.get(item, 0) > 0
+          or st.session_state.levels.get(item, 1) > 1
+      )
       display_name = (
           f"{icons.get(item, '✨')} {item}" if is_owned else "🔒 [LOCKED] ???"
       )
@@ -1219,7 +1235,10 @@ with tab_codex:
     sel = st.session_state.selected_codex
     if sel not in items:
       sel = items[0]
-    is_owned = st.session_state.counts.get(sel, 0) > 0 or st.session_state.levels.get(sel, 1) > 1
+    is_owned = (
+        st.session_state.counts.get(sel, 0) > 0
+        or st.session_state.levels.get(sel, 1) > 1
+    )
     st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
 
     with st.container(border=True):
@@ -1278,9 +1297,9 @@ with tab_titles:
         col_t1, col_t2 = st.columns([3, 1])
         with col_t1:
           badge_text = " ⭐ [장착중]" if is_t_equipped else ""
+          styled_t_html = get_styled_title_html(t)
           st.markdown(
-              f"<span style='color: #ffeb3b; font-weight: bold; font-size: 16px;'>🎖️ {t}</span>{badge_text}",
-              unsafe_allow_html=True,
+              f"{styled_t_html}{badge_text}", unsafe_allow_html=True
           )
         with col_t2:
           if is_t_equipped:
