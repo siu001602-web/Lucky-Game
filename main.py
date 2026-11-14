@@ -129,10 +129,11 @@ fractions = {
     "자력": "1 in 2,048",
     "분노": "1 in 256",
     "결정화": "1 in 128",
+    "레er": "1 in 16",
     "레어": "1 in 16",
     "자연": "1 in 8",
     "희귀": "1 in 4",
-    "일반": "1 in 2",
+    "일반": "1 in 2,
 }
 
 # 컷씬이 존재하는 아우라 목록
@@ -303,6 +304,8 @@ def get_current_save_dict():
   return {
       "history": st.session_state.get("history", []),
       "counts": st.session_state.get("counts", {}),
+      "levels": st.session_state.get("levels", {}),
+      "titles": st.session_state.get("titles", []),
       "equipped": st.session_state.get("equipped", None),
       "coins": st.session_state.get("coins", 0),
       "inventory_slots": st.session_state.get("inventory_slots", 50),
@@ -335,6 +338,10 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.counts = {
       item: saved_data.get("counts", {}).get(item, 0) for item in items
   }
+  st.session_state.levels = {
+      item: saved_data.get("levels", {}).get(item, 1) for item in items
+  }
+  st.session_state.titles = saved_data.get("titles", [])
   st.session_state.equipped = saved_data.get("equipped", None)
   st.session_state.coins = saved_data.get("coins", 0)
   st.session_state.inventory_slots = saved_data.get("inventory_slots", 50)
@@ -420,6 +427,8 @@ if not st.session_state.logged_in:
           new_user_init_data = {
               "history": [],
               "counts": {item: 0 for item in items},
+              "levels": {item: 1 for item in items},
+              "titles": [],
               "equipped": None,
               "coins": 0,
               "inventory_slots": 50,
@@ -676,7 +685,7 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수
+# 1회 또는 다회 뽑기 실행 공통 함수 (Max 달성 시 중복 쌓임 방지 로직 적용)
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
@@ -725,7 +734,29 @@ def perform_rolls(roll_count=1):
     result = random.choices(items, weights=current_weights, k=1)[0]
     results.append(result)
 
-    st.session_state.counts[result] += 1
+    # 칭호 및 Max 체크
+    denom = denominators.get(result, 2)
+    max_req = get_max_requirement(denom)
+
+    # 최초 획득 칭호 지급
+    if prior_counts.get(result, 0) == 0 and st.session_state.counts.get(result, 0) == 0:
+      if result == "스펙트라플로우":
+        t_name = "영광의 잔광"
+        if t_name not in st.session_state.titles:
+          st.session_state.titles.append(t_name)
+      elif result == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
+        t_name = "• ⋆༺무한의 환상༻⋆"
+        if t_name not in st.session_state.titles:
+          st.session_state.titles.append(t_name)
+
+    # Max 레벨이 아닐 때만 수량 증가
+    curr_lvl = st.session_state.levels.get(result, 1)
+    if curr_lvl < 7:  # 6레벨이 Max
+      st.session_state.counts[result] += 1
+    else:
+      # Max 달성 후에는 더 쌓이지 않음
+      pass
+
     st.session_state.history.insert(0, result)
     st.session_state.coins += coin_gain_per_roll
 
@@ -745,6 +776,23 @@ def perform_rolls(roll_count=1):
 
   save_user_data_to_db()
   return results
+
+
+# 분모에 따른 레벨업 요구치 계산 함수
+def get_level_requirements(denom):
+  if denom > 100000000:  # 1억 초과 (예: Dreamcatcher)
+    return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
+  elif denom >= 1000000:  # 100만 이상 ~ 1억 이하
+    return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
+  elif denom > 100000:  # 10만 초과 ~ 100만 미만
+    return {1: 1, 2: 30, 3: 50, 4: 100, 5: 500, 6: 1000, 7: 1500}
+  else:  # 10만 이하
+    return {1: 1, 2: 10, 3: 20, 4: 30, 5: 50, 6: 100, 7: 300}
+
+
+def get_max_requirement(denom):
+  reqs = get_level_requirements(denom)
+  return reqs[7]
 
 
 # ==========================================
@@ -851,8 +899,8 @@ with col_c2:
 
 st.divider()
 
-tab_gacha, tab_inventory, tab_potions, tab_codex, tab_shop = st.tabs(
-    ["🎲 아우라 뽑기", "🎒 스토리지", "🧪 포션 인벤토리", "📖 도감 (Codex)", "🛒 상점"]
+tab_gacha, tab_inventory, tab_potions, tab_codex, tab_titles, tab_shop = st.tabs(
+    ["🎲 아우라 뽑기", "🎒 스토리지", "🧪 포션 인벤토리", "📖 도감 (Codex)", "🎖️ 칭호 칸", "🛒 상점"]
 )
 
 with tab_gacha:
@@ -995,57 +1043,94 @@ with tab_inventory:
       item
       for item in items
       if st.session_state.counts.get(item, 0) > 0
+      or st.session_state.levels.get(item, 1) > 1
   ]
   st.subheader(
-      f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
+      f"📦 아우라 스토리지 & 레벨업 [보유 종류: {len(owned_items)} / {len(items)}]"
   )
 
   if owned_items:
-    st.write("획득한 아우라를 확인하고 장착할 수 있습니다.")
-    cols_per_row = 4
-    rows = [
-        owned_items[i : i + cols_per_row]
-        for i in range(0, len(owned_items), cols_per_row)
-    ]
+    st.write(
+        "획득한 아우라를 확인하고 레벨업 및 장착을 진행할 수 있습니다. (Max"
+        " 달성 시 추가 수량이 쌓이지 않습니다)"
+    )
 
-    for row in rows:
-      cols = st.columns(cols_per_row)
-      for idx, item in enumerate(row):
-        with cols[idx]:
-          count = st.session_state.counts.get(item, 0)
-          is_equipped = st.session_state.get("equipped") == item
-          b_color = border_colors.get(item, "#ffffff")
+    if "levels" not in st.session_state:
+      st.session_state.levels = {item: 1 for item in items}
+
+    for item in owned_items:
+      count = st.session_state.counts.get(item, 0)
+      lvl = st.session_state.levels.get(item, 1)
+      denom = denominators.get(item, 2)
+      reqs = get_level_requirements(denom)
+      max_req = reqs[7]
+
+      with st.container(border=True):
+        col_i1, col_i2, col_i3 = st.columns([1, 2, 1])
+        with col_i1:
           icon = icons.get(item, "✨")
-
-          bg_color = "#1b3a4b" if is_equipped else "#222222"
-
           st.markdown(
-              f"""
-              <div style="background-color: {bg_color}; border: 2px solid {b_color}; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 10px; min-height: 110px;">
-                  <div style="font-size: 24px;">{icon}</div>
-                  <div style="font-weight: bold; color: white; font-size: 14px; margin-top: 4px;">{item}</div>
-                  <div style="color: #aaa; font-size: 11px; margin-top: 2px;">보유: {count}개</div>
-                  {"<div style='color: #4da6ff; font-size: 11px; font-weight: bold; margin-top: 2px;'>[장착 중]</div>" if is_equipped else ""}
-              </div>
-              """,
+              f"<div style='font-size: 36px; text-align: center;'>{icon}</div>",
               unsafe_allow_html=True,
           )
-
+        with col_i2:
+          st.markdown(f"#### [{item}] — Lv. {lvl} / 6 (Max)")
+          if lvl < 7:
+            next_req = reqs[lvl + 1] if lvl + 1 <= 7 else max_req
+            st.write(
+                f"현재 보유: **{count}개** / 다음 레벨업 필요: **{next_req}개**"
+            )
+          else:
+            st.markdown(
+                "⭐ <span style='color: #ffd700; font-weight: bold;'>MAX"
+                " LEVEL 달성 완료!</span>",
+                unsafe_allow_html=True,
+            )
+        with col_i3:
+          is_equipped = st.session_state.get("equipped") == item
           if is_equipped:
             st.button(
-                "장착중",
-                key=f"inv_eq_{item}",
-                disabled=True,
-                use_container_width=True,
+                "장착중", key=f"inv_eq_btn_{item}", disabled=True, use_container_width=True
             )
           else:
             if st.button(
-                "장착", key=f"inv_btn_{item}", use_container_width=True
+                "장착", key=f"inv_use_btn_{item}", use_container_width=True
             ):
               st.session_state.equipped = item
               save_user_data_to_db()
               st.rerun()
-      st.write("")
+
+          if lvl < 7:
+            next_req = reqs[lvl + 1]
+            if count >= next_req:
+              if st.button(
+                  "레벨업!", key=f"lvl_up_{item}", use_container_width=True, type="primary"
+              ):
+                st.session_state.counts[item] -= next_req
+                st.session_state.levels[item] += 1
+                new_lvl = st.session_state.levels[item]
+
+                # 만렙(7 = Max Lv.6 도달 시) 달성 시 칭호 자동 지급
+                if new_lvl == 7:
+                  if item == "스펙트라플로우":
+                    t_name = "꧁༺ 스펙트럼의 초월자 ༻꧂"
+                  elif item == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
+                    t_name = "꧁༺ 영원의 몽상가 ༻꧂"
+                  else:
+                    t_name = f"{item}의 달인"
+
+                  if "titles" not in st.session_state:
+                    st.session_state.titles = []
+                  if t_name not in st.session_state.titles:
+                    st.session_state.titles.append(t_name)
+                    st.success(f"🎉 만렙 달성! 새 칭호 [{t_name}] 획득!")
+
+                save_user_data_to_db()
+                st.rerun()
+          else:
+            st.button(
+                "MAX", key=f"max_btn_{item}", disabled=True, use_container_width=True
+            )
   else:
     st.markdown(
         """
@@ -1139,7 +1224,7 @@ with tab_codex:
   with col_left:
     st.markdown("#### 📜 등급 목록")
     for item in items:
-      is_owned = st.session_state.counts.get(item, 0) > 0
+      is_owned = st.session_state.counts.get(item, 0) > 0 or st.session_state.levels.get(item, 1) > 1
       display_name = (
           f"{icons.get(item, '✨')} {item}" if is_owned else "🔒 [LOCKED] ???"
       )
@@ -1155,7 +1240,7 @@ with tab_codex:
     sel = st.session_state.selected_codex
     if sel not in items:
       sel = items[0]
-    is_owned = st.session_state.counts.get(sel, 0) > 0
+    is_owned = st.session_state.counts.get(sel, 0) > 0 or st.session_state.levels.get(sel, 1) > 1
     st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
 
     with st.container(border=True):
@@ -1172,6 +1257,7 @@ with tab_codex:
         st.markdown(f"### [{sel}]")
         st.write(f"**희귀도 확률:** {fractions.get(sel, 'N/A')}")
         st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
+        st.write(f"**현재 레벨:** Lv. {st.session_state.levels.get(sel, 1)} / 6")
         st.markdown("---")
 
         if sel in cutscene_auras:
@@ -1191,6 +1277,36 @@ with tab_codex:
             """,
             unsafe_allow_html=True,
         )
+
+with tab_titles:
+  st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
+  st.write("아우라 최초 획득 또는 만렙(MAX) 달성 시 획득한 칭호들이 이곳에 추가됩니다.")
+
+  if "titles" not in st.session:
+    st.session.state.titles = []
+
+  user_titles = st.session_state.titles
+  if user_titles:
+    st.markdown(f"#### 🏅 보유 중인 칭호 목록 ({len(user_titles)}개 획득)")
+    for t in user_titles:
+      st.markdown(
+          f"""
+          <div style="background-color: #1f1f2e; border: 1px solid #7a5cff; border-radius: 8px; padding: 12px; margin-bottom: 8px; color: #ffeb3b; font-weight: bold; font-size: 16px;">
+              🎖️ {t}
+          </div>
+          """,
+          unsafe_allow_html=True,
+      )
+  else:
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 50px; color: #777;">
+            <h3>🎖️ 아직 획득한 칭호가 없습니다!</h3>
+            <p>아우라를 뽑거나 레벨업(MAX)을 달성하여 칭호를 수집해보세요.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 관리")
@@ -1418,6 +1534,8 @@ with tab_shop:
   ):
     st.session_state.history = []
     st.session_state.counts = {item: 0 for item in items}
+    st.session_state.levels = {item: 1 for item in items}
+    st.session_state.titles = []
     st.session_state.equipped = None
     st.session_state.coins = 0
     st.session_state.inventory_slots = 50
