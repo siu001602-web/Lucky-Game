@@ -1412,24 +1412,30 @@ with tab_shop:
         st.markdown("- **0.1%**: 백만배 행운권 (1회) — 최소 1/1,000,000 (아케인 이상) 확정!")
 
       max_buy_boxes = max(1, st.session_state.coins // 300)
-      buy_box_qty = st.slider(
-          "구매할 상자 수량",
-          min_value=1,
-          max_value=max_buy_boxes,
-          value=1,
-          key="slider_buy_boxes",
-      )
+      if st.session_state.coins < 300:
+        st.warning("코인이 부족합니다! (상자 1개당 300 G 필요)")
+        buy_box_qty = 1
+      else:
+        buy_box_qty = st.slider(
+            "구매할 상자 수량",
+            min_value=1,
+            max_value=max_buy_boxes,
+            value=1,
+            key="slider_buy_boxes",
+        )
       total_box_price = buy_box_qty * 300
       st.write(f"총 필요 코인: **{total_box_price:,} G**")
 
     with col_box2:
       st.write("")
       st.write("")
+      can_buy = st.session_state.coins >= 300
       if st.button(
           f"상자 {buy_box_qty}개 구매 & 개봉",
           type="primary",
           key="buy_luck_box_qty",
           use_container_width=True,
+          disabled=not can_buy,
       ):
         if st.session_state.coins >= total_box_price:
           st.session_state.coins -= total_box_price
