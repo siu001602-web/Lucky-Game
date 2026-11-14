@@ -499,16 +499,11 @@ def get_styled_title_html(title_name):
       "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
       "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻의 달인",
   ]
-  
   if title_name in rainbow_max_titles:
-    style = (
-        "background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00,"
-        " #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text;"
-        " -webkit-text-fill-color: transparent; font-weight: 900;"
-        " text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px"
-        " rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;"
-    )
-  elif "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
+    return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">🎖️ [{title_name}]</span>'
+
+  # 1억 이상 아우라 최초 획득 칭호들 (무조건 파스텔 네온 그라데이션 적용)
+  if "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧"])
   elif "ICE MONARCH" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓜𝓪𝓶𝓶𝓸𝓽𝓱"])
@@ -518,43 +513,14 @@ def get_styled_title_html(title_name):
     style = hex_to_pastel_neon_css(aura_colors["𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"])
   elif "영광의 잔광" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐"])
-  elif (
-      "𝓦𝓪𝓽𝓬𝓱𝓮𝓻" in title_name
-      or "𝓛𝓾𝓵𝓵𝓪𝓫𝔂" in title_name
-      or "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲" in title_name
-      or "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭" in title_name
-  ):
-    style = (
-        "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 800; text-shadow: 0 0 12px rgba(179,102,255,0.7);"
-        " font-size: 1.05em; padding: 0 4px;"
-    )
-  elif (
-      "𝓗𝓮𝓵𝓲𝓸𝓼" in title_name
-      or "𝓐𝓻𝓬𝓪𝓷𝓮" in title_name
-      or "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮" in title_name
-      or "𝓐𝓹𝓪𝓽𝓲𝓽𝓮" in title_name
-      or "𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂" in title_name
-  ):
-    style = (
-        "background: linear-gradient(90deg, #ffd700, #ff6600, #00e5ff);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 800; text-shadow: 0 0 12px rgba(255,153,0,0.7);"
-        " font-size: 1.05em; padding: 0 4px;"
-    )
+  elif any(k in title_name for k in ["𝓦𝓪𝓽𝓬𝓱𝓮𝓻", "𝓛𝓾𝓵𝓵𝓪𝓫𝔂", "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲", "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭"]):
+    style = "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(179,102,255,0.7); font-size: 1.05em; padding: 0 4px;"
+  elif any(k in title_name for k in ["𝓗𝓮𝓵𝓲𝓸𝓼", "𝓐𝓻𝓬𝓪𝓷𝓮", "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮", "𝓐𝓹𝓪𝓽𝓲𝓽𝓮", "𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂"]):
+    style = "background: linear-gradient(90deg, #ffd700, #ff6600, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(255,153,0,0.7); font-size: 1.05em; padding: 0 4px;"
   elif "달인" in title_name:
-    style = (
-        "background: linear-gradient(90deg, #ffe600, #ff8c00);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 800; text-shadow: 0 0 10px rgba(255,215,0,0.7);"
-        " font-size: 1.05em; padding: 0 4px;"
-    )
+    style = "background: linear-gradient(90deg, #ffe600, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 10px rgba(255,215,0,0.7); font-size: 1.05em; padding: 0 4px;"
   else:
-    style = (
-        "color: #ffeb3b; font-weight: bold; text-shadow: 0 0 6px rgba(0,0,0,0.9),"
-        " 0 0 12px rgba(255,235,59,0.5); font-size: 1.02em; padding: 0 4px;"
-    )
+    style = "color: #ffeb3b; font-weight: bold; text-shadow: 0 0 6px rgba(0,0,0,0.9), 0 0 12px rgba(255,235,59,0.5); font-size: 1.02em; padding: 0 4px;"
 
   return f'<span style="{style}">🎖️ [{title_name}]</span>'
 
