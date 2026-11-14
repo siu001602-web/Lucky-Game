@@ -218,6 +218,19 @@ equipped_backgrounds = {
     "그래피티": "Background/SmartSelect_20261114_171237_Google.jpg",
 }
 
+# 스킨 3종 리스트 및 매칭 아우라 정의
+skin_items = ["한정 스킨 A", "한정 스킨 B", "한정 스킨 C"]
+skin_images = {
+    "한정 스킨 A": "Skin/SmartSelect_20261114_234213_Gallery.jpg",
+    "한정 스킨 B": "Skin/SmartSelect_20261114_234230_Gallery.jpg",
+    "한정 스킨 C": "Skin/file_00000000568c8206bd1c2f53ae66e8ca.png",
+}
+skin_required_aura = {
+    "한정 스킨 A": "대마법사",
+    "한정 스킨 B": "감시자",
+    "한정 스킨 C": "카와이",
+}
+
 # 행운권 상자 아이템 목록 및 메타데이터
 potion_items = [
     "100배 행운 포션 (1분)", "500배 행운 포션 (30초)",
@@ -265,6 +278,7 @@ def get_current_save_dict():
       "titles": st.session_state.get("titles", []),
       "equipped_title": st.session_state.get("equipped_title", None),
       "equipped": st.session_state.get("equipped", None),
+      "equipped_skin": st.session_state.get("equipped_skin", None),
       "coins": st.session_state.get("coins", 0),
       "inventory_slots": st.session_state.get("inventory_slots", 50),
       "luck_buff_unlocked": st.session_state.get("luck_buff_unlocked", False),
@@ -273,6 +287,8 @@ def get_current_save_dict():
       ),
       "five_roll_unlocked": st.session_state.get("five_roll_unlocked", False),
       "potions": st.session_state.get("potions", {}),
+      "cases": st.session_state.get("cases", 0),
+      "skins": st.session_state.get("skins", {}),
   }
 
 
@@ -301,6 +317,7 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.titles = saved_data.get("titles", [])
   st.session_state.equipped_title = saved_data.get("equipped_title", None)
   st.session_state.equipped = saved_data.get("equipped", None)
+  st.session_state.equipped_skin = saved_data.get("equipped_skin", None)
   st.session_state.coins = saved_data.get("coins", 0)
   st.session_state.inventory_slots = saved_data.get("inventory_slots", 50)
   st.session_state.luck_buff_unlocked = saved_data.get(
@@ -314,6 +331,10 @@ def apply_loaded_data_to_session(saved_data):
   )
   st.session_state.potions = {
       p: saved_data.get("potions", {}).get(p, 0) for p in potion_items
+  }
+  st.session_state.cases = saved_data.get("cases", 0)
+  st.session_state.skins = {
+      s: saved_data.get("skins", {}).get(s, 0) for s in skin_items
   }
   st.session_state.active_potion_mult = 1
   st.session_state.active_potion_end = 0.0
@@ -394,12 +415,15 @@ if not st.session_state.logged_in:
               "titles": [],
               "equipped_title": None,
               "equipped": None,
+              "equipped_skin": None,
               "coins": 0,
               "inventory_slots": 50,
               "luck_buff_unlocked": False,
               "triple_roll_unlocked": False,
               "five_roll_unlocked": False,
               "potions": {p: 0 for p in potion_items},
+              "cases": 0,
+              "skins": {s: 0 for s in skin_items},
           }
           cursor.execute(
               "INSERT INTO users (username, password, data) VALUES (?, ?, ?)",
@@ -490,10 +514,13 @@ def get_world_weather_status():
   return is_snow, rem_sec, int(snow_chance * 100)
 
 
-# 🎨 [특수 아우라 장착 배경 및 가독성 향상 CSS 적용 함수]
+# 🎨 [특수 아우라 장착 배경 및 스킨 배경 적용 함수]
 def apply_equipped_background():
   eq = st.session_state.get("equipped")
+  eq_skin = st.session_state.get("equipped_skin")
   bg_path = equipped_backgrounds.get(eq)
+  if eq_skin and eq_skin in skin_images:
+    bg_path = skin_images[eq_skin]
 
   base_style = """
     <style>
@@ -995,67 +1022,32 @@ if sym_stacks > 0:
   )
 
 with st.container(border=True):
-  st.markdown("### 👤 현재 장착 중인 아우라")
+  st.markdown("### 👤 현재 장착 중인 아우라 / 스킨")
   equipped_aura = st.session_state.get("equipped")
+  equipped_skin = st.session_state.get("equipped_skin")
 
-  if equipped_aura and equipped_aura in items:
-    col_img, col_info = st.columns([1, 4])
-    img_path = aura_images.get(equipped_aura)
-
-    with col_img:
-      if img_path and os.path.exists(img_path):
-        st.image(img_path, use_container_width=True)
-      else:
-        st.markdown(
-            f"<div style='font-size: 50px; text-align: center;'>{icons.get(equipped_aura, '✨')}</div>",
-            unsafe_allow_html=True,
-        )
-
-    with col_info:
-      st.markdown(
-          f"#### {icons.get(equipped_aura, '✨')} **[{equipped_aura}]** 장착"
-          " 중"
-      )
-      st.write(
-          f"보유 수량: **{st.session_state.counts.get(equipped_aura, 0)}개**"
-      )
-      if equipped_aura == "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭":
-        st.caption(
-            "🖐️ **[운명조작 활성화]** 1회당 10연속 뽑기 해금 & 전용 배경 적용 중!"
-        )
-      elif equipped_aura == "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤":
-        st.caption(
-            "🎼 **[황금선율 활성화]** 매 1분마다 5% 확률로 3분간 행운 10배"
-            " (중첩 가능) & 전용 배경 적용 중!"
-        )
-      elif equipped_aura == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
-        st.caption(
-            "🌈 **[특수 능력 활성화]** 크로마틱(🌈) 등장 확률 2배 증가 & 전용 배경"
-            " 적용 중!"
-        )
-      elif equipped_aura == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
-        st.caption("🦣 **[능력 활성화]** 눈이 내릴 확률이 10% 증가합니다!")
-      elif equipped_aura == "𝓘𝓬𝓮𝓐𝓰𝓮":
-        st.caption("❄️ **[능력 활성화]** 눈이 올 때 행운 10배가 적용됩니다!")
-      elif equipped_aura == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
-        st.caption("🕸️ **[능력 활성화]** 밤 시간대 행운 10배 버프 적용 중!")
-      elif equipped_aura == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
-        st.caption(
-            "💠 **[특수 능력]** 코인 획득량 2배 (뽑기당 10 G) & 전용 배경"
-            " 적용 중!"
-        )
-      elif equipped_aura in equipped_backgrounds:
-        st.caption("🌌 전용 배경 테마가 적용되어 있습니다.")
-      if st.button("❌ 장착 해제", key="top_unequip_btn"):
+  c_eq1, c_eq2 = st.columns(2)
+  with c_eq1:
+    st.write("**[아우라]**")
+    if equipped_aura and equipped_aura in items:
+      st.markdown(f"✨ **{equipped_aura}**")
+      if st.button("❌ 아우라 장착 해제", key="top_unequip_btn"):
         st.session_state.equipped = None
         save_user_data_to_db()
         st.rerun()
-  else:
-    st.session_state.equipped = None
-    st.info(
-        "현재 장착된 아우라가 없습니다. 뽑기를 통해 아우라를 획득하고"
-        " 장착해보세요!"
-    )
+    else:
+      st.caption("장착된 아우라 없음")
+
+  with c_eq2:
+    st.write("**[스킨]**")
+    if equipped_skin and equipped_skin in skin_images:
+      st.markdown(f"🎨 **{equipped_skin}** (전용 아우라: {skin_required_aura[equipped_skin]})")
+      if st.button("❌ 스킨 장착 해제", key="top_unequip_skin_btn"):
+        st.session_state.equipped_skin = None
+        save_user_data_to_db()
+        st.rerun()
+    else:
+      st.caption("장착된 스킨 없음")
 
 col_c1, col_c2 = st.columns(2)
 with col_c1:
@@ -1066,8 +1058,8 @@ with col_c2:
 
 st.divider()
 
-tab_gacha, tab_inventory, tab_potions, tab_codex, tab_titles, tab_shop = st.tabs(
-    ["🎲 아우라 뽑기", "🎒 스토리지", "🧪 포션 인벤토리", "📖 도감 (Codex)", "🎖️ 칭호 칸", "🛒 상점"]
+tab_gacha, tab_cases, tab_inventory, tab_potions, tab_codex, tab_titles, tab_shop = st.tabs(
+    ["🎲 아우라 뽑기", "🎁 케이스", "🎒 스토리지", "🧪 포션 인벤토리", "📖 도감 (Codex)", "🎖️ 칭호 칸", "🛒 상점"]
 )
 
 with tab_gacha:
@@ -1210,6 +1202,114 @@ with tab_gacha:
         """,
         unsafe_allow_html=True,
     )
+
+with tab_cases:
+  st.subheader("🎁 한정 케이스 오픈 시스템")
+  st.write("100배 행운 포션 10개로 **케이스 1개**를 구매할 수 있으며, 케이스를 열어 한정 스킨이나 500배 포션을 획득할 수 있습니다!")
+
+  if "cases" not in st.session_state:
+    st.session_state.cases = 0
+  if "skins" not in st.session_state:
+    st.session_state.skins = {s: 0 for s in skin_items}
+
+  current_p100_count = st.session_state.potions.get("100배 행운 포션 (1분)", 0)
+  current_cases = st.session_state.cases
+
+  col_cc1, col_cc2 = st.columns(2)
+  with col_cc1:
+    st.metric(label="🧪 보유 중인 100배 포션", value=f"{current_p100_count}개")
+  with col_cc2:
+    st.metric(label="🎁 보유 중인 케이스", value=f"{current_cases}개")
+
+  st.divider()
+
+  col_buy_case, col_open_case = st.columns(2)
+
+  with col_buy_case:
+    st.markdown("### 🛒 케이스 구매")
+    st.write("• 재료: **100배 행운 포션 10개** = 케이스 1개")
+    can_buy_case = current_p100_count >= 10
+    if st.button("🎁 케이스 1개 구매하기", type="primary", use_container_width=True, disabled=not can_buy_case):
+      st.session_state.potions["100배 행운 포션 (1분)"] -= 10
+      st.session_state.cases += 1
+      save_user_data_to_db()
+      st.success("🎉 케이스 1개를 성공적으로 구매했습니다!")
+      st.rerun()
+
+  with col_open_case:
+    st.markdown("### 🔓 케이스 오픈")
+    st.write("• 확률: **꽝 70%** / **500배 포션 20%** / **스킨 10%** (3종 동일 확률)")
+    can_open_case = current_cases >= 1
+    if st.button("🔓 케이스 1개 열기", type="secondary", use_container_width=True, disabled=not can_open_case):
+      st.session_state.cases -= 1
+      
+      roll_val = random.random()
+      if roll_val < 0.70:
+        st.session_state.last_case_result = ("꽝", "❌ 꽝입니다! 아무것도 나오지 않았습니다.")
+      elif roll_val < 0.90:
+        p500_name = "500배 행운 포션 (30초)"
+        st.session_state.potions[p500_name] = st.session_state.potions.get(p500_name, 0) + 1
+        st.session_state.last_case_result = ("포션", f"🧪 [500배 행운 포션 (30초)] 1개를 획득했습니다!")
+      else:
+        won_skin = random.choice(skin_items)
+        st.session_state.skins[won_skin] = st.session_state.skins.get(won_skin, 0) + 1
+        st.session_state.last_case_result = ("스킨", f"🎨 한정 스킨 [{won_skin}]을(를) 획득했습니다!")
+        st.balloons()
+
+      save_user_data_to_db()
+      st.rerun()
+
+  if "last_case_result" in st.session_state:
+    res_type, res_msg = st.session_state.last_case_result
+    bg_col = "#2a2a2a" if res_type == "꽝" else ("#004d40" if res_type == "포션" else "#4a148c")
+    st.markdown(
+        f"""
+        <div style="text-align: center; padding: 18px; background-color: {bg_col}; color: white; border-radius: 10px; margin-top: 20px; font-size: 20px; font-weight: bold;">
+            {res_msg}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+  st.divider()
+  st.markdown("### 🎨 보유 중인 스킨 목록 및 장착")
+  st.caption("ℹ️ 스킨은 각각 맞는 아우라(대마법사, 감시자, 카와이)를 먼저 보유해야 장착할 수 있습니다!")
+
+  owned_skins = [s for s in skin_items if st.session_state.skins.get(s, 0) > 0]
+  if owned_skins or sum(st.session_state.skins.values()) > 0:
+    cols_skin = st.columns(3)
+    for idx, skin_name in enumerate(skin_items):
+      cnt = st.session_state.skins.get(skin_name, 0)
+      req_aura = skin_required_aura[skin_name]
+      has_aura = st.session_state.counts.get(req_aura, 0) > 0 or st.session_state.levels.get(req_aura, 1) > 1
+      is_skin_eq = st.session_state.get("equipped_skin") == skin_name
+
+      with cols_skin[idx]:
+        with st.container(border=True):
+          if skin_images.get(skin_name) and os.path.exists(skin_images[skin_name]):
+            st.image(skin_images[skin_name], use_container_width=True)
+          st.markdown(f"<div style='text-align:center; font-weight:bold;'>{skin_name}</div>", unsafe_allow_html=True)
+          st.markdown(f"<div style='text-align:center; color:#aaa; font-size:12px;'>보유: {cnt}개 (필요 아우라: {req_aura})</div>", unsafe_allow_html=True)
+          
+          if cnt > 0:
+            if not has_aura:
+              st.warning(f"⚠️ 아우라 [{req_aura}] 미보유! (획득 필요)")
+            else:
+              if is_skin_eq:
+                st.markdown("<div style='text-align:center; color:#00ffcc; font-size:12px;'><b>[스킨 장착중]</b></div>", unsafe_allow_html=True)
+                if st.button("해제", key=f"unequip_skin_{skin_name}", use_container_width=True):
+                  st.session_state.equipped_skin = None
+                  save_user_data_to_db()
+                  st.rerun()
+              else:
+                if st.button("스킨 장착", key=f"equip_skin_{skin_name}", use_container_width=True, type="primary"):
+                  st.session_state.equipped_skin = skin_name
+                  save_user_data_to_db()
+                  st.rerun()
+          else:
+            st.caption("미획득 (케이스에서 확률 획득 가능)")
+  else:
+    st.info("아직 획득한 스킨이 없습니다. 케이스를 열어 한정 스킨을 수집해보세요!")
 
 with tab_inventory:
   owned_items = [
@@ -1511,7 +1611,6 @@ with tab_titles:
                 "<div style='text-align:center; font-size:26px;'>🎖️</div>",
                 unsafe_allow_html=True,
             )
-            # 장착 전이어도 고유 스타일이 그대로 보이도록 렌더링
             styled_t_html = get_styled_title_html(t)
             st.markdown(
                 f"<div style='text-align:center; font-size:12px; font-weight:bold; word-break:keep-all; min-height:35px;'>{styled_t_html}</div>",
@@ -1783,9 +1882,11 @@ with tab_shop:
           st.session_state.counts[item] = max(
               1, st.session_state.counts.get(item, 1)
           )
+        for s in skin_items:
+          st.session_state.skins[s] = 1
         save_user_data_to_db()
         st.success(
-            "개발자 인증 성공! 모든 아우라 도감과 스토리지에 해금되었습니다!"
+            "개발자 인증 성공! 모든 아우라 도감과 스킨이 해금되었습니다!"
         )
         st.rerun()
       else:
@@ -1802,12 +1903,15 @@ with tab_shop:
     st.session_state.titles = []
     st.session_state.equipped_title = None
     st.session_state.equipped = None
+    st.session_state.equipped_skin = None
     st.session_state.coins = 0
     st.session_state.inventory_slots = 50
     st.session_state.luck_buff_unlocked = False
     st.session_state.triple_roll_unlocked = False
     st.session_state.five_roll_unlocked = False
     st.session_state.potions = {p: 0 for p in potion_items}
+    st.session_state.cases = 0
+    st.session_state.skins = {s: 0 for s in skin_items}
     st.session_state.active_potion_mult = 1
     st.session_state.active_potion_end = 0.0
     st.session_state.active_potion_name = None
