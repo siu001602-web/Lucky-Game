@@ -17,7 +17,8 @@ st.set_page_config(
 # 등급 리스트 정의 (희귀도 높은 순)
 items = [
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
-    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒", "감시자",
+    "아쿠아리움", "선원", "샤킨", "포세이돈", "에바네샌트",
     "블리자드", "이상", "크로마틱", "자장가",
     "그래피티", "헬리오스", "속력", "황혼",
     "아파타이트", "대마법사", "아케인", "워록",
@@ -25,16 +26,18 @@ items = [
     "만년서리", "태양", "달", "와트",
     "힘", "카와이", "석영", "출혈",
     "시데리움", "콜라", "빙하", "재",
-    "자력", "아쿠아마린", "사파이어", "잉크",
+    "자력", "글록", "아쿠아마린", "사파이어", "잉크",
     "에메랄드", "루비", "분노", "토파즈",
-    "결정화", "현기증", "레어", "자연",
+    "결정화", "현기증", "원자", "수소", "레어", "자연",
     "굿", "희귀", "일반",
 ]
 
 # 각 아우라의 실제 분모 수치 (행운 배율 필터링 및 확률 기준)
 denominators = {
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": 7500000000, "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222, "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000,
-    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": 200000000, "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": 175000000, "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000, "감시자": 45000000,
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": 200000000, "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": 175000000, "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000,
+    "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": 1730400000, "감시자": 45000000,
+    "아쿠아리움": 80000000, "선원": 12000000, "샤킨": 10000000, "포세이돈": 4000000, "에바네샌트": 3360000,
     "블리자드": 27315000, "이상": 24691356, "크로마틱": 20000000, "자장가": 17000000,
     "그래피티": 12000000, "헬리오스": 9000000, "속력": 7630000, "황혼": 6000000,
     "아파타이트": 3133133, "대마법사": 1766000, "아케인": 1000000, "워록": 660000,
@@ -42,9 +45,9 @@ denominators = {
     "만년서리": 73500, "태양": 50000, "달": 50000, "와트": 32768,
     "힘": 16384, "카와이": 12300, "석영": 8192, "출혈": 4444,
     "시데리움": 4096, "콜라": 3999, "빙하": 2304, "재": 2300,
-    "자력": 2048, "아쿠아마린": 900, "사파이어": 800, "잉크": 700,
+    "자력": 2048, "글록": 1700, "아쿠아마린": 900, "사파이어": 800, "잉크": 700,
     "에메랄드": 500, "루비": 350, "분노": 256, "토파즈": 150,
-    "결정화": 128, "현기증": 123, "레어": 16, "자연": 8,
+    "결정화": 128, "현기증": 123, "원자": 1180, "수소": 1111, "레어": 16, "자연": 8,
     "굿": 5, "희귀": 4, "일반": 2,
 }
 
@@ -57,6 +60,7 @@ aura_colors = {
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "#ff77ff",
     "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "#ffaa33",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "#00ffff",
+    "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "#00aaee",
 }
 
 # 분모를 기반으로 정확한 가중치 자동 생성 (75억 기준 스케일링)
@@ -71,7 +75,13 @@ fractions = {
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "1 in 200,000,000 (장착 시 크로마틱 확률 2배 증가)",
     "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "1 in 175,000,000 (황금선율: 장착 시 1분마다 5% 확률로 3분간 행운 10배, 중첩 가능)",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "1 in 100,000,000 (장착 시 코인 획득량 2배)",
+    "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "1 in 1,730,400,000 (절대포식: 뽑기 시 0.5% 확률로 해당 칸 아우라를 삼키고 백만배 행운 적용)",
     "감시자": "1 in 45,000,000",
+    "아쿠아리움": "1 in 80,000,000 (비올 때 확률 4배)",
+    "선원": "1 in 12,000,000 (비올 때 확률 4배)",
+    "샤킨": "1 in 10,000,000 (비올 때 확률 4배)",
+    "포세이돈": "1 in 4,000,000 (비올 때 확률 4배)",
+    "에바네샌트": "1 in 3,360,000 (비올 때 확률 4배)",
     "블리자드": "1 in 27,315,000 (눈올 때 확률 3배)",
     "이상": "1 in 24,691,356",
     "크로마틱": "1 in 20,000,000",
@@ -101,6 +111,7 @@ fractions = {
     "빙하": "1 in 2,304 (눈올 때 확률 3배)",
     "재": "1 in 2,300",
     "자력": "1 in 2,048",
+    "글록": "1 in 1,700",
     "아쿠아마린": "1 in 900",
     "사파이어": "1 in 800",
     "잉크": "1 in 700",
@@ -110,6 +121,8 @@ fractions = {
     "토파즈": "1 in 150",
     "결정화": "1 in 128",
     "현기증": "1 in 123",
+    "원자": "1 in 1,180",
+    "수소": "1 in 1,111",
     "레어": "1 in 16",
     "자연": "1 in 8",
     "굿": "1 in 5",
@@ -120,7 +133,8 @@ fractions = {
 # 컷씬이 존재하는 아우라 목록
 cutscene_auras = [
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
-    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒", "감시자",
+    "아쿠아리움", "선원", "샤킨", "포세이돈", "에바네샌트",
     "블리자드", "이상", "크로마틱", "자장가",
     "그래피티", "헬리오스", "속력", "황혼",
     "아파타이트", "대마법사", "아케인", "워록",
@@ -132,7 +146,9 @@ cutscene_auras = [
 # 등급별 이모티콘 매핑
 icons = {
     "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "🖐️✨🌌👑", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋", "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊",
-    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "🌈💎✨", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "🎼🎻✨♠️", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫", "감시자": "👁️‍🗨️⚡",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "🌈💎✨", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "🎼🎻✨♠️", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫",
+    "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊🐉🌀", "감시자": "👁️‍🗨️⚡",
+    "아쿠아리움": "🐠🌊🏛️", "선원": "⚓⛵🌊", "샤킨": "🦈🌊⚡", "포세이돈": "🔱🌊🌊", "에바네샌트": "🌀✨🌌",
     "블리자드": "❄️🌨️🌀", "이상": "🌀❓🌌", "크로마틱": "🌈💫", "자장가": "🌌🎵💤",
     "그래피티": "🎨✨", "헬리오스": "☀️🔥", "속력": "⚡💨", "황혼": "🌆✨💜",
     "아파타이트": "💠💎", "대마법사": "🧙‍♂️✨", "아케인": "🔮👑", "워록": "💀🔥",
@@ -140,9 +156,9 @@ icons = {
     "만년서리": "❄️💎", "태양": "☀️✨", "달": "🌙✨", "와트": "⚡👑⚡",
     "힘": "⚡🔥", "카와이": "🎀💖✨", "석영": "💎✨", "출혈": "🩸⚔️",
     "시데리움": "🌟🛡️", "콜라": "🥤🫧", "빙하": "🧊❄️", "재": "🌫️🔥",
-    "자력": "🧲💫", "아쿠아마린": "🌊💎", "사파이어": "💙💎", "잉크": "🖋️🖤",
+    "자력": "🧲💫", "글록": "🔫💥", "아쿠아마린": "🌊💎", "사파이어": "💙💎", "잉크": "🖋️🖤",
     "에메랄드": "💚💎", "루비": "❤️💎", "분노": "😡💢", "토파즈": "💛💎",
-    "결정화": "🔮✨", "현기증": "😵‍💫🌀", "레어": "💙📦", "자연": "🌿🍃",
+    "결정화": "🔮✨", "현기증": "😵‍💫🌀", "원자": "⚛️✨", "수소": "🧪✨", "레어": "💙📦", "자연": "🌿🍃",
     "굿": "👍✨", "희귀": "💧📘", "일반": "⚪📦",
 }
 
@@ -153,6 +169,8 @@ aura_images = {
     "굿": "images/SmartSelect_20261114_222408_NAVER.jpg",
     "자연": "images/SmartSelect_20261113_115446_NAVER.jpg",
     "레어": "images/SmartSelect_20261113_123717_Chrome.jpg",
+    "수소": "images/SmartSelect_20261115_020236_Chrome.jpg",
+    "원자": "images/SmartSelect_20261115_020252_Chrome.jpg",
     "현기증": "images/SmartSelect_20261114_222110_NAVER.jpg",
     "결정화": "images/SmartSelect_20261113_123732_Chrome.jpg",
     "토파즈": "images/SmartSelect_20261114_222131_NAVER.jpg",
@@ -162,6 +180,7 @@ aura_images = {
     "잉크": "images/SmartSelect_20261114_222257_NAVER.jpg",
     "사파이어": "images/SmartSelect_20261114_222318_NAVER.jpg",
     "아쿠아마린": "images/SmartSelect_20261114_222350_NAVER.jpg",
+    "글록": "images/SmartSelect_20261115_020312_Chrome.jpg",
     "자력": "images/SmartSelect_20261113_123943_Chrome.jpg",
     "재": "images/SmartSelect_20261114_165430_Chrome.jpg",
     "빙하": "images/SmartSelect_20261114_102325_NAVER.jpg",
@@ -191,7 +210,13 @@ aura_images = {
     "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
     "이상": "images/SmartSelect_20261114_223653_Chrome.jpg",
     "블리자드": "images/SmartSelect_20261114_102513_NAVER.jpg",
+    "에바네샌트": "images/SmartSelect_20261115_020409_Chrome.jpg",
+    "포세이돈": "images/SmartSelect_20261115_020426_Chrome.jpg",
+    "샤킨": "images/SmartSelect_20261115_020446_Chrome.jpg",
+    "선원": "images/SmartSelect_20261115_020503_Chrome.jpg",
+    "아쿠아리움": "images/SmartSelect_20261115_020523_Chrome.jpg",
     "감시자": "images/SmartSelect_20261113_233734_Chrome.jpg",
+    "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "images/SmartSelect_20261115_020543_Chrome.jpg",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "images/SmartSelect_20261113_234508_Chrome.jpg",
     "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "images/SmartSelect_20261114_224237_Chrome.jpg",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "images/SmartSelect_20261114_172102_NAVER.jpg",
@@ -213,12 +238,16 @@ equipped_backgrounds = {
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "Background/SmartSelect_20261114_000447_Chrome.jpg",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "Background/SmartSelect_20261113_234652_NAVER.jpg",
     "감시자": "Background/SmartSelect_20261113_234106_Chrome.jpg",
+    "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "Background/SmartSelect_20261115_022224_Google.jpg",
+    "아쿠아리움": "Background/SmartSelect_20261115_022254_Google.jpg",
+    "선원": "Background/SmartSelect_20261115_022157_Google.jpg",
+    "샤킨": "Background/SmartSelect_20261115_021602_Google.jpg",
     "크로마틱": "images/SmartSelect_20261113_233022_Google.jpg",
     "자장가": "Background/SmartSelect_20261114_000015_Chrome.jpg",
     "그래피티": "Background/SmartSelect_20261114_171237_Google.jpg",
 }
 
-# 스킨 리스트 및 매칭 아우라 정의 ('빼빼로데이 2026' 테마 적용 - 무조건 1개만 보유 가능)
+# 스킨 리스트 및 매칭 아우라 정의
 skin_items = [
     "빼빼로데이 2026 (대마법사)",
     "빼빼로데이 2026 (감시자)",
@@ -240,7 +269,6 @@ skin_required_aura = {
     "빼빼로데이 2026 (카와이)": "카와이",
 }
 
-# 아우라별 매칭되는 스킨 리스트 역매핑 (추후 같은 아우라에 새 스킨 추가 가능)
 aura_to_skins = {
     "대마법사": ["빼빼로데이 2026 (대마법사)"],
     "감시자": ["빼빼로데이 2026 (감시자)"],
@@ -288,7 +316,6 @@ def hash_password(password):
 
 
 def get_current_save_dict():
-  # 스킨은 무조건 최대 1개까지만 저장
   normalized_skins = {
       s: min(1, int(st.session_state.get("skins", {}).get(s, 0)))
       for s in skin_items
@@ -517,7 +544,7 @@ def get_world_time_status():
 
 
 # ==========================================
-# ❄️ [계절 및 날씨 시스템: 1분(60초) 독립 주기, 30% 눈 확률 (맘모스 장착 시 +10%)]
+# 🌧️❄️ [계절 및 날씨 시스템: 1분(60초) 독립 주기, 기본 50% / 비 25% / 눈 25%]
 # ==========================================
 def get_world_weather_status():
   current_time = int(time.time())
@@ -527,14 +554,16 @@ def get_world_weather_status():
   minute_seed = current_time // 60
   random.seed(minute_seed)
 
-  snow_chance = 0.30
-  if st.session_state.get("equipped") == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
-    snow_chance = 0.40
+  roll = random.random()
+  if roll < 0.50:
+    weather_type = "normal"
+  elif roll < 0.75:
+    weather_type = "rain"
+  else:
+    weather_type = "snow"
 
-  is_snow = random.random() < snow_chance
   random.seed()
-
-  return is_snow, rem_sec, int(snow_chance * 100)
+  return weather_type, rem_sec
 
 
 # 🎨 [특수 아우라 장착 배경 및 스킨 배경 적용 함수]
@@ -630,7 +659,9 @@ def get_styled_title_html(title_name):
       "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
       "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
       "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
-      "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻의 달인",
+      "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
+      "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
+      "🌊✨ 𝐏𝐑𝐈𝐌𝐎𝐑𝐃𝐈𝐀𝐋 𝐀𝐁𝐘𝐒𝐒 ✨🌊",
   ]
   if title_name in rainbow_max_titles:
     return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">{title_name}</span>'
@@ -641,6 +672,8 @@ def get_styled_title_html(title_name):
     style = hex_to_pastel_neon_css(aura_colors["𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤"])
   elif "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧"])
+  elif "LEVIATHAN" in title_name or "𝐀𝐁𝐘𝐒𝐒" in title_name or "PRIMORDIAL" in title_name:
+    style = hex_to_pastel_neon_css(aura_colors["༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒"])
   elif "ICE MONARCH" in title_name or "𝐀𝐍𝐂𝐈𝐄𝐍𝐓" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓜𝓪𝓶𝓶𝓸𝓽𝓱"])
   elif "FROST EMPEROR" in title_name or "𝐆𝐎𝐃" in title_name:
@@ -649,9 +682,9 @@ def get_styled_title_html(title_name):
     style = hex_to_pastel_neon_css(aura_colors["𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"])
   elif "영광의 잔광" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐"])
-  elif any(k in title_name for k in ["𝓦𝓪𝓽𝓬𝓱𝓮𝓻", "𝓛𝓾𝓵𝓵𝓪𝓫𝔂", "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲", "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭", "𝓑𝓮𝔂𝓸𝓷𝓭"]):
+  elif any(k in title_name for k in ["𝓦𝓪𝓽𝓬𝓱𝓮𝓻", "𝓛𝓾𝓵𝓵𝓪𝓫𝔂", "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲", "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭", "𝓑𝓮𝔂𝓸𝓷𝓭", "𝓒𝓱𝓻𝓸𝓶𝓪𝓽𝓲𝓬", "𝓐𝓺𝓾𝓪𝓻𝓲𝓾𝓶"]):
     style = "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(179,102,255,0.7); font-size: 1.05em; padding: 0 4px;"
-  elif any(k in title_name for k in ["𝓗𝓮𝓵𝓲𝓸𝓼", "𝓐𝓻𝓬𝓪𝓷𝓮", "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮", "𝓐𝓹𝓪𝓽𝓲𝓽𝓮", "𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂"]):
+  elif any(k in title_name for k in ["𝓗𝓮𝓵𝓲𝓸𝓼", "𝓐𝓻𝓬𝓪𝓷𝓮", "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮", "𝓐𝓹𝓪𝓽𝓲𝓽𝓮", "𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂", "𝕻𝖔𝖘𝖊𝖎𝖉𝖔𝖓", "𝕾𝖍𝖆𝖗𝖐"]):
     style = "background: linear-gradient(90deg, #ffd700, #ff6600, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(255,153,0,0.7); font-size: 1.05em; padding: 0 4px;"
   elif "달인" in title_name:
     style = "background: linear-gradient(90deg, #ffe600, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 10px rgba(255,215,0,0.7); font-size: 1.05em; padding: 0 4px;"
@@ -688,8 +721,8 @@ def get_current_luck_multiplier(next_pull_number):
   if st.session_state.luck_buff_unlocked and (next_pull_number % 10 == 0):
     mult *= 2
 
-  is_snow, _, _ = get_world_weather_status()
-  if is_snow and st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮":
+  weather_type, _ = get_world_weather_status()
+  if weather_type == "snow" and st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮":
     mult *= 10
 
   is_day, _ = get_world_time_status()
@@ -707,26 +740,26 @@ def play_fullscreen_star_cutscene(aura_name):
     star_color = "#ffd700"
     bg_style = "radial-gradient(circle, #3d2b00 0%, #080500 90%)"
     star_symbol = "🖐️✨🌌👑"
-    ment = (
-        "🖐️ [THE ORIGIN HAND] 태초의 창조주가 손을 뻗어 우주의 모든 법칙과"
-        " 운명을 새롭게 빚어냅니다!"
-    )
+    ment = "🖐️ [THE ORIGIN HAND] 태초의 창조주가 손을 뻗어 우주의 모든 법칙과 운명을 새롭게 빚어냅니다!"
     duration = 5.0
+  elif aura_name == "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒":
+    star_color = "#00ffff"
+    bg_style = "radial-gradient(circle, #001a33 0%, #000308 90%)"
+    star_symbol = "🌊🐉🌀"
+    ment = "🌊 [LEVIATHAN] 심해의 절대 군주가 깨어나 세상 모든 것을 포식할 파도를 일으킵니다!"
+    duration = 4.8
   elif aura_name == "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤":
     star_color = "#ffaa33"
     bg_style = "radial-gradient(circle, #331a00 0%, #0a0500 90%)"
     star_symbol = "🎼🎻✨♠️"
-    ment = (
-        "🎼 [SYMPHONY] 천상을 울리는 황금빛 교향곡이 시공간의 모든 선율을"
-        " 지배합니다!"
-    )
+    ment = "🎼 [SYMPHONY] 천상을 울리는 황금빛 교향곡이 시공간의 모든 선율을 지배합니다!"
     duration = 4.2
-  elif aura_name == "이상":
-    star_color = "#d500f9"
-    bg_style = "radial-gradient(circle, #2a0038 0%, #05000a 90%)"
-    star_symbol = "🌀❓🌌"
-    ment = "🌀 [이상] 관측 불가능한 차원의 균열이 열리며 현실의 상식이 붕괴됩니다!"
-    duration = 3.5
+  elif aura_name == "아쿠아리움":
+    star_color = "#00bcd4"
+    bg_style = "radial-gradient(circle, #002233 0%, #000511 90%)"
+    star_symbol = "🐠🌊🏛️"
+    ment = "🐠 [AQUARIUM] 신비로운 심해 아쿠아리움의 환상적인 물결이 밀려옵니다!"
+    duration = 4.0
   elif aura_name == "𝓘𝓬𝓮𝓐𝓰𝓮":
     star_color = "#00ffff"
     bg_style = "radial-gradient(circle, #001a33 0%, #00050f 90%)"
@@ -737,58 +770,14 @@ def play_fullscreen_star_cutscene(aura_name):
     star_color = "#add8e6"
     bg_style = "radial-gradient(circle, #102030 0%, #050a10 90%)"
     star_symbol = "🦣❄️"
-    ment = (
-        "🦣 [MAMMOTH] 고대 빙하의 수호자 맘모스가 거대한 눈보라와 함께 포효합니다!"
-    )
+    ment = "🦣 [MAMMOTH] 고대 빙하의 수호자 맘모스가 거대한 눈보라와 함께 포효합니다!"
     duration = 4.0
   elif aura_name == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
     star_color = "#ff77ff"
     bg_style = "radial-gradient(circle, #33004d 0%, #050014 90%)"
     star_symbol = "🌈💎✨"
-    ment = (
-        "🌈 [HYPER PRISM] 초월적인 프리즘의 빛이 모든 차원의 스펙트럼을"
-        " 찬란하게 굴절시킵니다!"
-    )
+    ment = "🌈 [HYPER PRISM] 초월적인 프리즘의 빛이 모든 차원의 스펙트럼을 찬란하게 굴절시킵니다!"
     duration = 4.2
-  elif aura_name == "블리자드":
-    star_color = "#87ceeb"
-    bg_style = "radial-gradient(circle, #002244 0%, #050a15 90%)"
-    star_symbol = "❄️🌨️"
-    ment = "🌨️ [BLIZZARD] 모든 것을 얼어붙게 만드는 거대한 눈폭풍이 몰아칩니다!"
-    duration = 3.5
-  elif aura_name == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
-    star_color = "#e066ff"
-    bg_style = "radial-gradient(circle, #2e004d 0%, #05000a 90%)"
-    star_symbol = "🕸️🌙✨🦋"
-    ment = (
-        "🕸️ [DREAMCATCHER] 현실과 환상의 경계가 허물어지며 영원한 꿈의"
-        " 수호자가 강림합니다!"
-    )
-    duration = 4.2
-  elif aura_name == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
-    star_color = "#00ffff"
-    bg_style = "radial-gradient(circle, #00334d 0%, #05000a 90%)"
-    star_symbol = "🌌💠⚡💫"
-    ment = (
-        "🌌 [SPECTRAFLOW] 무한한 차원의 흐름이 공명하며 우주의 근원을"
-        " 뒤흔듭니다!"
-    )
-    duration = 3.8
-  elif aura_name == "감시자":
-    star_color = "#ff0055"
-    bg_style = "radial-gradient(circle, #40001a 0%, #05000a 90%)"
-    star_symbol = "👁️‍🗨️⚡🌀"
-    ment = (
-        "👁️ [OBSERVER] 모든 시공간을 초월하여 영원히 주시하는 절대자의 시선이"
-        " 깨어납니다!"
-    )
-    duration = 3.5
-  elif aura_name == "그래피티":
-    star_color = "#ff00ff"
-    bg_style = "radial-gradient(circle, #2d004d 0%, #0a0014 90%)"
-    star_symbol = "🎨✨"
-    ment = "🎨 [GRAFFITI] 화려한 색채의 폭풍이 세상을 자유로운 예술로 물들입니다!"
-    duration = 3.2
   else:
     star_color = "#ffd700"
     bg_style = "rgba(5, 5, 10, 0.95)"
@@ -859,7 +848,7 @@ def perform_rolls(roll_count=1):
   max_luck_applied = 1
   equipped_now = st.session_state.get("equipped")
   coin_gain_per_roll = 10 if equipped_now == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 5
-  is_snow, _, _ = get_world_weather_status()
+  weather_type, _ = get_world_weather_status()
   is_day, _ = get_world_time_status()
 
   prior_counts = {item: st.session_state.counts.get(item, 0) for item in items}
@@ -885,12 +874,19 @@ def perform_rolls(roll_count=1):
       current_weights[items.index("자장가")] *= 10
       current_weights[items.index("𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻")] *= 2
 
-    if is_snow:
+    if weather_type == "snow":
       current_weights[items.index("빙하")] *= 3
       current_weights[items.index("만년서리")] *= 3
       current_weights[items.index("블리자드")] *= 3
       current_weights[items.index("𝓜𝓪𝓶𝓶𝓸𝓽𝓱")] *= 2
       current_weights[items.index("𝓘𝓬𝓮𝓐𝓰𝓮")] *= 2
+    elif weather_type == "rain":
+      current_weights[items.index("에바네샌트")] *= 4
+      current_weights[items.index("포세이돈")] *= 4
+      current_weights[items.index("샤킨")] *= 4
+      current_weights[items.index("선원")] *= 4
+      current_weights[items.index("아쿠아리움")] *= 4
+      current_weights[items.index("༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒")] *= 2
 
     if luck_mult > 1:
       eligible_indices = [
@@ -911,6 +907,14 @@ def perform_rolls(roll_count=1):
       current_weights = [1] * len(items)
 
     result = random.choices(items, weights=current_weights, k=1)[0]
+
+    # 🌊 [리바이어던 능력: 절대포식] 장착 시 0.5% 확률로 발생
+    if equipped_now == "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒" and random.random() < 0.005:
+      eligible_predators = [it for it in items if denominators[it] >= 1000000]
+      if eligible_predators:
+        result = random.choice(eligible_predators)
+      st.toast("🌊 [절대포식 발동!] 리바이어던이 뽑기 결과를 집어삼키고 백만배 행운을 발동시켰습니다!", icon="🐉")
+
     results.append(result)
 
     if (
@@ -921,6 +925,7 @@ def perform_rolls(roll_count=1):
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
           "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
           "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
+          "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊✨ 𝐏𝐑𝐈𝐌𝐎𝐑𝐃𝐈𝐀𝐋 𝐀𝐁𝐘𝐒𝐒 ✨🌊",
           "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "• ⋆༺무한의 환상༻⋆",
           "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "❄ 𝐈𝐂𝐄 𝐌𝐎𝐍𝐀𝐑𝐂𝐇 ❄",
           "𝓘𝓬𝓮𝓐𝓰𝓮": "♛ 𝐅𝐑𝐎𝐒𝐓 𝐄𝐌𝐏𝐄𝐑𝐎𝐑 ♛",
@@ -984,7 +989,7 @@ is_day_now, time_rem_sec = get_world_time_status()
 t_min = time_rem_sec // 60
 t_sec = time_rem_sec % 60
 
-is_snow_now, weather_rem_sec, current_snow_pct = get_world_weather_status()
+weather_type, weather_rem_sec = get_world_weather_status()
 w_sec = weather_rem_sec
 
 is_mammoth_equipped = st.session_state.get("equipped") == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱"
@@ -1011,22 +1016,31 @@ else:
       unsafe_allow_html=True,
   )
 
-if is_snow_now:
+if weather_type == "snow":
   ia_text = " | ❄️ 𝓘𝓬𝓮𝓐𝓰𝓮 장착 중: 행운 10배!" if is_ia_equipped else ""
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,191,255,0.4);">
-            🌨️ [현재 날씨: 눈 내리는 중] 눈 확률 {current_snow_pct}% (빙하·만년서리·블리자드 3배 / 맘모스·아이스에이지 2배) (남은 시간: {w_sec}초){ia_text}
+            🌨️ [현재 날씨: 눈 내리는 중] (빙하·만년서리·블리자드 3배 / 맘모스·아이스에이지 2배) (남은 시간: {w_sec}초){ia_text}
+        </div>
+        """,
+      unsafe_allow_html=True,
+  )
+elif weather_type == "rain":
+  st.markdown(
+      f"""
+        <div style="background: linear-gradient(90deg, #00334d, #006699); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,153,255,0.4);">
+            🌧️ [현재 날씨: 비 내리는 중] (에바네샌트·포세이돈·샤킨·선원·아쿠아리움 4배 / 리바이어던 2배 버프!) (남은 시간: {w_sec}초)
         </div>
         """,
       unsafe_allow_html=True,
   )
 else:
-  m_text = " | 🦣 𝓜𝓪𝓶𝓶𝓸𝓽𝓱 장착 중: 눈 확률 +10%!" if is_mammoth_equipped else ""
+  m_text = " | 🦣 𝓜𝓪𝓶𝓶𝓸𝓽𝓱 장착 중: 눈 확률 +15%!" if is_mammoth_equipped else ""
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #333333, #555555); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(100,100,100,0.4);">
-            ⛅ [현재 날씨: 정상 (맑음)] 눈 내릴 확률 {current_snow_pct}% (남은 시간: {w_sec}초){m_text}
+            ⛅ [현재 날씨: 맑음 / 기본] (남은 시간: {w_sec}초){m_text}
         </div>
         """,
       unsafe_allow_html=True,
@@ -1276,7 +1290,6 @@ with tab_cases:
       else:
         won_skin = random.choice(skin_items)
         already_owned = st.session_state.skins.get(won_skin, 0) >= 1
-        # 스킨은 무조건 수량 1개만 보유 가능
         st.session_state.skins[won_skin] = 1
         if already_owned:
           st.session_state.last_case_result = ("스킨", f"🎨 스킨 [{won_skin}]이(가) 등장했습니다! (이미 보유 중인 스킨입니다)")
@@ -1351,7 +1364,6 @@ with tab_inventory:
         reqs = get_level_requirements(denom)
         next_req = reqs[lvl + 1] if lvl + 1 <= 7 else reqs[7]
 
-        # 이 아우라에 대응하는 스킨들이 있는지 확인
         matching_skins = aura_to_skins.get(item, [])
 
         with grid_cols[idx]:
@@ -1389,7 +1401,6 @@ with tab_inventory:
                 save_user_data_to_db()
                 st.rerun()
 
-            # 레벨업 버튼 (장착 바로 밑에 위치)
             if lvl < 7:
               can_upgrade = count >= next_req
               if st.button(
@@ -1405,18 +1416,24 @@ with tab_inventory:
                 if new_lvl == 7:
                   custom_max_titles = {
                       "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
+                      "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
+                      "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
                       "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
                       "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
                       "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
                       "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
+                      "아쿠아리움": "𓆩 𝓐𝓺𝓾𝓪𝓻𝓲𝓾𝓶 𓆪",
+                      "선원": "𓆩 𝓢𝓪𝓲𝓵𝓸𝓻 𓆪",
+                      "샤킨": "𓆩 𝕾𝖍𝖆𝖗𝖐𝖎𝓷 𓆪",
+                      "포세이돈": "𓆩 𝕻𝖔𝖘𝖊𝖎𝖉𝖔𝖓 𓆪",
+                      "에바네샌트": "𓆩 𝓔𝓿𝓪𝓷𝓮𝓼𝓬𝓮𝓷𝓽 𓆪",
+                      "크로마틱": "𓆩 𝓒𝓱𝓻𝓸𝓶𝓪𝓽𝓲𝓬 𓆪",
                       "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
                       "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆪",
                       "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
                       "이상": "◇𝓑𝓮𝔂𝓸𝓷𝓭 𝓡𝓮𝓪𝓵𝓲𝓽𝔂 ◇",
                       "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
                       "속력": "◇𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂◇",
-                      "아케인": "◇ 𝓐𝓻𝓬𝓪𝓷𝓮 ◇",
-                      "대마법사": "◇ 𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮 ◇",
                       "황혼": "◇𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽 ◇",
                       "아파타이트": "◇𝓐𝓹𝓪𝓽𝓲𝓽𝓮 ◇",
                       "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
@@ -1433,7 +1450,6 @@ with tab_inventory:
             else:
               st.button("MAX 완료", key=f"max_btn_{item}", disabled=True, use_container_width=True)
 
-            # 스킨 장착 영역 (레벨업 버튼 아래쪽 카드 최하단에 배치)
             if matching_skins:
               st.markdown("---")
               st.markdown("<div style='text-align:center; font-size:11px; font-weight:bold; color:#ff99ff;'>🎨 스킨 장착 칸</div>", unsafe_allow_html=True)
@@ -1573,7 +1589,6 @@ with tab_codex:
           use_container_width=True,
       ):
         st.session_state.selected_codex = item
-        # 아우라를 바꿀 때 스킨 메뉴/선택 상태 초기화
         st.session_state.codex_skin_menu_open = False
         st.session_state.codex_selected_skin = None
 
@@ -1604,7 +1619,6 @@ with tab_codex:
 
     with st.container(border=True):
       if is_owned:
-        # 1) 특정 스킨을 선택한 상태
         if selected_skin and selected_skin in matching_skins_for_codex:
           is_skin_owned = st.session_state.skins.get(selected_skin, 0) >= 1
           theme_label = skin_theme_names.get(selected_skin, selected_skin)
@@ -1636,7 +1650,6 @@ with tab_codex:
             st.session_state.codex_selected_skin = None
             st.rerun()
 
-        # 2) 기본 원본 아우라 정보 화면
         else:
           img_path = aura_images.get(sel)
           if img_path and os.path.exists(img_path):
@@ -1661,7 +1674,6 @@ with tab_codex:
           else:
             st.caption("이 아우라에는 별도의 컷씬 연출이 없습니다.")
 
-          # 컷씬 다시 보기 버튼 밑에 '스킨 보기' 버튼 및 하위 스킨 목록 배치
           if matching_skins_for_codex:
             if st.button("🎨 스킨 보기", use_container_width=True, type="secondary"):
               st.session_state.codex_skin_menu_open = not st.session_state.codex_skin_menu_open
