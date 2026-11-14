@@ -425,7 +425,6 @@ if not st.session_state.logged_in:
 # ==========================================
 def update_symphony_golden_melody():
   now = time.time()
-  # 만료된 3분(180초) 버프 제거
   st.session_state.symphony_buff_ends = [
       end_t for end_t in st.session_state.get("symphony_buff_ends", []) if end_t > now
   ]
@@ -437,11 +436,9 @@ def update_symphony_golden_melody():
     if last_min is None:
       st.session_state.symphony_last_minute = curr_min
     elif curr_min > last_min:
-      # 지나간 분(minute)마다 5% 확률 판정 실행
       elapsed_mins = min(curr_min - last_min, 10)
       for idx in range(elapsed_mins):
         if random.random() < 0.05:
-          # 발동 시각 기준 3분(180초) 지속 버프 추가
           trigger_time = (last_min + idx + 1) * 60
           end_time = max(now, trigger_time) + 180
           if end_time > now:
@@ -588,7 +585,6 @@ def get_styled_title_html(title_name):
   if title_name in rainbow_max_titles:
     return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">🎖️ [{title_name}]</span>'
 
-  # 1억 이상 아우라 최초 획득 칭호들 (파스텔 네온 그라데이션)
   if "𝓓𝓲𝓿𝓲𝓷𝓮 𝓒𝓻𝓮𝓪𝓽𝓸𝓻" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭"])
   elif "𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸" in title_name:
@@ -636,7 +632,6 @@ def get_current_luck_multiplier(next_pull_number):
   ):
     mult *= st.session_state.active_potion_mult
 
-  # 심포니 황금선율 중첩 배율 합산
   _, sym_mult, _ = update_symphony_golden_melody()
   mult *= sym_mult
 
@@ -829,11 +824,9 @@ def perform_rolls(roll_count=1):
 
     current_weights = list(base_weights)
 
-    # 하이퍼 프리즘 장착 시 크로마틱 확률 2배 증가
     if equipped_now == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
       current_weights[items.index("크로마틱")] *= 2
 
-    # 낮/밤 버프 적용
     if is_day:
       current_weights[items.index("태양")] *= 10
     else:
@@ -842,7 +835,6 @@ def perform_rolls(roll_count=1):
       current_weights[items.index("자장가")] *= 10
       current_weights[items.index("𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻")] *= 2
 
-    # 눈 날씨 버프 적용 (빙하·만년서리·블리자드 3배 / 맘모스·아이스에이지 2배)
     if is_snow:
       current_weights[items.index("빙하")] *= 3
       current_weights[items.index("만년서리")] *= 3
@@ -871,7 +863,6 @@ def perform_rolls(roll_count=1):
     result = random.choices(items, weights=current_weights, k=1)[0]
     results.append(result)
 
-    # 최초 획득 칭호 지급 (1억 이상 확률 아우라)
     if (
         prior_counts.get(result, 0) == 0
         and st.session_state.counts.get(result, 0) == 0
@@ -890,7 +881,6 @@ def perform_rolls(roll_count=1):
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
 
-    # MAX 레벨이 아닐 때만 수량 증가
     curr_lvl = st.session_state.levels.get(result, 1)
     if curr_lvl < 7:
       st.session_state.counts[result] += 1
@@ -938,10 +928,8 @@ with c_u2:
     st.session_state.username = ""
     st.rerun()
 
-# 심포니 황금선율 실시간 업데이트 및 상태 확인
 sym_stacks, sym_mult, sym_rem_sec = update_symphony_golden_melody()
 
-# 낮/밤 및 날씨 상태바 표시
 is_day_now, time_rem_sec = get_world_time_status()
 t_min = time_rem_sec // 60
 t_sec = time_rem_sec % 60
@@ -953,7 +941,6 @@ is_mammoth_equipped = st.session_state.get("equipped") == "𝓜𝓪𝓶𝓶𝓸�
 is_ia_equipped = st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮"
 is_dc_equipped = st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"
 
-# 1. 낮/밤 상태 표시 배너
 if is_day_now:
   st.markdown(
       f"""
@@ -974,7 +961,6 @@ else:
       unsafe_allow_html=True,
   )
 
-# 2. 날씨(눈/정상) 상태 표시 배너
 if is_snow_now:
   ia_text = " | ❄️ 𝓘𝓬𝓮𝓐𝓰𝓮 장착 중: 행운 10배!" if is_ia_equipped else ""
   st.markdown(
@@ -996,7 +982,6 @@ else:
       unsafe_allow_html=True,
   )
 
-# 3. 심포니 황금선율 중첩 활성화 배너
 if sym_stacks > 0:
   s_min = sym_rem_sec // 60
   s_sec = sym_rem_sec % 60
@@ -1234,104 +1219,98 @@ with tab_inventory:
       or st.session_state.levels.get(item, 1) > 1
   ]
   st.subheader(
-      f"📦 아우라 스토리지 & 레벨업 [보유 종류: {len(owned_items)} / {len(items)}]"
+      f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
+  )
+  st.write(
+      "아우라 카드를 클릭하여 장착하거나 레벨업을 진행하세요. (한 줄에 10개씩"
+      " 배치)"
   )
 
   if owned_items:
-    st.write(
-        "획득한 아우라를 확인하고 레벨업 및 장착을 진행할 수 있습니다. (Max"
-        " 달성 시 추가 수량이 쌓이지 않습니다)"
-    )
-
     if "levels" not in st.session_state:
       st.session_state.levels = {item: 1 for item in items}
 
-    for item in owned_items:
-      count = st.session_state.counts.get(item, 0)
-      lvl = st.session_state.levels.get(item, 1)
-      denom = denominators.get(item, 2)
-      reqs = get_level_requirements(denom)
-      max_req = reqs[7]
+    # 10개씩 끊어서 그리드 레이아웃 생성
+    cols_per_row = 10
+    for i in range(0, len(owned_items), cols_per_row):
+      row_items = owned_items[i : i + cols_per_row]
+      grid_cols = st.columns(cols_per_row)
 
-      with st.container(border=True):
-        col_i1, col_i2, col_i3 = st.columns([1, 2, 1])
-        with col_i1:
-          icon = icons.get(item, "✨")
-          st.markdown(
-              f"<div style='font-size: 36px; text-align: center;'>{icon}</div>",
-              unsafe_allow_html=True,
-          )
-        with col_i2:
-          st.markdown(f"#### [{item}] — Lv. {lvl} / 6 (Max)")
-          if lvl < 7:
-            next_req = reqs[lvl + 1] if lvl + 1 <= 7 else max_req
-            st.write(
-                f"현재 보유: **{count}개** / 다음 레벨업 필요: **{next_req}개**"
-            )
-          else:
+      for idx, item in enumerate(row_items):
+        count = st.session_state.counts.get(item, 0)
+        lvl = st.session_state.levels.get(item, 1)
+        is_equipped = st.session_state.get("equipped") == item
+        border_color = (
+            "#00ffcc"
+            if is_equipped
+            else ("#ffd700" if lvl == 7 else "#444455")
+        )
+
+        with grid_cols[idx]:
+          with st.container(border=True):
             st.markdown(
-                "⭐ <span style='color: #ffd700; font-weight: bold;'>MAX"
-                " LEVEL 달성 완료!</span>",
+                f"<div style='text-align:center; font-size:24px;'>{icons.get(item, '✨')}</div>",
                 unsafe_allow_html=True,
             )
-        with col_i3:
-          is_equipped = st.session_state.get("equipped") == item
-          if is_equipped:
-            st.button(
-                "장착중", key=f"inv_eq_btn_{item}", disabled=True, use_container_width=True
+            st.markdown(
+                f"<div style='text-align:center; font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>{item}</div>",
+                unsafe_allow_html=True,
             )
-          else:
-            if st.button(
-                "장착", key=f"inv_use_btn_{item}", use_container_width=True
-            ):
-              st.session_state.equipped = item
-              save_user_data_to_db()
-              st.rerun()
+            st.markdown(
+                f"<div style='text-align:center; font-size:10px; color:#aaa;'>Lv.{lvl} ({count})</div>",
+                unsafe_allow_html=True,
+            )
 
-          if lvl < 7:
-            next_req = reqs[lvl + 1]
-            if count >= next_req:
-              if st.button(
-                  "레벨업!", key=f"lvl_up_{item}", use_container_width=True, type="primary"
-              ):
-                st.session_state.counts[item] -= next_req
-                st.session_state.levels[item] += 1
-                new_lvl = st.session_state.levels[item]
-
-                if new_lvl == 7:
-                  custom_max_titles = {
-                      "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
-                      "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
-                      "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
-                      "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
-                      "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
-                      "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
-                      "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆪",
-                      "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
-                      "이상": "◇𝓑𝓮𝔂𝓸𝓷𝓭 𝓡𝓮𝓪𝓵𝓲𝓽𝔂 ◇",
-                      "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
-                      "속력": "◇𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂◇",
-                      "아케인": "◇ 𝓐𝓻𝓬𝓪𝓷𝓮 ◇",
-                      "대마법사": "◇ 𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮 ◇",
-                      "황혼": "◇𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽 ◇",
-                      "아파타이트": "◇𝓐𝓹𝓪𝓽𝓲𝓽𝓮 ◇",
-                      "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
-                      "𝓘𝓬𝓮𝓐𝓰𝓮": "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
-                  }
-                  t_name = custom_max_titles.get(item, f"{item}의 달인")
-
-                  if "titles" not in st.session_state:
-                    st.session_state.titles = []
-                  if t_name not in st.session_state.titles:
-                    st.session_state.titles.append(t_name)
-                    st.success(f"🎉 만렙 달성! 새 칭호 [{t_name}] 획득!")
-
+            if is_equipped:
+              st.markdown(
+                  "<div"
+                  " style='text-align:center; font-size:10px; color:#00ffcc;'"
+                  "><b>[장착중]</b></div>",
+                  unsafe_allow_html=True,
+              )
+            else:
+              if st.button("장착", key=f"grid_eq_{item}", use_container_width=True):
+                st.session_state.equipped = item
                 save_user_data_to_db()
                 st.rerun()
-          else:
-            st.button(
-                "MAX", key=f"max_btn_{item}", disabled=True, use_container_width=True
-            )
+
+            denom = denominators.get(item, 2)
+            reqs = get_level_requirements(denom)
+            if lvl < 7:
+              next_req = reqs[lvl + 1]
+              if count >= next_req:
+                if st.button("업그레이드", key=f"grid_lvl_{item}", use_container_width=True):
+                  st.session_state.counts[item] -= next_req
+                  st.session_state.levels[item] += 1
+                  new_lvl = st.session_state.levels[item]
+                  if new_lvl == 7:
+                    custom_max_titles = {
+                        "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
+                        "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
+                        "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
+                        "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
+                        "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
+                        "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
+                        "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆪",
+                        "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
+                        "이상": "◇𝓑𝓮𝔂𝓸𝓷𝓭 𝓡𝓮𝓪𝓵𝓲𝓽𝔂 ◇",
+                        "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
+                        "속력": "◇𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂◇",
+                        "아케인": "◇ 𝓐𝓻𝓬𝓪𝓷𝓮 ◇",
+                        "대마법사": "◇ 𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮 ◇",
+                        "황혼": "◇𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽 ◇",
+                        "아파타이트": "◇𝓐𝓹𝓪𝓽𝓲𝓽𝓮 ◇",
+                        "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
+                        "𝓘𝓬𝓮𝓐𝓰𝓮": "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
+                    }
+                    t_name = custom_max_titles.get(item, f"{item}의 달인")
+                    if "titles" not in st.session_state:
+                      st.session_state.titles = []
+                    if t_name not in st.session_state.titles:
+                      st.session_state.titles.append(t_name)
+                      st.success(f"🎉 만렙 달성! [{t_name}] 획득!")
+                  save_user_data_to_db()
+                  st.rerun()
   else:
     st.markdown(
         """
@@ -1392,7 +1371,6 @@ with tab_potions:
               if cfg["type"] == "potion":
                 now = time.time()
                 add_duration = cfg["duration"] * use_qty
-                # 동일한 포션이 이미 활성화되어 있으면 시간 연장, 다른 포션이면 기존 시간 초기화 후 덮어쓰기
                 if (
                     st.session_state.active_potion_name == p_name
                     and now < st.session_state.active_potion_end
@@ -1500,8 +1478,7 @@ with tab_codex:
 with tab_titles:
   st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
   st.write(
-      "획득한 칭호를 장착하거나 해제할 수 있습니다. (칭호는 1개만 장착"
-      " 가능합니다)"
+      "획득한 칭호를 10개씩 그리드 형식으로 정렬하여 장착할 수 있습니다."
   )
 
   if "titles" not in st.session_state:
@@ -1511,35 +1488,40 @@ with tab_titles:
 
   user_titles = st.session_state.titles
   if user_titles:
-    st.markdown(f"#### 🏅 보유 중인 칭호 목록 ({len(user_titles)}개 획득)")
-    for t in user_titles:
-      is_t_equipped = st.session_state.get("equipped_title") == t
-      with st.container(border=True):
-        col_t1, col_t2 = st.columns([3, 1])
-        with col_t1:
-          badge_text = " ⭐ [장착중]" if is_t_equipped else ""
-          styled_t_html = get_styled_title_html(t)
-          st.markdown(
-              f"{styled_t_html}{badge_text}", unsafe_allow_html=True
-          )
-        with col_t2:
-          if is_t_equipped:
-            if st.button(
-                "장착 해제", key=f"unequip_title_{t}", use_container_width=True
-            ):
-              st.session_state.equipped_title = None
-              save_user_data_to_db()
-              st.rerun()
-          else:
-            if st.button(
-                "장착하기",
-                key=f"equip_title_{t}",
-                use_container_width=True,
-                type="primary",
-            ):
-              st.session_state.equipped_title = t
-              save_user_data_to_db()
-              st.rerun()
+    cols_per_row = 10
+    for i in range(0, len(user_titles), cols_per_row):
+      row_titles = user_titles[i : i + cols_per_row]
+      grid_cols = st.columns(cols_per_row)
+
+      for idx, t in enumerate(row_titles):
+        is_t_equipped = st.session_state.get("equipped_title") == t
+        with grid_cols[idx]:
+          with st.container(border=True):
+            st.markdown(
+                "<div style='text-align:center; font-size:22px;'>🎖️</div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<div style='text-align:center; font-size:10px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>{t}</div>",
+                unsafe_allow_html=True,
+            )
+
+            if is_t_equipped:
+              st.markdown(
+                  "<div"
+                  " style='text-align:center; font-size:9px; color:#00ffcc;'"
+                  "><b>[장착중]</b></div>",
+                  unsafe_allow_html=True,
+              )
+              if st.button("해제", key=f"grid_unequip_t_{t}", use_container_width=True):
+                st.session_state.equipped_title = None
+                save_user_data_to_db()
+                st.rerun()
+            else:
+              if st.button("장착", key=f"grid_equip_t_{t}", use_container_width=True):
+                st.session_state.equipped_title = t
+                save_user_data_to_db()
+                st.rerun()
   else:
     st.markdown(
         """
@@ -1733,9 +1715,6 @@ with tab_shop:
         else:
           st.error("코인이 부족합니다!")
 
-  # ==========================================
-  # 💾 데이터 백업 및 파일 불러오기 (복구) 패널
-  # ==========================================
   with st.container(border=True):
     st.markdown("### 💾 데이터 백업 및 파일 불러오기")
     st.write(
