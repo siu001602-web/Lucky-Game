@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="아우라 가챠 & 도감", page_icon="✨", layout="wide"
 )
 
-# 등급 리스트 정의 (희귀도 높은 순)
+# 등급 리스트 정의 (희귀도 높은 순 - 4개씩 묶어 가독성 및 세로 공간 최적화)[span_1](start_span)[span_1](end_span)
 items = [
     "𝓘𝓬𝓮𝓐𝓰𝓮",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
@@ -512,7 +512,11 @@ def get_styled_title_html(title_name):
   if not title_name:
     return ""
 
-  if "GOD OF ICE" in title_name or "ANCIENT KING" in title_name or "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭" in title_name:
+  if (
+      "GOD OF ICE" in title_name
+      or "ANCIENT KING" in title_name
+      or "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭" in title_name
+  ):
     style = (
         "background: linear-gradient(90deg, #00ffff, #00bfff, #ffffff, #1e90ff);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
@@ -526,21 +530,34 @@ def get_styled_title_html(title_name):
         " font-weight: 800; text-shadow: 0 0 10px rgba(0,191,255,0.7);"
         " font-size: 1.05em; padding: 0 4px;"
     )
-  elif "초월자" in title_name or "몽상가" in title_name or "환상" in title_name or "𝓟𝓻𝓲𝓼𝓶" in title_name:
+  elif (
+      "초월자" in title_name
+      or "몽상가" in title_name
+      or "환상" in title_name
+      or "𝓟𝓻𝓲𝓼𝓶" in title_name
+  ):
     style = (
         "background: linear-gradient(90deg, #ff007f, #7928ca, #0070f3, #00dfd8);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
         " font-weight: 900; text-shadow: 0 0 10px rgba(255,0,127,0.6),"
         " 0 0 20px rgba(0,223,216,0.5); font-size: 1.05em; padding: 0 4px;"
     )
-  elif "𝓦𝓪𝓽𝓬𝓱𝓮𝓻" in title_name or "𝓛𝓾𝓵𝓵𝓪𝓫𝔂" in title_name or "𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽" in title_name:
+  elif (
+      "𝓦𝓪𝓽𝓬𝓱𝓮𝓻" in title_name
+      or "𝓛𝓾𝓵𝓵𝓪𝓫𝔂" in title_name
+      or "𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽" in title_name
+  ):
     style = (
         "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
         " font-weight: 800; text-shadow: 0 0 12px rgba(179,102,255,0.7);"
         " font-size: 1.05em; padding: 0 4px;"
     )
-  elif "𝓗𝓮𝓵𝓲𝓸𝓼" in title_name or "𝓐𝓻𝓬𝓪𝓷𝓮" in title_name or "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮" in title_name:
+  elif (
+      "𝓗𝓮𝓵𝓲𝓸𝓼" in title_name
+      or "𝓐𝓻𝓬𝓪𝓷𝓮" in title_name
+      or "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮" in title_name
+  ):
     style = (
         "background: linear-gradient(90deg, #ffd700, #ff6600, #ff0055);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
