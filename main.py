@@ -15,30 +15,30 @@ st.set_page_config(
 
 # 등급 리스트 정의 (희귀도 높은 순 - 가로로 묶어 공간 최적화)
 items = [
-    "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐",
-    "감시자", "크로마틱", "자장가", "그래피티",
-    "블리자드", "헬리오스", "속력", "황혼",
-    "아파타이트", "대마법사", "아케인", "워록",
-    "테러", "바운디드", "재즈", "스펙터",
-    "만년서리", "태양", "달", "와트",
-    "힘", "카와이", "석영", "출혈",
-    "시데리움", "콜라", "빙하", "재",
-    "자력", "분노", "결정화", "레어",
-    "자연", "희귀", "일반",
+    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱", "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자", "블리자드", "크로마틱",
+    "자장가", "그래피티", "헬리오스", "속력",
+    "황혼", "아파타이트", "대마법사", "아케인",
+    "워록", "테러", "바운디드", "재즈",
+    "스펙터", "만년서리", "태양", "달",
+    "와트", "힘", "카와이", "석영",
+    "출혈", "시데리움", "콜라", "빙하",
+    "재", "자력", "분노", "결정화",
+    "레어", "자연", "희귀", "일반",
 ]
 
 # 각 아우라의 실제 분모 수치 (행운 배율 필터링 및 확률 기준)
 denominators = {
-    "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000, "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222, "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000,
-    "감시자": 45000000, "크로마틱": 20000000, "자장가": 17000000, "그래피티": 12000000,
-    "블리자드": 27315000, "헬리오스": 9000000, "속력": 7630000, "황혼": 6000000,
-    "아파타이트": 3133133, "대마법사": 1766000, "아케인": 1000000, "워록": 660000,
-    "테러": 400000, "바운디드": 200000, "재즈": 160000, "스펙터": 140000,
-    "만년서리": 73500, "태양": 50000, "달": 50000, "와트": 32768,
-    "힘": 16384, "카와이": 12300, "석영": 8192, "출혈": 4444,
-    "시데리움": 4096, "콜라": 3999, "빙하": 2304, "재": 2300,
-    "자력": 2048, "분노": 256, "결정화": 128, "레어": 16,
-    "자연": 8, "희귀": 4, "일반": 2,
+    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222, "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000, "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": 200000000,
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000, "감시자": 45000000, "블리자드": 27315000, "크로마틱": 20000000,
+    "자장가": 17000000, "그래피티": 12000000, "헬리오스": 9000000, "속력": 7630000,
+    "황혼": 6000000, "아파타이트": 3133133, "대마법사": 1766000, "아케인": 1000000,
+    "워록": 660000, "테러": 400000, "바운디드": 200000, "재즈": 160000,
+    "스펙터": 140000, "만년서리": 73500, "태양": 50000, "달": 50000,
+    "와트": 32768, "힘": 16384, "카와이": 12300, "석영": 8192,
+    "출혈": 4444, "시데리움": 4096, "콜라": 3999, "빙하": 2304,
+    "재": 2300, "자력": 2048, "분노": 256, "결정화": 128,
+    "레어": 16, "자연": 8, "희귀": 4, "일반": 2,
 }
 
 # 분모를 기반으로 정확한 가중치 자동 생성
@@ -46,15 +46,16 @@ base_weights = [int(1000000000000 / denominators[item]) for item in items]
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
+    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "1 in 2,222,222,222 (밤 버프 시 2배 / 장착 시 밤 행운 10배)",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "1 in 1,500,000,000 (눈올 때 행운 10배)",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "1 in 300,000,000 (눈 확률 10% 증가)",
-    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "1 in 2,222,222,222 (밤 버프 시 2배 / 장착 시 밤 행운 10배)",
-    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "1 in 100,000,000",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "1 in 200,000,000 (장착 시 크로마틱 확률 2배 증가)",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "1 in 100,000,000 (장착 시 코인 획득량 2배)",
     "감시자": "1 in 45,000,000",
+    "블리자드": "1 in 27,315,000 (눈올 때 확률 3배)",
     "크로마틱": "1 in 20,000,000",
     "자장가": "1 in 17,000,000 (밤 버프 시 1 in 1,700,000)",
     "그래피티": "1 in 12,000,000",
-    "블리자드": "1 in 27,315,000 (눈올 때 확률 3배)",
     "헬리오스": "1 in 9,000,000",
     "속력": "1 in 7,630,000",
     "황혼": "1 in 6,000,000 (밤 버프 시 1 in 600,000)",
@@ -89,27 +90,27 @@ fractions = {
 
 # 컷씬이 존재하는 아우라 목록
 cutscene_auras = [
-    "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐",
-    "감시자", "크로마틱", "자장가", "그래피티",
-    "블리자드", "헬리오스", "속력", "황혼",
-    "아파타이트", "대마법사", "아케인", "워록",
-    "테러", "바운디드", "재즈", "스펙터",
-    "태양", "달", "와트", "힘",
-    "카와이", "석영", "시데리움",
+    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱", "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자", "블리자드", "크로마틱",
+    "자장가", "그래피티", "헬리오스", "속력",
+    "황혼", "아파타이트", "대마법사", "아케인",
+    "워록", "테러", "바운디드", "재즈",
+    "스펙터", "태양", "달", "와트",
+    "힘", "카와이", "석영", "시데리움",
 ]
 
 # 등급별 이모티콘 매핑
 icons = {
-    "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫",
-    "감시자": "👁️‍🗨️⚡", "크로마틱": "🌈💫", "자장가": "🌌🎵💤", "그래피티": "🎨 spray✨",
-    "블리자드": "❄️🌨️🌀", "헬리오스": "☀️🔥", "속력": "⚡💨", "황혼": "🌆✨💜",
-    "아파타이트": "💠💎", "대마법사": "🧙‍♂️✨", "아케인": "🔮👑", "워록": "💀🔥",
-    "테러": "💣💥", "바운디드": "🌌👑", "재즈": "🎶🎷", "스펙터": "👻🔮",
-    "만년서리": "❄️💎", "태양": "☀️✨", "달": "🌙✨", "와트": "⚡👑⚡",
-    "힘": "⚡🔥", "카와이": "🎀💖✨", "석영": "💎✨", "출혈": "🩸⚔️",
-    "시데리움": "🌟🛡️", "콜라": "🥤🫧", "빙하": "🧊❄️", "재": "🌫️🔥",
-    "자력": "🧲💫", "분노": "😡💢", "결정화": "🔮✨", "레어": "💙📦",
-    "자연": "🌿🍃", "희귀": "💧📘", "일반": "⚪📦",
+    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋", "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊", "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "🌈💎✨",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫", "감시자": "👁️‍🗨️⚡", "블리자드": "❄️🌨️🌀", "크로마틱": "🌈💫",
+    "자장가": "🌌🎵💤", "그래피티": "🎨✨", "헬리오스": "☀️🔥", "속력": "⚡💨",
+    "황혼": "🌆✨💜", "아파타이트": "💠💎", "대마법사": "🧙‍♂️✨", "아케인": "🔮👑",
+    "워록": "💀🔥", "테러": "💣💥", "바운디드": "🌌👑", "재즈": "🎶🎷",
+    "스펙터": "👻🔮", "만년서리": "❄️💎", "태양": "☀️✨", "달": "🌙✨",
+    "와트": "⚡👑⚡", "힘": "⚡🔥", "카와이": "🎀💖✨", "석영": "💎✨",
+    "출혈": "🩸⚔️", "시데리움": "🌟🛡️", "콜라": "🥤🫧", "빙하": "🧊❄️",
+    "재": "🌫️🔥", "자력": "🧲💫", "분노": "😡💢", "결정화": "🔮✨",
+    "레어": "💙📦", "자연": "🌿🍃", "희귀": "💧📘", "일반": "⚪📦",
 }
 
 # 모든 등급 아우라 이미지 경로 매핑
@@ -150,6 +151,7 @@ aura_images = {
     "블리자드": "images/SmartSelect_20261114_102513_NAVER.jpg",
     "감시자": "images/SmartSelect_20261113_233734_Chrome.jpg",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "images/SmartSelect_20261113_234508_Chrome.jpg",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "images/SmartSelect_20261114_172102_NAVER.jpg",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "images/file_00000000485082099074341e8735beff.png",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "images/file_000000009c888209b0b962261732b998.png",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "images/SmartSelect_20261113_235729_Chrome.jpg",
@@ -159,6 +161,7 @@ aura_images = {
 equipped_backgrounds = {
     "𝓘𝓬𝓮𝓐𝓰𝓮": "Background/SmartSelect_20261114_105008_NAVER.jpg",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "Background/SmartSelect_20261114_104343_NAVER.jpg",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "Background/file_00000000b07c82069ec3c3f543da2f45.png",
     "블리자드": "Background/SmartSelect_20261114_104034_NAVER.jpg",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "Background/SmartSelect_20261114_000447_Chrome.jpg",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "Background/SmartSelect_20261113_234652_NAVER.jpg",
@@ -447,41 +450,57 @@ def get_styled_title_html(title_name):
   if not title_name:
     return ""
 
-  if (
-      "GOD OF ICE" in title_name
-      or "ANCIENT KING" in title_name
-      or "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭" in title_name
-  ):
+  # 1억 이하(1억 포함) 아우라 만렙(MAX) 달성 시 무지개색(7색 레인보우) 스타일 적용
+  rainbow_max_titles = [
+      "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
+      "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
+      "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
+      "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
+      "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻의 달인",
+  ]
+  if title_name in rainbow_max_titles:
     style = (
-        "background: linear-gradient(90deg, #00ffff, #00bfff, #ffffff, #1e90ff);"
+        "background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00,"
+        " #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text;"
+        " -webkit-text-fill-color: transparent; font-weight: 900;"
+        " text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px"
+        " rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;"
+    )
+  # 1억 이하(1억 포함) 아우라 최초 획득 시 특별한 전용 네온 색상
+  elif "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
+    style = (
+        "background: linear-gradient(90deg, #ff77ff, #00ffff, #fff066);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 900; text-shadow: 0 0 12px rgba(0,255,255,0.7),"
-        " 0 0 20px rgba(0,191,255,0.6); font-size: 1.05em; padding: 0 4px;"
+        " font-weight: 900; text-shadow: 0 0 12px rgba(255,119,255,0.8),"
+        " 0 0 20px rgba(0,255,255,0.7); font-size: 1.06em; padding: 0 4px;"
     )
   elif "ICE MONARCH" in title_name or "FROST EMPEROR" in title_name:
     style = (
-        "background: linear-gradient(90deg, #e0ffff, #00bfff);"
+        "background: linear-gradient(90deg, #a8ffff, #00bfff, #ffffff);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 800; text-shadow: 0 0 10px rgba(0,191,255,0.7);"
-        " font-size: 1.05em; padding: 0 4px;"
+        " font-weight: 900; text-shadow: 0 0 12px rgba(0,191,255,0.85);"
+        " font-size: 1.06em; padding: 0 4px;"
     )
-  elif (
-      "초월자" in title_name
-      or "몽상가" in title_name
-      or "환상" in title_name
-      or "𝓟𝓻𝓲𝓼𝓶" in title_name
-  ):
+  elif "무한의 환상" in title_name:
     style = (
-        "background: linear-gradient(90deg, #ff007f, #7928ca, #0070f3, #00dfd8);"
+        "background: linear-gradient(90deg, #d580ff, #ff4da6, #66d9ff);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 900; text-shadow: 0 0 10px rgba(255,0,127,0.6),"
-        " 0 0 20px rgba(0,223,216,0.5); font-size: 1.05em; padding: 0 4px;"
+        " font-weight: 900; text-shadow: 0 0 12px rgba(213,128,255,0.85);"
+        " font-size: 1.06em; padding: 0 4px;"
+    )
+  elif "잔광" in title_name:
+    style = (
+        "background: linear-gradient(90deg, #00ffff, #3399ff, #b3ffff);"
+        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+        " font-weight: 900; text-shadow: 0 0 12px rgba(0,255,255,0.85);"
+        " font-size: 1.06em; padding: 0 4px;"
     )
   elif (
       "𝓦𝓪𝓽𝓬𝓱𝓮𝓻" in title_name
       or "𝓛𝓾𝓵𝓵𝓪𝓫𝔂" in title_name
       or "𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽" in title_name
       or "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲" in title_name
+      or "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭" in title_name
   ):
     style = (
         "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff);"
@@ -500,13 +519,6 @@ def get_styled_title_html(title_name):
         "background: linear-gradient(90deg, #ffd700, #ff6600, #00e5ff);"
         " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
         " font-weight: 800; text-shadow: 0 0 12px rgba(255,153,0,0.7);"
-        " font-size: 1.05em; padding: 0 4px;"
-    )
-  elif "잔광" in title_name:
-    style = (
-        "background: linear-gradient(90deg, #00ffff, #0077ff);"
-        " -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
-        " font-weight: 800; text-shadow: 0 0 12px rgba(0,255,255,0.7);"
         " font-size: 1.05em; padding: 0 4px;"
     )
   elif "달인" in title_name:
@@ -578,6 +590,15 @@ def play_fullscreen_star_cutscene(aura_name):
         "🦣 [MAMMOTH] 고대 빙하의 수호자 맘모스가 거대한 눈보라와 함께 포효합니다!"
     )
     duration = 4.0
+  elif aura_name == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
+    star_color = "#ff77ff"
+    bg_style = "radial-gradient(circle, #33004d 0%, #050014 90%)"
+    star_symbol = "🌈💎✨"
+    ment = (
+        "🌈 [HYPER PRISM] 초월적인 프리즘의 빛이 모든 차원의 스펙트럼을"
+        " 찬란하게 굴절시킵니다!"
+    )
+    duration = 4.2
   elif aura_name == "블리자드":
     star_color = "#87ceeb"
     bg_style = "radial-gradient(circle, #002244 0%, #050a15 90%)"
@@ -614,7 +635,7 @@ def play_fullscreen_star_cutscene(aura_name):
   elif aura_name == "그래피티":
     star_color = "#ff00ff"
     bg_style = "radial-gradient(circle, #2d004d 0%, #0a0014 90%)"
-    star_symbol = "🎨 spray✨"
+    star_symbol = "🎨✨"
     ment = "🎨 [GRAFFITI] 화려한 색채의 폭풍이 세상을 자유로운 예술로 물들입니다!"
     duration = 3.2
   else:
@@ -685,9 +706,8 @@ def get_max_requirement(denom):
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
-  coin_gain_per_roll = (
-      10 if st.session_state.get("equipped") == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 5
-  )
+  equipped_now = st.session_state.get("equipped")
+  coin_gain_per_roll = 10 if equipped_now == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 5
   is_snow, _, _ = get_world_weather_status()
   is_day, _ = get_world_time_status()
 
@@ -702,6 +722,10 @@ def perform_rolls(roll_count=1):
       st.session_state.million_ticket_active = False
 
     current_weights = list(base_weights)
+
+    # 하이퍼 프리즘 장착 시 크로마틱 확률 2배 증가
+    if equipped_now == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
+      current_weights[items.index("크로마틱")] *= 2
 
     # 낮/밤 버프 적용
     if is_day:
@@ -741,25 +765,20 @@ def perform_rolls(roll_count=1):
     result = random.choices(items, weights=current_weights, k=1)[0]
     results.append(result)
 
-    # 최초 획득 칭호 지급
+    # 최초 획득 칭호 지급 (1억 이하 확률 아우라)
     if (
         prior_counts.get(result, 0) == 0
         and st.session_state.counts.get(result, 0) == 0
     ):
-      if result == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
-        t_name = "영광의 잔광"
-        if t_name not in st.session_state.titles:
-          st.session_state.titles.append(t_name)
-      elif result == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
-        t_name = "• ⋆༺무한의 환상༻⋆"
-        if t_name not in st.session_state.titles:
-          st.session_state.titles.append(t_name)
-      elif result == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
-        t_name = "❄ 𝐈𝐂𝐄 𝐌𝐎𝐍𝐀𝐑𝐂𝐇 ❄"
-        if t_name not in st.session_state.titles:
-          st.session_state.titles.append(t_name)
-      elif result == "𝓘𝓬𝓮𝓐𝓰𝓮":
-        t_name = "♛ 𝐅𝐑𝐎𝐒𝐓 𝐄𝐌𝐏𝐄𝐑𝐎𝐑 ♛"
+      first_get_titles = {
+          "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
+          "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
+          "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "• ⋆༺무한의 환상༻⋆",
+          "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "❄ 𝐈𝐂𝐄 𝐌𝐎𝐍𝐀𝐑𝐂𝐇 ❄",
+          "𝓘𝓬𝓮𝓐𝓰𝓮": "♛ 𝐅𝐑𝐎𝐒𝐓 𝐄𝐌𝐏𝐄𝐑𝐎𝐑 ♛",
+      }
+      if result in first_get_titles:
+        t_name = first_get_titles[result]
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
 
@@ -891,7 +910,12 @@ with st.container(border=True):
       st.write(
           f"보유 수량: **{st.session_state.counts.get(equipped_aura, 0)}개**"
       )
-      if equipped_aura == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
+      if equipped_aura == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
+        st.caption(
+            "🌈 **[특수 능력 활성화]** 크로마틱(🌈) 등장 확률 2배 증가 & 전용 배경"
+            " 적용 중!"
+        )
+      elif equipped_aura == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
         st.caption("🦣 **[능력 활성화]** 눈이 내릴 확률이 10% 증가합니다!")
       elif equipped_aura == "𝓘𝓬𝓮𝓐𝓰𝓮":
         st.caption("❄️ **[능력 활성화]** 눈이 올 때 행운 10배가 적용됩니다!")
@@ -1128,6 +1152,7 @@ with tab_inventory:
 
                 if new_lvl == 7:
                   custom_max_titles = {
+                      "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
                       "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
                       "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
                       "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
@@ -1139,7 +1164,6 @@ with tab_inventory:
                       "대마법사": "◇ 𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮 ◇",
                       "황혼": "◇𝓣𝔀𝓲𝓵𝓲𝓰𝓱𝓽 ◇",
                       "아파타이트": "◇𝓐𝓹𝓪𝓽𝓲𝓽𝓮 ◇",
-                      "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "• ⋆༺무한의 환상༻⋆",
                       "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
                       "𝓘𝓬𝓮𝓐𝓰𝓮": "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
                   }
