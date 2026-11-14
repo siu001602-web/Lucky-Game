@@ -213,7 +213,7 @@ equipped_backgrounds = {
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "Background/SmartSelect_20261114_000447_Chrome.jpg",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "Background/SmartSelect_20261113_234652_NAVER.jpg",
     "감시자": "Background/SmartSelect_20261113_234106_Chrome.jpg",
-    "크로마틱": "Background/SmartSelect_20261113_233022_Google.jpg",
+    "크로마틱": "images/SmartSelect_20261113_233022_Google.jpg",
     "자장가": "Background/SmartSelect_20261114_000015_Chrome.jpg",
     "그래피티": "Background/SmartSelect_20261114_171237_Google.jpg",
 }
@@ -1534,8 +1534,7 @@ with tab_potions:
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
   st.write(
-      "왼쪽 목록에서 아우라를 선택하여 상세 정보와 컷씬을 확인할 수"
-      " 있습니다."
+      "왼쪽 목록에서 아우라를 선택하여 상세 정보, 컷씬 및 **빼빼로데이 스킨**을 확인할 수 있습니다."
   )
 
   col_left, col_right = st.columns([1, 1.5])
@@ -1557,6 +1556,8 @@ with tab_codex:
           use_container_width=True,
       ):
         st.session_state.selected_codex = item
+        # 아우라를 바꿀 때 스킨 보기 모드 초기화
+        st.session_state.codex_viewing_skin = False
 
   with col_right:
     sel = st.session_state.selected_codex
@@ -1566,31 +1567,73 @@ with tab_codex:
         st.session_state.counts.get(sel, 0) > 0
         or st.session_state.levels.get(sel, 1) > 1
     )
-    st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
+
+    if "codex_viewing_skin" not in st.session_state:
+      st.session_state.codex_viewing_skin = False
+
+    matching_skins_for_codex = aura_to_skins.get(sel, [])
+    is_viewing_skin = st.session_state.codex_viewing_skin and matching_skins_for_codex
+
+    if is_viewing_skin:
+      target_skin = matching_skins_for_codex[0]
+      skin_cnt = st.session_state.skins.get(target_skin, 0)
+      st.markdown(f"#### 상세 정보: `{target_skin}` (스킨 모드)")
+    else:
+      st.markdown(f"#### 상세 정보: `{sel if is_owned else '???'}`")
 
     with st.container(border=True):
       if is_owned:
-        img_path = aura_images.get(sel)
-        if img_path and os.path.exists(img_path):
-          st.image(img_path, width=150)
-        else:
-          st.markdown(
-              f"<div style='font-size: 40px;'>{icons.get(sel, '✨')}</div>",
-              unsafe_allow_html=True,
-          )
+        if is_viewing_skin:
+          target_skin = matching_skins_for_codex[0]
+          skin_img_path = skin_images.get(target_skin)
+          skin_cnt = st.session_state.skins.get(target_skin, 0)
 
-        st.markdown(f"### [{sel}]")
-        st.write(f"**희귀도 확률:** {fractions.get(sel, 'N/A')}")
-        st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
-        st.write(f"**현재 레벨:** Lv. {st.session_state.levels.get(sel, 1)} / 6")
+          if skin_img_path and os.path.exists(skin_img_path):
+            st.image(skin_img_path, width=180)
+          else:
+            st.markdown("<div style='font-size: 40px;'>🎨</div>", unsafe_allow_html=True)
+
+          st.markdown(f"### [{target_skin}]")
+          st.write(f"**전용 원본 아우라:** {sel}")
+          st.write(f"**보유 수량:** {skin_cnt}개")
+          if skin_cnt > 0:
+            st.success("✅ 보유 중인 스킨입니다!")
+          else:
+            st.warning("🔒 미보유 스킨입니다 (케이스에서 획득 가능)")
+        else:
+          img_path = aura_images.get(sel)
+          if img_path and os.path.exists(img_path):
+            st.image(img_path, width=150)
+          else:
+            st.markdown(
+                f"<div style='font-size: 40px;'>{icons.get(sel, '✨')}</div>",
+                unsafe_allow_html=True,
+            )
+
+          st.markdown(f"### [{sel}]")
+          st.write(f"**희귀도 확률:** {fractions.get(sel, 'N/A')}")
+          st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
+          st.write(f"**현재 레벨:** Lv. {st.session_state.levels.get(sel, 1)} / 6")
+
         st.markdown("---")
 
-        if sel in cutscene_auras:
-          st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
-          if st.button("🎬 컷씬 다시 보기", use_container_width=True):
-            play_cutscene(sel)
-        else:
-          st.caption("이 아우라에는 별도의 컷씬 연출이 없습니다.")
+        if matching_skins_for_codex:
+          if is_viewing_skin:
+            if st.button("✨ 원본 아우라 정보로 돌아가기", use_container_width=True, type="primary"):
+              st.session_state.codex_viewing_skin = False
+              st.rerun()
+          else:
+            if st.button("🎨 빼빼로데이 스킨 보기", use_container_width=True, type="secondary"):
+              st.session_state.codex_viewing_skin = True
+              st.rerun()
+
+        if not is_viewing_skin:
+          if sel in cutscene_auras:
+            st.info("이 아우라는 전용 연출 컷씬이 존재합니다!")
+            if st.button("🎬 컷씬 다시 보기", use_container_width=True):
+              play_cutscene(sel)
+          else:
+            st.caption("이 아우라에는 별도의 컷씬 연출이 없습니다.")
       else:
         st.markdown(
             """
