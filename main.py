@@ -299,11 +299,8 @@ def hash_password(password):
   return hashlib.sha256(password.encode()).hexdigest()
 
 
-def save_user_data_to_db():
-  if not st.session_state.get("logged_in", False):
-    return
-  username = st.session_state.username
-  save_data = {
+def get_current_save_dict():
+  return {
       "history": st.session_state.get("history", []),
       "counts": st.session_state.get("counts", {}),
       "equipped": st.session_state.get("equipped", None),
@@ -316,6 +313,13 @@ def save_user_data_to_db():
       "five_roll_unlocked": st.session_state.get("five_roll_unlocked", False),
       "potions": st.session_state.get("potions", {}),
   }
+
+
+def save_user_data_to_db():
+  if not st.session_state.get("logged_in", False):
+    return
+  username = st.session_state.username
+  save_data = get_current_save_dict()
   conn = sqlite3.connect("users.db", check_same_thread=False)
   cursor = conn.cursor()
   cursor.execute(
@@ -324,6 +328,35 @@ def save_user_data_to_db():
   )
   conn.commit()
   conn.close()
+
+
+def apply_loaded_data_to_session(saved_data):
+  st.session_state.history = saved_data.get("history", [])
+  st.session_state.counts = {
+      item: saved_data.get("counts", {}).get(item, 0) for item in items
+  }
+  st.session_state.equipped = saved_data.get("equipped", None)
+  st.session_state.coins = saved_data.get("coins", 0)
+  st.session_state.inventory_slots = saved_data.get("inventory_slots", 50)
+  st.session_state.luck_buff_unlocked = saved_data.get(
+      "luck_buff_unlocked", False
+  )
+  st.session_state.triple_roll_unlocked = saved_data.get(
+      "triple_roll_unlocked", False
+  )
+  st.session_state.five_roll_unlocked = saved_data.get(
+      "five_roll_unlocked", False
+  )
+  st.session_state.potions = {
+      p: saved_data.get("potions", {}).get(p, 0) for p in potion_items
+  }
+  st.session_state.active_potion_mult = 1
+  st.session_state.active_potion_end = 0.0
+  st.session_state.active_potion_name = None
+  st.session_state.million_ticket_active = False
+  st.session_state.last_results = []
+  st.session_state.last_luck_mult = 1
+  st.session_state.selected_codex = items[0]
 
 
 # 세션 기본값 설정
@@ -358,34 +391,7 @@ if not st.session_state.logged_in:
           st.session_state.logged_in = True
           st.session_state.username = l_user
           saved_data = json.loads(row[1])
-          st.session_state.history = saved_data.get("history", [])
-          st.session_state.counts = {
-              item: saved_data.get("counts", {}).get(item, 0) for item in items
-          }
-          st.session_state.equipped = saved_data.get("equipped", None)
-          st.session_state.coins = saved_data.get("coins", 0)
-          st.session_state.inventory_slots = saved_data.get(
-              "inventory_slots", 50
-          )
-          st.session_state.luck_buff_unlocked = saved_data.get(
-              "luck_buff_unlocked", False
-          )
-          st.session_state.triple_roll_unlocked = saved_data.get(
-              "triple_roll_unlocked", False
-          )
-          st.session_state.five_roll_unlocked = saved_data.get(
-              "five_roll_unlocked", False
-          )
-          st.session_state.potions = {
-              p: saved_data.get("potions", {}).get(p, 0) for p in potion_items
-          }
-          st.session_state.active_potion_mult = 1
-          st.session_state.active_potion_end = 0.0
-          st.session_state.active_potion_name = None
-          st.session_state.million_ticket_active = False
-          st.session_state.last_results = []
-          st.session_state.last_luck_mult = 1
-          st.session_state.selected_codex = items[0]
+          apply_loaded_data_to_session(saved_data)
 
           st.success(f"환영합니다, {l_user}님! 게임을 시작합니다.")
           time.sleep(0.8)
@@ -456,15 +462,12 @@ def apply_equipped_background():
   eq = st.session_state.get("equipped")
   bg_path = equipped_backgrounds.get(eq)
 
-  # 기본 스타일 (메트릭 글자, 탭 메뉴 글자 흰색 및 가독성 백드롭 추가)
   base_style = """
     <style>
-    /* 메트릭(코인, 뽑기 횟수) 글자 선명한 흰색 및 그림자 처리 */
     [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
         color: #ffffff !important;
         text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8);
     }
-    /* 탭 메뉴 글자 선명한 흰색 및 가독성 강화 */
     .stTabs [data-baseweb="tab"] {
         color: #ffffff !important;
         font-weight: bold;
@@ -903,7 +906,6 @@ with tab_gacha:
 
   st.write("")
 
-  # 3회 또는 5회 연속 뽑기 버튼 분기 처리
   has_triple = st.session_state.get("triple_roll_unlocked", False)
   has_five = st.session_state.get("five_roll_unlocked", False)
 
@@ -1090,14 +1092,12 @@ with tab_potions:
               cfg = potion_config[p_name]
               if cfg["type"] == "potion":
                 now = time.time()
-                # 이미 동일한 포션 버프가 활성화되어 있다면 남은 시간에 지속 시간 누적
                 if (
                     st.session_state.active_potion_mult == cfg["mult"]
                     and now < st.session_state.active_potion_end
                 ):
                   st.session_state.active_potion_end += cfg["duration"]
                 else:
-                  # 새로 켜거나 다른 배율일 경우: 이미 작동 중인 버프가 있으면 종료 시간에 더하고, 아니면 현재 시간 기준 적용
                   if now < st.session_state.active_potion_end:
                     st.session_state.active_potion_end += cfg["duration"]
                   else:
@@ -1260,7 +1260,6 @@ with tab_shop:
           else:
             st.error("코인이 부족합니다! (500 G 필요)")
 
-  # 3회 뽑기를 구매해야만 열리는 5회 연속 뽑기 상점 항목
   with st.container(border=True):
     col_f1, col_f2 = st.columns([2, 1])
     with col_f1:
@@ -1343,6 +1342,52 @@ with tab_shop:
           st.rerun()
         else:
           st.error("코인이 부족합니다!")
+
+  # ==========================================
+  # 💾 데이터 백업 및 파일 불러오기 (복구) 패널
+  # ==========================================
+  with st.container(border=True):
+    st.markdown("### 💾 데이터 백업 및 파일 불러오기")
+    st.write(
+        "서버가 재시작되어도 데이터가 날아가지 않도록 현재 계정 상태를"
+        " JSON 파일로 저장하거나, 백업 파일을 불러와 즉시 복구할 수 있습니다."
+    )
+
+    col_bk1, col_bk2 = st.columns(2)
+    with col_bk1:
+      current_json_str = json.dumps(
+          get_current_save_dict(), ensure_ascii=False, indent=2
+      )
+      st.download_button(
+          label="📥 내 데이터 백업 파일 저장 (.json)",
+          data=current_json_str,
+          file_name=f"{st.session_state.username}_backup.json",
+          mime="application/json",
+          use_container_width=True,
+      )
+
+    with col_bk2:
+      uploaded_backup = st.file_uploader(
+          "📤 백업 파일(.json) 선택",
+          type=["json"],
+          key="backup_file_uploader",
+          label_visibility="collapsed",
+      )
+      if uploaded_backup is not None:
+        if st.button(
+            "🔄 선택한 백업 파일로 데이터 복구 실행",
+            type="primary",
+            use_container_width=True,
+        ):
+          try:
+            loaded_json = json.load(uploaded_backup)
+            apply_loaded_data_to_session(loaded_json)
+            save_user_data_to_db()
+            st.success("✅ 백업 파일에서 데이터 복구가 완료되었습니다!")
+            time.sleep(0.8)
+            st.rerun()
+          except Exception as e:
+            st.error(f"파일을 불러오는 중 오류가 발생했습니다: {e}")
 
   with st.container(border=True):
     st.markdown("### 💻 개발자 인증 패널")
