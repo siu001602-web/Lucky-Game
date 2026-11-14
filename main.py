@@ -15,10 +15,10 @@ st.set_page_config(
 
 # 등급 리스트 정의 (희귀도 높은 순)
 items = [
-    "아이스 에이지",
-    "맘모스",
+    "𝓘𝓬𝓮𝓐𝓰𝓮",
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻",
-    "스펙트라플로우",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐",
     "감시자",
     "크로마틱",
     "자장가",
@@ -85,10 +85,10 @@ base_weights = [
 
 # 각 아우라의 실제 분모 수치 (행운 배율 필터링 기준)
 denominators = {
-    "아이스 에이지": 1500000000,
-    "맘모스": 300000000,
+    "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000,
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000,
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222,
-    "스펙트라플로우": 100000000,
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000,
     "감시자": 45000000,
     "크로마틱": 20000000,
     "자장가": 17000000,
@@ -120,12 +120,12 @@ denominators = {
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
-    "아이스 에이지": "1 in 1,500,000,000 (눈올 때 행운 10배)",
-    "맘모스": "1 in 300,000,000 (눈 확률 10% 증가)",
+    "𝓘𝓬𝓮𝓐𝓰𝓮": "1 in 1,500,000,000 (눈올 때 행운 10배)",
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "1 in 300,000,000 (눈 확률 10% 증가)",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": (
         "1 in 2,222,222,222 (밤 버프 시 2배 / 장착 시 밤 행운 10배)"
     ),
-    "스펙트라플로우": "1 in 100,000,000",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "1 in 100,000,000",
     "감시자": "1 in 45,000,000",
     "크로마틱": "1 in 20,000,000",
     "자장가": "1 in 17,000,000 (밤 버프 시 1 in 1,700,000)",
@@ -157,10 +157,10 @@ fractions = {
 
 # 컷씬이 존재하는 아우라 목록
 cutscene_auras = [
-    "아이스 에이지",
-    "맘모스",
+    "𝓘𝓬𝓮𝓐𝓰𝓮",
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻",
-    "스펙트라플로우",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐",
     "감시자",
     "크로마틱",
     "자장가",
@@ -183,10 +183,10 @@ cutscene_auras = [
 
 # 등급별 이모티콘 매핑
 icons = {
-    "아이스 에이지": "❄️🧊👑",
-    "맘모스": "🦣❄️🧊",
+    "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑",
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋",
-    "스펙트라플로우": "🌌💠💫",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫",
     "감시자": "👁️‍🗨️⚡",
     "크로마틱": "🌈💫",
     "자장가": "🌌🎵💤",
@@ -241,23 +241,23 @@ aura_images = {
     "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
     "감시자": "images/SmartSelect_20261113_233734_Chrome.jpg",
     "블리자드": "images/SmartSelect_20261114_102513_NAVER.jpg",
-    "스펙트라플로우": "images/SmartSelect_20261113_234508_Chrome.jpg",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "images/SmartSelect_20261113_234508_Chrome.jpg",
     "태양": "images/SmartSelect_20261113_235302_Chrome.jpg",
     "달": "images/SmartSelect_20261113_235408_Chrome.jpg",
     "황혼": "images/SmartSelect_20261113_235637_Chrome.jpg",
     "자장가": "images/SmartSelect_20261113_235654_Chrome.jpg",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "images/SmartSelect_20261113_235729_Chrome.jpg",
-    "맘모스": "images/file_00000000485082099074341e8735beff.png",
-    "아이스 에이지": "images/file_000000009c888209b0b962261732b998.png",
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "images/file_00000000485082099074341e8735beff.png",
+    "𝓘𝓬𝓮𝓐𝓰𝓮": "images/file_000000009c888209b0b962261732b998.png",
 }
 
 # 특수 장착 배경 이미지 매핑
 equipped_backgrounds = {
-    "아이스 에이지": "Background/SmartSelect_20261114_105008_NAVER.jpg",
-    "맘모스": "Background/SmartSelect_20261114_104343_NAVER.jpg",
+    "𝓘𝓬𝓮𝓐𝓰𝓮": "Background/SmartSelect_20261114_105008_NAVER.jpg",
+    "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "Background/SmartSelect_20261114_104343_NAVER.jpg",
     "블리자드": "Background/SmartSelect_20261114_104034_NAVER.jpg",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "Background/SmartSelect_20261114_000447_Chrome.jpg",
-    "스펙트라플로우": "Background/SmartSelect_20261113_234652_NAVER.jpg",
+    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "Background/SmartSelect_20261113_234652_NAVER.jpg",
     "감시자": "Background/SmartSelect_20261113_234106_Chrome.jpg",
     "크로마틱": "Background/SmartSelect_20261113_233022_Google.jpg",
     "자장가": "Background/SmartSelect_20261114_000015_Chrome.jpg",
@@ -472,7 +472,7 @@ def get_world_weather_status():
   random.seed(minute_seed)
 
   snow_chance = 0.30
-  if st.session_state.get("equipped") == "맘모스":
+  if st.session_state.get("equipped") == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
     snow_chance = 0.40
 
   is_snow = random.random() < snow_chance
@@ -601,7 +601,7 @@ def get_current_luck_multiplier(next_pull_number):
     mult *= 2
 
   is_snow, _, _ = get_world_weather_status()
-  if is_snow and st.session_state.get("equipped") == "아이스 에이지":
+  if is_snow and st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮":
     mult *= 10
 
   # 드림캐쳐 장착 시 밤 시간대 행운 10배
@@ -617,13 +617,13 @@ def get_current_luck_multiplier(next_pull_number):
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  if aura_name == "아이스 에이지":
+  if aura_name == "𝓘𝓬𝓮𝓐𝓰𝓮":
     star_color = "#00ffff"
     bg_style = "radial-gradient(circle, #001a33 0%, #00050f 90%)"
     star_symbol = "❄️🧊👑"
     ment = "❄️ [ICE AGE] 빙하기의 절대적인 한기가 온 세상을 영원의 빙하로 뒤덮습니다!"
     duration = 4.5
-  elif aura_name == "맘모스":
+  elif aura_name == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
     star_color = "#add8e6"
     bg_style = "radial-gradient(circle, #102030 0%, #050a10 90%)"
     star_symbol = "🦣❄️"
@@ -646,7 +646,7 @@ def play_fullscreen_star_cutscene(aura_name):
         " 수호자가 강림합니다!"
     )
     duration = 4.2
-  elif aura_name == "스펙트라플로우":
+  elif aura_name == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
     star_color = "#00ffff"
     bg_style = "radial-gradient(circle, #00334d 0%, #05000a 90%)"
     star_symbol = "🌌💠⚡💫"
@@ -728,12 +728,12 @@ def get_max_requirement(denom):
   return get_level_requirements(denom)[7]
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수 (눈올 때 빙하·만년서리·블리자드 3배, 맘모스·아이스 에이지 2배)
+# 1회 또는 다회 뽑기 실행 공통 함수
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
   coin_gain_per_roll = (
-      10 if st.session_state.get("equipped") == "스펙트라플로우" else 5
+      10 if st.session_state.get("equipped") == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 5
   )
   is_snow, _, _ = get_world_weather_status()
 
@@ -754,8 +754,8 @@ def perform_rolls(roll_count=1):
       current_weights[items.index("빙하")] *= 3
       current_weights[items.index("만년서리")] *= 3
       current_weights[items.index("블리자드")] *= 3
-      current_weights[items.index("맘모스")] *= 2
-      current_weights[items.index("아이스 에이지")] *= 2
+      current_weights[items.index("𝓜𝓪𝓶𝓶𝓸𝓽𝓱")] *= 2
+      current_weights[items.index("𝓘𝓬𝓮𝓐𝓰𝓮")] *= 2
 
     if luck_mult > 1:
       eligible_indices = [
@@ -783,7 +783,7 @@ def perform_rolls(roll_count=1):
         prior_counts.get(result, 0) == 0
         and st.session_state.counts.get(result, 0) == 0
     ):
-      if result == "스펙트라플로우":
+      if result == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
         t_name = "영광의 잔광"
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
@@ -791,11 +791,11 @@ def perform_rolls(roll_count=1):
         t_name = "• ⋆༺무한의 환상༻⋆"
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
-      elif result == "맘모스":
+      elif result == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
         t_name = "❄ 𝐈𝐂𝐄 𝐌𝐎𝐍𝐀𝐑𝐂𝐇 ❄"
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
-      elif result == "아이스 에이지":
+      elif result == "𝓘𝓬𝓮𝓐𝓰𝓮":
         t_name = "♛ 𝐅𝐑𝐎𝐒𝐓 𝐄𝐌𝐏𝐄𝐑𝐎𝐑 ♛"
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
@@ -850,26 +850,24 @@ with c_u2:
 
 is_snow_now, rem_seconds_now, current_snow_pct = get_world_weather_status()
 s_rem = rem_seconds_now
-is_mammoth_equipped = st.session_state.get("equipped") == "맘모스"
-is_ia_equipped = st.session_state.get("equipped") == "아이스 에이지"
+is_mammoth_equipped = st.session_state.get("equipped") == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱"
+is_ia_equipped = st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮"
 
 if is_snow_now:
   ia_bonus_text = (
-      " | ❄️ 아이스 에이지 장착 중: 행운 10배 발동 중!"
-      if is_ia_equipped
-      else ""
+      " | ❄️ 𝓘𝓬𝓮𝓐𝓰𝓮 장착 중: 행운 10배 발동 중!" if is_ia_equipped else ""
   )
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0,191,255,0.5);">
-            🌨️ [현재 날씨: 눈 내리는 중] 확률 {current_snow_pct}% 적용 중! (빙하·만년서리·블리자드 3배 / 맘모스·아이스 에이지 2배 폭증!) (남은 시간: {s_rem}초){ia_bonus_text}
+            🌨️ [현재 날씨: 눈 내리는 중] 확률 {current_snow_pct}% 적용 중! (빙하·만년서리·블리자드 3배 / 𝓜𝓪𝓶𝓶𝓸𝓽𝓱·𝓘𝓬𝓮𝓐𝓰𝓮 2배 폭증!) (남은 시간: {s_rem}초){ia_bonus_text}
         </div>
         """,
       unsafe_allow_html=True,
   )
 else:
   mammoth_bonus_text = (
-      " | 🦣 맘모스 장착 중: 눈 확률 +10%!" if is_mammoth_equipped else ""
+      " | 🦣 𝓜𝓪𝓶𝓶𝓸𝓽𝓱 장착 중: 눈 확률 +10%!" if is_mammoth_equipped else ""
   )
   st.markdown(
       f"""
@@ -905,13 +903,13 @@ with st.container(border=True):
       st.write(
           f"보유 수량: **{st.session_state.counts.get(equipped_aura, 0)}개**"
       )
-      if equipped_aura == "맘모스":
+      if equipped_aura == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
         st.caption("🦣 **[능력 활성화]** 눈이 내릴 확률이 10% 증가합니다!")
-      elif equipped_aura == "아이스 에이지":
+      elif equipped_aura == "𝓘𝓬𝓮𝓐𝓰𝓮":
         st.caption("❄️ **[능력 활성화]** 눈이 올 때 행운 10배가 적용됩니다!")
       elif equipped_aura == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
         st.caption("🕸️ **[능력 활성화]** 밤 시간대 행운 10배 버프 적용 중!")
-      elif equipped_aura == "스펙트라플로우":
+      elif equipped_aura == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
         st.caption(
             "💠 **[특수 능력]** 코인 획득량 2배 (뽑기당 10 G) & 전용 배경"
             " 적용 중!"
@@ -944,8 +942,8 @@ tab_gacha, tab_inventory, tab_potions, tab_codex, tab_titles, tab_shop = st.tabs
 
 with tab_gacha:
   roll_coin_label = (
-      "1회당 +10 G (스펙트라플로우 효과)"
-      if st.session_state.get("equipped") == "스펙트라플로우"
+      "1회당 +10 G (𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐 효과)"
+      if st.session_state.get("equipped") == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐"
       else "1회당 +5 G"
   )
   st.subheader(f"🎲 행운의 아우라 소환 ({roll_coin_label})")
@@ -1004,7 +1002,7 @@ with tab_gacha:
         st.rerun()
     with col_b2:
       five_bonus_coins = (
-          50 if st.session_state.get("equipped") == "스펙트라플로우" else 25
+          50 if st.session_state.get("equipped") == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 25
       )
       if st.button(
           f"⚡ 5회 연속 뽑기 (+{five_bonus_coins} G)",
@@ -1021,7 +1019,7 @@ with tab_gacha:
         st.rerun()
     with col_b2:
       triple_bonus_coins = (
-          30 if st.session_state.get("equipped") == "스펙트라플로우" else 15
+          30 if st.session_state.get("equipped") == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 15
       )
       if st.button(
           f"🔥 3회 연속 뽑기 (+{triple_bonus_coins} G)",
@@ -1048,7 +1046,7 @@ with tab_gacha:
   if st.session_state.last_results:
     res_list = st.session_state.last_results
     per_coin = (
-        10 if st.session_state.get("equipped") == "스펙트라플로우" else 5
+        10 if st.session_state.get("equipped") == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 5
     )
     earned_coins = len(res_list) * per_coin
     result_badges = " &nbsp;|&nbsp; ".join(
@@ -1139,13 +1137,13 @@ with tab_inventory:
                 new_lvl = st.session_state.levels[item]
 
                 if new_lvl == 7:
-                  if item == "스펙트라플로우":
+                  if item == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐":
                     t_name = "꧁༺ 스펙트럼의 초월자 ༻꧂"
                   elif item == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
                     t_name = "• ⋆༺무한의 환상༻⋆"
-                  elif item == "맘모스":
+                  elif item == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱":
                     t_name = "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝐊𝐈𝐍𝐆 ༻꧂"
-                  elif item == "아이스 에이지":
+                  elif item == "𝓘𝓬𝓮𝓐𝓰𝓮":
                     t_name = "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂"
                   else:
                     t_name = f"{item}의 달인"
