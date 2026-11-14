@@ -14,59 +14,66 @@ st.set_page_config(
     page_title="아우라 가챠 & 도감", page_icon="✨", layout="wide"
 )
 
-# 등급 리스트 정의 (희귀도 높은 순 - 가로로 묶어 공간 최적화)
+# 등급 리스트 정의 (희귀도 높은 순)
 items = [
-    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱", "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧",
-    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자", "블리자드", "크로마틱",
-    "자장가", "그래피티", "헬리오스", "속력",
-    "황혼", "아파타이트", "대마법사", "아케인",
-    "워록", "테러", "바운디드", "재즈",
-    "스펙터", "만년서리", "태양", "달",
-    "와트", "힘", "카와이", "석영",
-    "출혈", "시데리움", "콜라", "빙하",
-    "재", "자력", "아쿠아마린", "사파이어",
-    "잉크", "에메랄드", "루비", "분노",
-    "토파즈", "결정화", "현기증", "레어",
-    "자연", "굿", "희귀", "일반",
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자",
+    "블리자드", "이상", "크로마틱", "자장가",
+    "그래피티", "헬리오스", "속력", "황혼",
+    "아파타이트", "대마법사", "아케인", "워록",
+    "테러", "바운디드", "재즈", "스펙터",
+    "만년서리", "태양", "달", "와트",
+    "힘", "카와이", "석영", "출혈",
+    "시데리움", "콜라", "빙하", "재",
+    "자력", "아쿠아마린", "사파이어", "잉크",
+    "에메랄드", "루비", "분노", "토파즈",
+    "결정화", "현기증", "레어", "자연",
+    "굿", "희귀", "일반",
 ]
 
 # 각 아우라의 실제 분모 수치 (행운 배율 필터링 및 확률 기준)
 denominators = {
-    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222, "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000, "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": 200000000,
-    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000, "감시자": 45000000, "블리자드": 27315000, "크로마틱": 20000000,
-    "자장가": 17000000, "그래피티": 12000000, "헬리오스": 9000000, "속력": 7630000,
-    "황혼": 6000000, "아파타이트": 3133133, "대마법사": 1766000, "아케인": 1000000,
-    "워록": 660000, "테러": 400000, "바운디드": 200000, "재즈": 160000,
-    "스펙터": 140000, "만년서리": 73500, "태양": 50000, "달": 50000,
-    "와트": 32768, "힘": 16384, "카와이": 12300, "석영": 8192,
-    "출혈": 4444, "시데리움": 4096, "콜라": 3999, "빙하": 2304,
-    "재": 2300, "자력": 2048, "아쿠아마린": 900, "사파이어": 800,
-    "잉크": 700, "에메랄드": 500, "루비": 350, "분노": 256,
-    "토파즈": 150, "결정화": 128, "현기증": 123, "레어": 16,
-    "자연": 8, "굿": 5, "희귀": 4, "일반": 2,
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": 7500000000, "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": 2222222222, "𝓘𝓬𝓮𝓐𝓰𝓮": 1500000000, "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": 300000000,
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": 200000000, "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": 175000000, "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": 100000000, "감시자": 45000000,
+    "블리자드": 27315000, "이상": 24691356, "크로마틱": 20000000, "자장가": 17000000,
+    "그래피티": 12000000, "헬리오스": 9000000, "속력": 7630000, "황혼": 6000000,
+    "아파타이트": 3133133, "대마법사": 1766000, "아케인": 1000000, "워록": 660000,
+    "테러": 400000, "바운디드": 200000, "재즈": 160000, "스펙터": 140000,
+    "만년서리": 73500, "태양": 50000, "달": 50000, "와트": 32768,
+    "힘": 16384, "카와이": 12300, "석영": 8192, "출혈": 4444,
+    "시데리움": 4096, "콜라": 3999, "빙하": 2304, "재": 2300,
+    "자력": 2048, "아쿠아마린": 900, "사파이어": 800, "잉크": 700,
+    "에메랄드": 500, "루비": 350, "분노": 256, "토파즈": 150,
+    "결정화": 128, "현기증": 123, "레어": 16, "자연": 8,
+    "굿": 5, "희귀": 4, "일반": 2,
 }
 
 # 아우라 고유 대표 색상 (1억 이상 네온 그라데이션 자동 생성용)
 aura_colors = {
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "#ffd700",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "#b366ff",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "#00bfff",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "#add8e6",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "#ff77ff",
+    "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "#ffaa33",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "#00ffff",
 }
 
-# 분모를 기반으로 정확한 가중치 자동 생성
-base_weights = [int(1000000000000 / denominators[item]) for item in items]
+# 분모를 기반으로 정확한 가중치 자동 생성 (75억 기준 스케일링)
+base_weights = [max(1, int(7500000000000 / denominators[item])) for item in items]
 
 # 각 아우라의 분수 표시 문자열
 fractions = {
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "1 in 7,500,000,000 (운명조작: 장착 시 1회당 10뽑 가능)",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "1 in 2,222,222,222 (밤 버프 시 2배 / 장착 시 밤 행운 10배)",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "1 in 1,500,000,000 (눈올 때 행운 10배)",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "1 in 300,000,000 (눈 확률 10% 증가)",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "1 in 200,000,000 (장착 시 크로마틱 확률 2배 증가)",
+    "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "1 in 175,000,000 (황금선율: 장착 시 1분마다 5% 확률로 3분간 행운 10배, 중첩 가능)",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "1 in 100,000,000 (장착 시 코인 획득량 2배)",
     "감시자": "1 in 45,000,000",
     "블리자드": "1 in 27,315,000 (눈올 때 확률 3배)",
+    "이상": "1 in 24,691,356",
     "크로마틱": "1 in 20,000,000",
     "자장가": "1 in 17,000,000 (밤 버프 시 1 in 1,700,000)",
     "그래피티": "1 in 12,000,000",
@@ -112,29 +119,31 @@ fractions = {
 
 # 컷씬이 존재하는 아우라 목록
 cutscene_auras = [
-    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱", "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧",
-    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자", "블리자드", "크로마틱",
-    "자장가", "그래피티", "헬리오스", "속력",
-    "황혼", "아파타이트", "대마법사", "아케인",
-    "워록", "테러", "바운디드", "재즈",
-    "스펙터", "태양", "달", "와트",
-    "힘", "카와이", "석영", "시데리움",
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻", "𝓘𝓬𝓮𝓐𝓰𝓮", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐", "감시자",
+    "블리자드", "이상", "크로마틱", "자장가",
+    "그래피티", "헬리오스", "속력", "황혼",
+    "아파타이트", "대마법사", "아케인", "워록",
+    "테러", "바운디드", "재즈", "스펙터",
+    "태양", "달", "와트", "힘",
+    "카와이", "석영", "시데리움",
 ]
 
 # 등급별 이모티콘 매핑
 icons = {
-    "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋", "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊", "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "🌈💎✨",
-    "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫", "감시자": "👁️‍🗨️⚡", "블리자드": "❄️🌨️🌀", "크로마틱": "🌈💫",
-    "자장가": "🌌🎵💤", "그래피티": "🎨✨", "헬리오스": "☀️🔥", "속력": "⚡💨",
-    "황혼": "🌆✨💜", "아파타이트": "💠💎", "대마법사": "🧙‍♂️✨", "아케인": "🔮👑",
-    "워록": "💀🔥", "테러": "💣💥", "바운디드": "🌌👑", "재즈": "🎶🎷",
-    "스펙터": "👻🔮", "만년서리": "❄️💎", "태양": "☀️✨", "달": "🌙✨",
-    "와트": "⚡👑⚡", "힘": "⚡🔥", "카와이": "🎀💖✨", "석영": "💎✨",
-    "출혈": "🩸⚔️", "시데리움": "🌟🛡️", "콜라": "🥤🫧", "빙하": "🧊❄️",
-    "재": "🌫️🔥", "자력": "🧲💫", "아쿠아마린": "🌊💎", "사파이어": "💙💎",
-    "잉크": "🖋️🖤", "에메랄드": "💚💎", "루비": "❤️💎", "분노": "😡💢",
-    "토파즈": "💛💎", "결정화": "🔮✨", "현기증": "😵‍💫🌀", "레어": "💙📦",
-    "자연": "🌿🍃", "굿": "👍✨", "희귀": "💧📘", "일반": "⚪📦",
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "🖐️✨🌌👑", "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "🕸️🌙✨🦋", "𝓘𝓬𝓮𝓐𝓰𝓮": "❄️🧊👑", "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "🦣❄️🧊",
+    "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "🌈💎✨", "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "🎼🎻✨♠️", "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "🌌💠💫", "감시자": "👁️‍🗨️⚡",
+    "블리자드": "❄️🌨️🌀", "이상": "🌀❓🌌", "크로마틱": "🌈💫", "자장가": "🌌🎵💤",
+    "그래피티": "🎨✨", "헬리오스": "☀️🔥", "속력": "⚡💨", "황혼": "🌆✨💜",
+    "아파타이트": "💠💎", "대마법사": "🧙‍♂️✨", "아케인": "🔮👑", "워록": "💀🔥",
+    "테러": "💣💥", "바운디드": "🌌👑", "재즈": "🎶🎷", "스펙터": "👻🔮",
+    "만년서리": "❄️💎", "태양": "☀️✨", "달": "🌙✨", "와트": "⚡👑⚡",
+    "힘": "⚡🔥", "카와이": "🎀💖✨", "석영": "💎✨", "출혈": "🩸⚔️",
+    "시데리움": "🌟🛡️", "콜라": "🥤🫧", "빙하": "🧊❄️", "재": "🌫️🔥",
+    "자력": "🧲💫", "아쿠아마린": "🌊💎", "사파이어": "💙💎", "잉크": "🖋️🖤",
+    "에메랄드": "💚💎", "루비": "❤️💎", "분노": "😡💢", "토파즈": "💛💎",
+    "결정화": "🔮✨", "현기증": "😵‍💫🌀", "레어": "💙📦", "자연": "🌿🍃",
+    "굿": "👍✨", "희귀": "💧📘", "일반": "⚪📦",
 }
 
 # 모든 등급 아우라 이미지 경로 매핑
@@ -180,21 +189,27 @@ aura_images = {
     "그래피티": "images/SmartSelect_20261114_170754_Chrome.jpg",
     "자장가": "images/SmartSelect_20261113_235654_Chrome.jpg",
     "크로마틱": "images/SmartSelect_20261113_230417_Chrome.jpg",
+    "이상": "images/SmartSelect_20261114_223653_Chrome.jpg",
     "블리자드": "images/SmartSelect_20261114_102513_NAVER.jpg",
     "감시자": "images/SmartSelect_20261113_233734_Chrome.jpg",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "images/SmartSelect_20261113_234508_Chrome.jpg",
+    "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "images/SmartSelect_20261114_224237_Chrome.jpg",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "images/SmartSelect_20261114_172102_NAVER.jpg",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "images/file_00000000485082099074341e8735beff.png",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "images/file_000000009c888209b0b962261732b998.png",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "images/SmartSelect_20261113_235729_Chrome.jpg",
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "images/SmartSelect_20261114_223837_Chrome.jpg",
 }
 
 # 특수 장착 배경 이미지 매핑
 equipped_backgrounds = {
+    "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "Background/SmartSelect_20261114_230443_Chrome.jpg",
     "𝓘𝓬𝓮𝓐𝓰𝓮": "Background/SmartSelect_20261114_105008_NAVER.jpg",
     "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "Background/SmartSelect_20261114_104343_NAVER.jpg",
     "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "Background/file_00000000b07c82069ec3c3f543da2f45.png",
+    "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "Background/SmartSelect_20261114_225405_Chrome.jpg",
     "블리자드": "Background/SmartSelect_20261114_104034_NAVER.jpg",
+    "이상": "Background/images.jpeg",
     "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "Background/SmartSelect_20261114_000447_Chrome.jpg",
     "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "Background/SmartSelect_20261113_234652_NAVER.jpg",
     "감시자": "Background/SmartSelect_20261113_234106_Chrome.jpg",
@@ -304,6 +319,8 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.active_potion_end = 0.0
   st.session_state.active_potion_name = None
   st.session_state.million_ticket_active = False
+  st.session_state.symphony_buff_ends = []
+  st.session_state.symphony_last_minute = None
   st.session_state.last_results = []
   st.session_state.last_luck_mult = 1
   st.session_state.selected_codex = items[0]
@@ -314,6 +331,10 @@ if "logged_in" not in st.session_state:
   st.session_state.logged_in = False
 if "username" not in st.session_state:
   st.session_state.username = ""
+if "symphony_buff_ends" not in st.session_state:
+  st.session_state.symphony_buff_ends = []
+if "symphony_last_minute" not in st.session_state:
+  st.session_state.symphony_last_minute = None
 
 
 # ==========================================
@@ -397,6 +418,47 @@ if not st.session_state.logged_in:
         st.warning("아이디와 비밀번호를 모두 입력해주세요.")
 
   st.stop()
+
+
+# ==========================================
+# 🎼 [심포니(𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤) 능력: 황금선율 체크 및 중첩 관리]
+# ==========================================
+def update_symphony_golden_melody():
+  now = time.time()
+  # 만료된 3분(180초) 버프 제거
+  st.session_state.symphony_buff_ends = [
+      end_t for end_t in st.session_state.get("symphony_buff_ends", []) if end_t > now
+  ]
+
+  if st.session_state.get("equipped") == "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤":
+    curr_min = int(now // 60)
+    last_min = st.session_state.get("symphony_last_minute")
+
+    if last_min is None:
+      st.session_state.symphony_last_minute = curr_min
+    elif curr_min > last_min:
+      # 지나간 분(minute)마다 5% 확률 판정 실행
+      elapsed_mins = min(curr_min - last_min, 10)
+      for idx in range(elapsed_mins):
+        if random.random() < 0.05:
+          # 발동 시각 기준 3분(180초) 지속 버프 추가
+          trigger_time = (last_min + idx + 1) * 60
+          end_time = max(now, trigger_time) + 180
+          if end_time > now:
+            st.session_state.symphony_buff_ends.append(end_time)
+            st.toast("🎼 [황금선율 발동!] 3분간 행운 10배 중첩!", icon="🎻")
+      st.session_state.symphony_last_minute = curr_min
+  else:
+    st.session_state.symphony_last_minute = None
+
+  active_stacks = len(st.session_state.symphony_buff_ends)
+  symphony_mult = (10 ** active_stacks) if active_stacks > 0 else 1
+  max_rem_sec = (
+      int(max(st.session_state.symphony_buff_ends) - now)
+      if active_stacks > 0
+      else 0
+  )
+  return active_stacks, symphony_mult, max_rem_sec
 
 
 # ==========================================
@@ -515,7 +577,9 @@ def get_styled_title_html(title_name):
     return ""
 
   rainbow_max_titles = [
+      "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
       "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
+      "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
       "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
       "꧁༺ 𝐀𝐍𝐂𝐈𝐄𝐍𝐓 𝙆𝐈𝐍𝙶 ༻꧂",
       "꧁༺ 𝐆𝐎𝐃 𝐎𝐅 𝐈𝗖𝐄 ༻꧂",
@@ -524,7 +588,12 @@ def get_styled_title_html(title_name):
   if title_name in rainbow_max_titles:
     return f'<span style="background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0077ff, #9b00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.65), 0 0 22px rgba(255,0,255,0.5); font-size: 1.08em; padding: 0 4px;">🎖️ [{title_name}]</span>'
 
-  if "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
+  # 1억 이상 아우라 최초 획득 칭호들 (파스텔 네온 그라데이션)
+  if "𝓓𝓲𝓿𝓲𝓷𝓮 𝓒𝓻𝓮𝓪𝓽𝓸𝓻" in title_name:
+    style = hex_to_pastel_neon_css(aura_colors["𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭"])
+  elif "𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸" in title_name:
+    style = hex_to_pastel_neon_css(aura_colors["𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤"])
+  elif "𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧"])
   elif "ICE MONARCH" in title_name or "𝐀𝐍𝐂𝐈𝐄𝐍𝐓" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓜𝓪𝓶𝓶𝓸𝓽𝓱"])
@@ -534,7 +603,7 @@ def get_styled_title_html(title_name):
     style = hex_to_pastel_neon_css(aura_colors["𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"])
   elif "영광의 잔광" in title_name:
     style = hex_to_pastel_neon_css(aura_colors["𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐"])
-  elif any(k in title_name for k in ["𝓦𝓪𝓽𝓬𝓱𝓮𝓻", "𝓛𝓾𝓵𝓵𝓪𝓫𝔂", "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲", "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭"]):
+  elif any(k in title_name for k in ["𝓦𝓪𝓽𝓬𝓱𝓮𝓻", "𝓛𝓾𝓵𝓵𝓪𝓫𝔂", "𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲", "𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭", "𝓑𝓮𝔂𝓸𝓷𝓭"]):
     style = "background: linear-gradient(90deg, #b366ff, #ff3399, #66ccff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(179,102,255,0.7); font-size: 1.05em; padding: 0 4px;"
   elif any(k in title_name for k in ["𝓗𝓮𝓵𝓲𝓸𝓼", "𝓐𝓻𝓬𝓪𝓷𝓮", "𝓐𝓻𝓬𝓱𝓶𝓪𝓰𝓮", "𝓐𝓹𝓪𝓽𝓲𝓽𝓮", "𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂"]):
     style = "background: linear-gradient(90deg, #ffd700, #ff6600, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-shadow: 0 0 12px rgba(255,153,0,0.7); font-size: 1.05em; padding: 0 4px;"
@@ -567,6 +636,10 @@ def get_current_luck_multiplier(next_pull_number):
   ):
     mult *= st.session_state.active_potion_mult
 
+  # 심포니 황금선율 중첩 배율 합산
+  _, sym_mult, _ = update_symphony_golden_melody()
+  mult *= sym_mult
+
   if st.session_state.luck_buff_unlocked and (next_pull_number % 10 == 0):
     mult *= 2
 
@@ -585,7 +658,31 @@ def get_current_luck_multiplier(next_pull_number):
 def play_fullscreen_star_cutscene(aura_name):
   placeholder = st.empty()
 
-  if aura_name == "𝓘𝓬𝓮𝓐𝓰𝓮":
+  if aura_name == "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭":
+    star_color = "#ffd700"
+    bg_style = "radial-gradient(circle, #3d2b00 0%, #080500 90%)"
+    star_symbol = "🖐️✨🌌👑"
+    ment = (
+        "🖐️ [THE ORIGIN HAND] 태초의 창조주가 손을 뻗어 우주의 모든 법칙과"
+        " 운명을 새롭게 빚어냅니다!"
+    )
+    duration = 5.0
+  elif aura_name == "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤":
+    star_color = "#ffaa33"
+    bg_style = "radial-gradient(circle, #331a00 0%, #0a0500 90%)"
+    star_symbol = "🎼🎻✨♠️"
+    ment = (
+        "🎼 [SYMPHONY] 천상을 울리는 황금빛 교향곡이 시공간의 모든 선율을"
+        " 지배합니다!"
+    )
+    duration = 4.2
+  elif aura_name == "이상":
+    star_color = "#d500f9"
+    bg_style = "radial-gradient(circle, #2a0038 0%, #05000a 90%)"
+    star_symbol = "🌀❓🌌"
+    ment = "🌀 [이상] 관측 불가능한 차원의 균열이 열리며 현실의 상식이 붕괴됩니다!"
+    duration = 3.5
+  elif aura_name == "𝓘𝓬𝓮𝓐𝓰𝓮":
     star_color = "#00ffff"
     bg_style = "radial-gradient(circle, #001a33 0%, #00050f 90%)"
     star_symbol = "❄️🧊👑"
@@ -774,24 +871,26 @@ def perform_rolls(roll_count=1):
     result = random.choices(items, weights=current_weights, k=1)[0]
     results.append(result)
 
-    # 최초 획득 칭호 지급 (1억 이하 확률 아우라)
+    # 최초 획득 칭호 지급 (1억 이상 확률 아우라)
     if (
         prior_counts.get(result, 0) == 0
         and st.session_state.counts.get(result, 0) == 0
     ):
       first_get_titles = {
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
+          "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
           "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
           "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "• ⋆༺무한의 환상༻⋆",
           "𝓜𝓪𝓶𝓶𝓸𝓽𝓱": "❄ 𝐈𝐂𝐄 𝐌𝐎𝐍𝐀𝐑𝐂𝐇 ❄",
           "𝓘𝓬𝓮𝓐𝓰𝓮": "♛ 𝐅𝐑𝐎𝐒𝐓 𝐄𝐌𝐏𝐄𝐑𝐎𝐑 ♛",
+          "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "◇𝓓𝓲𝓿𝓲𝓷𝓮 𝓒𝓻𝓮𝓪𝓽𝓸𝓻 ◇",
       }
       if result in first_get_titles:
         t_name = first_get_titles[result]
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
 
-    # MAX 레벨이 아닐 때만 수량 증가 (MAX 달성 후 추가 안 됨)
+    # MAX 레벨이 아닐 때만 수량 증가
     curr_lvl = st.session_state.levels.get(result, 1)
     if curr_lvl < 7:
       st.session_state.counts[result] += 1
@@ -838,6 +937,9 @@ with c_u2:
     st.session_state.logged_in = False
     st.session_state.username = ""
     st.rerun()
+
+# 심포니 황금선율 실시간 업데이트 및 상태 확인
+sym_stacks, sym_mult, sym_rem_sec = update_symphony_golden_melody()
 
 # 낮/밤 및 날씨 상태바 표시
 is_day_now, time_rem_sec = get_world_time_status()
@@ -894,6 +996,19 @@ else:
       unsafe_allow_html=True,
   )
 
+# 3. 심포니 황금선율 중첩 활성화 배너
+if sym_stacks > 0:
+  s_min = sym_rem_sec // 60
+  s_sec = sym_rem_sec % 60
+  st.markdown(
+      f"""
+        <div style="background: linear-gradient(90deg, #b8860b, #ffd700); padding: 10px; border-radius: 8px; text-align: center; color: black; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 14px rgba(255,215,0,0.6);">
+            🎼 [황금선율 {sym_stacks}중첩 활성화!] 현재 행운 {sym_mult:,}배 적용 중! (최대 남은 시간: {s_min}분 {s_sec}초)
+        </div>
+        """,
+      unsafe_allow_html=True,
+  )
+
 with st.container(border=True):
   st.markdown("### 👤 현재 장착 중인 아우라")
   equipped_aura = st.session_state.get("equipped")
@@ -919,7 +1034,16 @@ with st.container(border=True):
       st.write(
           f"보유 수량: **{st.session_state.counts.get(equipped_aura, 0)}개**"
       )
-      if equipped_aura == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
+      if equipped_aura == "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭":
+        st.caption(
+            "🖐️ **[운명조작 활성화]** 1회당 10연속 뽑기 해금 & 전용 배경 적용 중!"
+        )
+      elif equipped_aura == "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤":
+        st.caption(
+            "🎼 **[황금선율 활성화]** 매 1분마다 5% 확률로 3분간 행운 10배"
+            " (중첩 가능) & 전용 배경 적용 중!"
+        )
+      elif equipped_aura == "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧":
         st.caption(
             "🌈 **[특수 능력 활성화]** 크로마틱(🌈) 등장 확률 2배 증가 & 전용 배경"
             " 적용 중!"
@@ -1014,10 +1138,25 @@ with tab_gacha:
 
   st.write("")
 
+  has_origin_hand = st.session_state.get("equipped") == "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭"
   has_triple = st.session_state.get("triple_roll_unlocked", False)
   has_five = st.session_state.get("five_roll_unlocked", False)
 
-  if has_five:
+  if has_origin_hand:
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+      if st.button("🎲 1회 무료 뽑기", type="secondary", use_container_width=True):
+        perform_rolls(1)
+        st.rerun()
+    with col_b2:
+      if st.button(
+          "🖐️ [운명조작] 10회 연속 뽑기 (+50 G)",
+          type="primary",
+          use_container_width=True,
+      ):
+        perform_rolls(10)
+        st.rerun()
+  elif has_five:
     col_b1, col_b2 = st.columns(2)
     with col_b1:
       if st.button("🎲 1회 무료 뽑기", type="secondary", use_container_width=True):
@@ -1078,7 +1217,7 @@ with tab_gacha:
     st.markdown(
         f"""
         <div style="text-align: center; padding: 20px; background-color: #1e1e1e; color: white; border-radius: 10px; margin-top: 15px;">
-            <span style="font-size: 28px; font-weight: bold;">
+            <span style="font-size: 24px; font-weight: bold;">
                 {result_badges} 획득!
             </span>
             <p style="color: #ffd700; margin-top: 8px;">(+ {earned_coins} 코인 획득)</p>
@@ -1161,12 +1300,15 @@ with tab_inventory:
 
                 if new_lvl == 7:
                   custom_max_titles = {
+                      "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭": "𓆩 𝓣𝓱𝓮 𝓞𝓶𝓷𝓲𝓹𝓸𝓽𝓮𝓷𝓽 𓆪",
                       "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
+                      "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
                       "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "𓆩 𝓟𝓻𝓲𝓼𝓶 𓆪",
                       "감시자": "𓆩 𝓦𝓪𝓽𝓬𝓱𝓮𝓻 𓆪",
                       "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆪",
                       "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆪",
                       "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆪",
+                      "이상": "◇𝓑𝓮𝔂𝓸𝓷𝓭 𝓡𝓮𝓪𝓵𝓲𝓽𝔂 ◇",
                       "헬리오스": "◇𝓗𝓮𝓵𝓲𝓸𝓼 ◇",
                       "속력": "◇𝓥𝓮𝓵𝓸𝓬𝓲𝓽𝔂◇",
                       "아케인": "◇ 𝓐𝓻𝓬𝓪𝓷𝓮 ◇",
@@ -1204,8 +1346,9 @@ with tab_inventory:
 with tab_potions:
   st.subheader("🧪 포션 인벤토리")
   st.write(
-      "상점에서 구매한 행운 포션과 백만배 행운권을 원하는 수량만큼 선택해서"
-      " 사용할 수 있습니다. (사용 수량만큼 시간이 누적됩니다)"
+      "상점에서 구매한 행운 포션과 백만배 행운권을 사용할 수 있습니다."
+      " (다른 종류의 포션을 사용하면 기존 포션의 남은 시간과 효과는"
+      " 소멸되고 새 포션으로 교체됩니다)"
   )
 
   all_potions_count = sum(st.session_state.potions.values())
@@ -1249,18 +1392,14 @@ with tab_potions:
               if cfg["type"] == "potion":
                 now = time.time()
                 add_duration = cfg["duration"] * use_qty
+                # 동일한 포션이 이미 활성화되어 있으면 시간 연장, 다른 포션이면 기존 시간 초기화 후 덮어쓰기
                 if (
                     st.session_state.active_potion_name == p_name
                     and now < st.session_state.active_potion_end
                 ):
                   st.session_state.active_potion_end += add_duration
                 else:
-                  base_time = (
-                      max(now, st.session_state.active_potion_end)
-                      if st.session_state.active_potion_mult > 1
-                      else now
-                  )
-                  st.session_state.active_potion_end = base_time + add_duration
+                  st.session_state.active_potion_end = now + add_duration
                   st.session_state.active_potion_mult = cfg["mult"]
                   st.session_state.active_potion_name = p_name
               elif cfg["type"] == "ticket":
@@ -1682,6 +1821,8 @@ with tab_shop:
     st.session_state.active_potion_end = 0.0
     st.session_state.active_potion_name = None
     st.session_state.million_ticket_active = False
+    st.session_state.symphony_buff_ends = []
+    st.session_state.symphony_last_minute = None
     st.session_state.last_results = []
     st.session_state.last_luck_mult = 1
     st.session_state.selected_codex = items[0]
