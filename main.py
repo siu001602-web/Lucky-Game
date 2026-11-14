@@ -305,6 +305,7 @@ def get_current_save_dict():
       "counts": st.session_state.get("counts", {}),
       "levels": st.session_state.get("levels", {}),
       "titles": st.session_state.get("titles", []),
+      "equipped_title": st.session_state.get("equipped_title", None),
       "equipped": st.session_state.get("equipped", None),
       "coins": st.session_state.get("coins", 0),
       "inventory_slots": st.session_state.get("inventory_slots", 50),
@@ -341,6 +342,7 @@ def apply_loaded_data_to_session(saved_data):
       item: saved_data.get("levels", {}).get(item, 1) for item in items
   }
   st.session_state.titles = saved_data.get("titles", [])
+  st.session_state.equipped_title = saved_data.get("equipped_title", None)
   st.session_state.equipped = saved_data.get("equipped", None)
   st.session_state.coins = saved_data.get("coins", 0)
   st.session_state.inventory_slots = saved_data.get("inventory_slots", 50)
@@ -428,6 +430,7 @@ if not st.session_state.logged_in:
               "counts": {item: 0 for item in items},
               "levels": {item: 1 for item in items},
               "titles": [],
+              "equipped_title": None,
               "equipped": None,
               "coins": 0,
               "inventory_slots": 50,
@@ -793,9 +796,11 @@ st.title("✨ 아우라 가챠 & 도감 시스템")
 
 c_u1, c_u2 = st.columns([4, 1])
 with c_u1:
+  eq_title = st.session_state.get("equipped_title")
+  title_display = f" 🎖️ **[{eq_title}]**" if eq_title else ""
   st.markdown(
-      f"👤 현재 접속 계정: **`{st.session_state.username}`**님 (자동 영구 저장"
-      " 활성화됨)"
+      f"👤 현재 접속 계정: **`{st.session_state.username}`**님{title_display} (자동"
+      " 영구 저장 활성화됨)"
   )
 with c_u2:
   if st.button("로그아웃", use_container_width=True):
@@ -1270,23 +1275,47 @@ with tab_codex:
 
 with tab_titles:
   st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
-  st.write("아우라 최초 획득 또는 만렙(MAX) 달성 시 획득한 칭호들이 이곳에 추가됩니다.")
+  st.write(
+      "획득한 칭호를 장착하거나 해제할 수 있습니다. (칭호는 1개만 장착"
+      " 가능합니다)"
+  )
 
   if "titles" not in st.session_state:
     st.session_state.titles = []
+  if "equipped_title" not in st.session_state:
+    st.session_state.equipped_title = None
 
   user_titles = st.session_state.titles
   if user_titles:
     st.markdown(f"#### 🏅 보유 중인 칭호 목록 ({len(user_titles)}개 획득)")
     for t in user_titles:
-      st.markdown(
-          f"""
-          <div style="background-color: #1f1f2e; border: 1px solid #7a5cff; border-radius: 8px; padding: 12px; margin-bottom: 8px; color: #ffeb3b; font-weight: bold; font-size: 16px;">
-              🎖️ {t}
-          </div>
-          """,
-          unsafe_allow_html=True,
-      )
+      is_t_equipped = st.session_state.get("equipped_title") == t
+      with st.container(border=True):
+        col_t1, col_t2 = st.columns([3, 1])
+        with col_t1:
+          badge_text = " ⭐ [장착중]" if is_t_equipped else ""
+          st.markdown(
+              f"<span style='color: #ffeb3b; font-weight: bold; font-size: 16px;'>🎖️ {t}</span>{badge_text}",
+              unsafe_allow_html=True,
+          )
+        with col_t2:
+          if is_t_equipped:
+            if st.button(
+                "장착 해제", key=f"unequip_title_{t}", use_container_width=True
+            ):
+              st.session_state.equipped_title = None
+              save_user_data_to_db()
+              st.rerun()
+          else:
+            if st.button(
+                "장착하기",
+                key=f"equip_title_{t}",
+                use_container_width=True,
+                type="primary",
+            ):
+              st.session_state.equipped_title = t
+              save_user_data_to_db()
+              st.rerun()
   else:
     st.markdown(
         """
@@ -1526,6 +1555,7 @@ with tab_shop:
     st.session_state.counts = {item: 0 for item in items}
     st.session_state.levels = {item: 1 for item in items}
     st.session_state.titles = []
+    st.session_state.equipped_title = None
     st.session_state.equipped = None
     st.session_state.coins = 0
     st.session_state.inventory_slots = 50
