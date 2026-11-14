@@ -59,7 +59,6 @@ denominators = {
     "굿": 5, "희귀": 4, "일반": 2,
 }
 
-# 할로윈 2024 바이옴 전용 아우라 목록
 halloween_auras = [
     "펌프", "룬(나이트)", "바이탈", "밤나팔꽃", "묘화", "영혼 사냥꾼", "듀라한",
     "악몽의 하늘", "수확가", "사도:베일"
@@ -387,6 +386,8 @@ def get_current_save_dict():
       "potions": st.session_state.get("potions", {}),
       "cases": st.session_state.get("cases", 0),
       "skins": normalized_skins,
+      "weather_tickets": st.session_state.get("weather_tickets", 0),
+      "weather_offset": st.session_state.get("weather_offset", 0),
   }
 
 
@@ -434,6 +435,9 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.skins = {
       s: min(1, int(saved_data.get("skins", {}).get(s, 0))) for s in skin_items
   }
+  st.session_state.weather_tickets = saved_data.get("weather_tickets", 0)
+  st.session_state.weather_offset = saved_data.get("weather_offset", 0)
+
   st.session_state.active_potion_mult = 1
   st.session_state.active_potion_end = 0.0
   st.session_state.active_potion_name = None
@@ -455,6 +459,10 @@ if "symphony_buff_ends" not in st.session_state:
   st.session_state.symphony_buff_ends = []
 if "symphony_last_minute" not in st.session_state:
   st.session_state.symphony_last_minute = None
+if "weather_tickets" not in st.session_state:
+  st.session_state.weather_tickets = 0
+if "weather_offset" not in st.session_state:
+  st.session_state.weather_offset = 0
 
 
 if not st.session_state.logged_in:
@@ -520,6 +528,8 @@ if not st.session_state.logged_in:
               "potions": {p: 0 for p in potion_items},
               "cases": 0,
               "skins": {s: 0 for s in skin_items},
+              "weather_tickets": 0,
+              "weather_offset": 0,
           }
           cursor.execute(
               "INSERT INTO users (username, password, data) VALUES (?, ?, ?)",
@@ -584,14 +594,8 @@ def get_world_time_status():
 
 
 def get_world_weather_status():
-  current_time = int(time.time())
+  current_time = int(time.time()) + st.session_state.get("weather_offset", 0)
   
-  # [핵심 규칙] 할로윈 2024가 걸렸을 때는 5분(300초) 주기, 일반 날씨는 항상 1분(60초) 주기 랜덤 전환
-  # 이를 구현하기 위해 60초 블록별로 랜덤을 돌리되, 할로윈이 당첨되면 직후 5분 동안 유지되도록 계산
-  
-  # 먼저 전체 시간을 60초 단위 블록으로 환산하여 체크
-  # 혹은 시뮬레이션을 위해 고정 알고리즘 사용:
-  # 5분(300초) 단위로 대구간을 나눔
   big_cycle_idx = current_time // 300
   big_rem_sec = 300 - (current_time % 300)
   
@@ -599,16 +603,14 @@ def get_world_weather_status():
   halloween_chance = 0.002
   eq_now = st.session_state.get("equipped")
   if eq_now in halloween_auras:
-    halloween_chance += 0.003  # 장착 시 +0.3%
+    halloween_chance += 0.003
 
   is_halloween_macro = random.random() < halloween_chance
   random.seed()
 
   if is_halloween_macro:
-    # 할로윈이 걸린 5분 구간
     return "halloween_2024", big_rem_sec
   else:
-    # 일반 날씨는 1분(60초)마다 완전히 랜덤하게 전환
     small_cycle_idx = current_time // 60
     small_rem_sec = 60 - (current_time % 60)
 
@@ -710,8 +712,8 @@ def get_styled_title_html(title_name):
 
   halloween_titles = [
       "𓆩 𝓟𝓾𝓶𝓹 𓆪", "𓆩 𝕽𝖚𝓷𝖊 𝕶𝓷𝓲𝓰𝓱𝓽 𓆪", "𓆩 𝓥𝓲𝓽𝓪𝓵 𓆪",
-      "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪", "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝖓𝖙𝖊𝖗 𓆪", "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
-      "𓆩 𝕯𝖗𝖊𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝖙𝓮𝖗 𓆪", "𓆩 𝕳𝖊𝖗𝖆𝖑𝖯 𝕺𝓯 𝕿𝖍𝖊 𝖁𝖊𝖎𝖑 𓆪",
+      "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪", "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝓷𝖙𝖊𝓻 𓆪", "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
+      "𓆩 𝕯𝖗𝖊𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝓮𝖗 𓆪", "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝖍𝖊 𝕍𝖊𝖎𝖑 𓆪",
       "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝖌𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
       "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
       "꧁༺ 🎃𝕯𝖎𝖛𝖎𝖓𝖊 𝕬𝖗𝖇𝖎𝖙𝖊𝖗 𝕺𝓋 𝕿𝖍𝖊 𝕁𝖔𝖎𝓭🎃 ༻꧂"
@@ -1010,7 +1012,7 @@ def perform_rolls(roll_count=1):
     ):
       first_get_titles = {
           "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝕍𝖊𝖎𝖑 𓆪",
-          "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝖙𝖊𝖗 𓆪",
+          "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝖊𝖗 𓆪",
           "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
           "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
@@ -1444,8 +1446,6 @@ with tab_inventory:
         reqs = get_level_requirements(item, denom)
         next_req = reqs[lvl + 1] if lvl + 1 <= 7 else reqs[7]
 
-        matching_skins = aura_to_skins.get(item, [])
-
         with grid_cols[idx]:
           with st.container(border=True):
             st.markdown(
@@ -1499,7 +1499,7 @@ with tab_inventory:
                       "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
                       "사도:베일": "꧁༺ 🎃𝕯𝖎𝖛𝖎𝖓𝖊 𝕬𝖗𝖇𝖎𝖙𝖊𝖗 𝕺𝓋 𝕿𝖍𝖊 𝕁𝖔𝖎𝓭🎃 ༻꧂",
                       "수확가": "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
-                      "악몽의 하늘": "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝖌𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
+                      "악몽의 하늘": "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝓌𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
                       "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
                       "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
                       "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
@@ -1510,14 +1510,11 @@ with tab_inventory:
                       "샤킨": "𓆩 𝕾𝖍𝖆𝖗𝖐𝖎𝓷 𓆩",
                       "포세이돈": "𓆩 𝕻𝖔𝖘𝖊𝖎𝖉𝖔𝓷 𓆩",
                       "에바네샌트": "𓆩 𝓔𝓿𝓪𝓷𝓮𝓼𝓬𝓮𝓷𝓽 𓆩",
-                      "기원": "𓆩 𝕺𝖗𝓲𝓰𝓲𝓷 𝕾𝓹𝖆𝓻𝚔 𓆩",
+                      "기원": "𓆩 𝕺𝖗𝓲g𝓲𝓷 𝕾𝓹𝖆𝓻𝚔 𓆩",
                       "망령": "𓆩 𝕬𝓹𝓱𝓪𝓷𝓽 𓆩",
-                      "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝖯 𝕺𝓯 𝕿𝖍𝖊 𝕍𝖊𝖎𝖑 𓆪",
-                      "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝖙𝖊𝖗 𓆪",
-                      "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
                       "듀라한": "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
-                      "영혼 사냥꾼": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝓷𝖙𝖊𝖗 𓆪",
-                      "묘화": "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪",
+                      "영혼 사냥꾼": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝓷ⵜ𝖊𝓻 𓆪",
+                      "묘화": "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆩",
                       "밤나팔꽃": "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪",
                       "바이탈": "𓆩 𝓥𝓲𝓽𝓪𝓵 𓆪",
                       "룬(나이트)": "𓆩 𝕽𝖚𝓷𝖊 𝕶𝓷𝓲𝓰𝓱𝓽 𓆪",
@@ -1556,8 +1553,32 @@ with tab_inventory:
 
 with tab_potions:
   st.subheader("🧪 포션 인벤토리")
+  
+  # 날씨 변경권 사용 패널 추가
+  weather_ticket_count = st.session_state.get("weather_tickets", 0)
+  if weather_ticket_count > 0:
+    with st.container(border=True):
+      col_wt1, col_wt2, col_wt3 = st.columns([1, 2, 1])
+      with col_wt1:
+        st.markdown("<div style='font-size: 38px; text-align: center;'>🌦️</div>", unsafe_allow_html=True)
+      with col_wt2:
+        st.markdown("#### 🌦️ 날씨 변경권")
+        st.write(f"보유 수량: **{weather_ticket_count}개**")
+        use_wt_qty = 1 if weather_ticket_count == 1 else st.slider("사용할 수량", min_value=1, max_value=weather_ticket_count, value=1, key="slider_qty_weather_ticket")
+      with col_wt3:
+        st.write("")
+        st.write("")
+        if st.button(f"날씨 변경권 사용 ({use_wt_qty}개)", key="btn_use_weather_ticket", type="primary", use_container_width=True):
+          st.session_state.weather_tickets -= use_wt_qty
+          # 현재 날씨 확률에 따라 무작위로 새로운 시간 오프셋을 부여하여 날씨를 즉시 변경
+          st.session_state.weather_offset = st.session_state.get("weather_offset", 0) + random.randint(10000, 999999)
+          save_user_data_to_db()
+          st.success(f"🎉 날씨 변경권 {use_wt_qty}장을 사용하여 날씨를 즉시 변경했습니다!")
+          time.sleep(0.8)
+          st.rerun()
+
   all_potions_count = sum(st.session_state.potions.values())
-  if all_potions_count > 0:
+  if all_potions_count > 0 or weather_ticket_count > 0:
     for p_name in potion_items:
       count = st.session_state.potions.get(p_name, 0)
       if count > 0:
@@ -1596,7 +1617,7 @@ with tab_potions:
               st.success(f"🎉 [{p_name}] {use_qty}개가 성공적으로 사용되었습니다!")
               time.sleep(0.8)
               st.rerun()
-  else:
+  if all_potions_count == 0 and weather_ticket_count == 0:
     st.markdown("<div style='text-align: center; padding: 50px; color: #777;'><h3>🧪 포션 인벤토리가 비어 있습니다!</h3></div>", unsafe_allow_html=True)
 
 with tab_codex:
@@ -1665,7 +1686,24 @@ with tab_titles:
     st.markdown("<div style='text-align: center; padding: 50px; color: #777;'><h3>🎖️ 아직 획득한 칭호가 없습니다!</h3></div>", unsafe_allow_html=True)
 
 with tab_shop:
-  st.subheader("🛒 상점 & 데이터 관리")
+  st.subheader("🛒 상점 & 데이터 백업/복구")
+  
+  # 날씨 변경권 구매 패널 추가
+  with st.container(border=True):
+    st.markdown("### 🌦️ 날씨 변경권 구매 (1개당 400 G)")
+    st.write("구매 후 [포션 인벤토리] 탭에서 사용할 수 있으며, 사용 즉시 현재 날씨 확률 그대로 새로운 날씨로 바뀝니다!")
+    max_weather_buy = st.session_state.coins // 400
+    buy_weather_qty = 1 if max_weather_buy <= 1 else st.slider("구매할 날씨 변경권 수량", min_value=1, max_value=max_weather_buy, value=1, key="slider_buy_weather_tickets")
+    total_weather_price = buy_weather_qty * 400
+    st.write(f"총 필요 코인: **{total_weather_price:,} G**")
+    if st.button(f"날씨 변경권 {buy_weather_qty}개 구매", type="primary", use_container_width=True, disabled=max_weather_buy < 1):
+      if st.session_state.coins >= total_weather_price:
+        st.session_state.coins -= total_weather_price
+        st.session_state.weather_tickets = st.session_state.get("weather_tickets", 0) + buy_weather_qty
+        save_user_data_to_db()
+        st.success(f"🎉 날씨 변경권 {buy_weather_qty}개를 성공적으로 구매했습니다!")
+        st.rerun()
+
   with st.container(border=True):
     col_box1, col_box2 = st.columns([2, 1])
     with col_box1:
@@ -1687,7 +1725,37 @@ with tab_shop:
           save_user_data_to_db()
           st.success("🎉 행운권 상자 개봉 완료!")
           st.rerun()
+
+  st.divider()
+
+  st.markdown("### 💾 세이브 데이터 백업 및 복구")
+  st.write("현재 계정의 모든 진행 상황(아우라, 레벨, 코인, 포션, 칭호 등)을 파일로 백업하거나 불러올 수 있습니다.")
+
+  current_save_json = json.dumps(get_current_save_dict(), ensure_ascii=False, indent=2)
   
+  col_dl, col_ul = st.columns(2)
+  with col_dl:
+    st.download_button(
+        label="📥 내 세이브 데이터 백업 (JSON 다운로드)",
+        data=current_save_json,
+        file_name=f"aura_save_{st.session_state.username}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+        mime="application/json",
+        use_container_width=True
+    )
+
+  with col_ul:
+    uploaded_file = st.file_uploader("📤 세이브 파일 업로드 (복구)", type=["json"], key="save_uploader")
+    if uploaded_file is not None:
+      try:
+        loaded_data = json.loads(uploaded_file.read().decode("utf-8"))
+        apply_loaded_data_to_session(loaded_data)
+        save_user_data_to_db()
+        st.success("🎉 세이브 데이터가 성공적으로 복구되었습니다!")
+        time.sleep(1.0)
+        st.rerun()
+      except Exception as e:
+        st.error(f"❌ 파일 읽기 실패: 올바른 세이브 JSON 파일이 아닙니다. ({e})")
+
   with st.container(border=True):
     st.markdown("### 💻 개발자 인증 패널")
     dev_password = st.text_input("개발자 비밀번호", type="password", key="dev_pw_input")
