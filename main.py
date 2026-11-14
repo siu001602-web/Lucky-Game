@@ -1222,16 +1222,16 @@ with tab_inventory:
       f"📦 아우라 스토리지 [보유 종류: {len(owned_items)} / {len(items)}]"
   )
   st.write(
-      "아우라 카드를 클릭하여 장착하거나 레벨업을 진행하세요. (한 줄에 10개씩"
-      " 배치)"
+      "아우라 카드를 클릭하여 장착하거나 레벨업을 진행하세요. (한 줄에 5개씩"
+      " 넉넉하게 배치)"
   )
 
   if owned_items:
     if "levels" not in st.session_state:
       st.session_state.levels = {item: 1 for item in items}
 
-    # 10개씩 끊어서 그리드 레이아웃 생성
-    cols_per_row = 10
+    # 한 줄에 5개씩 그리드 레이아웃 생성
+    cols_per_row = 5
     for i in range(0, len(owned_items), cols_per_row):
       row_items = owned_items[i : i + cols_per_row]
       grid_cols = st.columns(cols_per_row)
@@ -1240,32 +1240,28 @@ with tab_inventory:
         count = st.session_state.counts.get(item, 0)
         lvl = st.session_state.levels.get(item, 1)
         is_equipped = st.session_state.get("equipped") == item
-        border_color = (
-            "#00ffcc"
-            if is_equipped
-            else ("#ffd700" if lvl == 7 else "#444455")
-        )
 
         with grid_cols[idx]:
           with st.container(border=True):
             st.markdown(
-                f"<div style='text-align:center; font-size:24px;'>{icons.get(item, '✨')}</div>",
+                f"<div style='text-align:center; font-size:30px;'>{icons.get(item, '✨')}</div>",
+                unsafe_allow_html=True,
+            )
+            # 글씨가 잘리지 않도록 폰트 크기 조절 및 줄바꿈 허용
+            st.markdown(
+                f"<div style='text-align:center; font-size:13px; font-weight:bold; word-break:keep-all; min-height:38px;'>[{item}]</div>",
                 unsafe_allow_html=True,
             )
             st.markdown(
-                f"<div style='text-align:center; font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>{item}</div>",
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                f"<div style='text-align:center; font-size:10px; color:#aaa;'>Lv.{lvl} ({count})</div>",
+                f"<div style='text-align:center; font-size:12px; color:#aaa; margin-bottom:5px;'>Lv.{lvl} (보유: {count})</div>",
                 unsafe_allow_html=True,
             )
 
             if is_equipped:
               st.markdown(
                   "<div"
-                  " style='text-align:center; font-size:10px; color:#00ffcc;'"
-                  "><b>[장착중]</b></div>",
+                  " style='text-align:center; font-size:12px; color:#00ffcc;"
+                  " margin-bottom:5px;'><b>[장착중]</b></div>",
                   unsafe_allow_html=True,
               )
             else:
@@ -1279,7 +1275,7 @@ with tab_inventory:
             if lvl < 7:
               next_req = reqs[lvl + 1]
               if count >= next_req:
-                if st.button("업그레이드", key=f"grid_lvl_{item}", use_container_width=True):
+                if st.button("업그레이드", key=f"grid_lvl_{item}", use_container_width=True, type="primary"):
                   st.session_state.counts[item] -= next_req
                   st.session_state.levels[item] += 1
                   new_lvl = st.session_state.levels[item]
@@ -1311,6 +1307,13 @@ with tab_inventory:
                       st.success(f"🎉 만렙 달성! [{t_name}] 획득!")
                   save_user_data_to_db()
                   st.rerun()
+            else:
+              st.markdown(
+                  "<div"
+                  " style='text-align:center; font-size:11px; color:#ffd700;'"
+                  "><b>⭐ MAX LEVEL</b></div>",
+                  unsafe_allow_html=True,
+              )
   else:
     st.markdown(
         """
@@ -1478,7 +1481,7 @@ with tab_codex:
 with tab_titles:
   st.subheader("🎖️ 칭호 도감 칸 (Titles Codex)")
   st.write(
-      "획득한 칭호를 10개씩 그리드 형식으로 정렬하여 장착할 수 있습니다."
+      "획득한 칭호를 한 줄에 5개씩 넉넉하게 정렬하여 장착할 수 있습니다."
   )
 
   if "titles" not in st.session_state:
@@ -1488,7 +1491,7 @@ with tab_titles:
 
   user_titles = st.session_state.titles
   if user_titles:
-    cols_per_row = 10
+    cols_per_row = 5
     for i in range(0, len(user_titles), cols_per_row):
       row_titles = user_titles[i : i + cols_per_row]
       grid_cols = st.columns(cols_per_row)
@@ -1498,19 +1501,20 @@ with tab_titles:
         with grid_cols[idx]:
           with st.container(border=True):
             st.markdown(
-                "<div style='text-align:center; font-size:22px;'>🎖️</div>",
+                "<div style='text-align:center; font-size:26px;'>🎖️</div>",
                 unsafe_allow_html=True,
             )
+            # 칭호 글씨가 길어도 잘리지 않도록 줄바꿈 허용
             st.markdown(
-                f"<div style='text-align:center; font-size:10px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>{t}</div>",
+                f"<div style='text-align:center; font-size:12px; font-weight:bold; word-break:keep-all; min-height:35px;'>{t}</div>",
                 unsafe_allow_html=True,
             )
 
             if is_t_equipped:
               st.markdown(
                   "<div"
-                  " style='text-align:center; font-size:9px; color:#00ffcc;'"
-                  "><b>[장착중]</b></div>",
+                  " style='text-align:center; font-size:11px; color:#00ffcc;"
+                  " margin-bottom:5px;'><b>[장착중]</b></div>",
                   unsafe_allow_html=True,
               )
               if st.button("해제", key=f"grid_unequip_t_{t}", use_container_width=True):
@@ -1518,7 +1522,7 @@ with tab_titles:
                 save_user_data_to_db()
                 st.rerun()
             else:
-              if st.button("장착", key=f"grid_equip_t_{t}", use_container_width=True):
+              if st.button("장착", key=f"grid_equip_t_{t}", use_container_width=True, type="primary"):
                 st.session_state.equipped_title = t
                 save_user_data_to_db()
                 st.rerun()
