@@ -1124,7 +1124,7 @@ with tab_inventory:
 
 with tab_potions:
   st.subheader("🧪 포션 인벤토리")
-  st.write("상점에서 구매한 행운 포션과 백만배 행운권을 확인하고 사용할 수 있습니다.")
+  st.write("상점에서 구매한 행운 포션과 백만배 행운권을 확인하고 사용할 수 있습니다. (같은 종류 포션만 시간 중첩 가능)")
 
   all_potions_count = sum(st.session_state.potions.values())
   if all_potions_count > 0:
@@ -1157,16 +1157,15 @@ with tab_potions:
               cfg = potion_config[p_name]
               if cfg["type"] == "potion":
                 now = time.time()
+                # 같은 종류의 포션이 활성화되어 있을 때만 남은 시간 합산(중첩)
                 if (
-                    st.session_state.active_potion_mult == cfg["mult"]
+                    st.session_state.active_potion_name == p_name
                     and now < st.session_state.active_potion_end
                 ):
                   st.session_state.active_potion_end += cfg["duration"]
                 else:
-                  if now < st.session_state.active_potion_end:
-                    st.session_state.active_potion_end += cfg["duration"]
-                  else:
-                    st.session_state.active_potion_end = now + cfg["duration"]
+                  # 다른 종류의 포션이면 기존 시간을 초기화하고 새 포션 지속시간으로 덮어씀
+                  st.session_state.active_potion_end = now + cfg["duration"]
                   st.session_state.active_potion_mult = cfg["mult"]
                   st.session_state.active_potion_name = p_name
               elif cfg["type"] == "ticket":
