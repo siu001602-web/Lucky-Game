@@ -129,11 +129,10 @@ fractions = {
     "자력": "1 in 2,048",
     "분노": "1 in 256",
     "결정화": "1 in 128",
-    "레er": "1 in 16",
     "레어": "1 in 16",
     "자연": "1 in 8",
     "희귀": "1 in 4",
-    "일반": "1 in 2,
+    "일반": "1 in 2",
 }
 
 # 컷씬이 존재하는 아우라 목록
@@ -685,7 +684,23 @@ def play_cutscene(aura_name):
   play_fullscreen_star_cutscene(aura_name)
 
 
-# 1회 또는 다회 뽑기 실행 공통 함수 (Max 달성 시 중복 쌓임 방지 로직 적용)
+# 아우라 레벨업 요구치 계산 함수 (분모 기준)
+def get_level_requirements(denom):
+  if denom > 100000000:  # 1억 초과
+    return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
+  elif denom >= 1000000:  # 100만 이상 ~ 1억 이하
+    return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
+  elif denom > 100000:  # 10만 초과 ~ 100만 미만
+    return {1: 1, 2: 30, 3: 50, 4: 100, 5: 500, 6: 1000, 7: 1500}
+  else:  # 10만 이하
+    return {1: 1, 2: 10, 3: 20, 4: 30, 5: 50, 6: 100, 7: 300}
+
+
+def get_max_requirement(denom):
+  return get_level_requirements(denom)[7]
+
+
+# 1회 또는 다회 뽑기 실행 공통 함수 (Max 달성 시 중복 방지 반영)
 def perform_rolls(roll_count=1):
   results = []
   max_luck_applied = 1
@@ -734,10 +749,6 @@ def perform_rolls(roll_count=1):
     result = random.choices(items, weights=current_weights, k=1)[0]
     results.append(result)
 
-    # 칭호 및 Max 체크
-    denom = denominators.get(result, 2)
-    max_req = get_max_requirement(denom)
-
     # 최초 획득 칭호 지급
     if prior_counts.get(result, 0) == 0 and st.session_state.counts.get(result, 0) == 0:
       if result == "스펙트라플로우":
@@ -749,13 +760,10 @@ def perform_rolls(roll_count=1):
         if t_name not in st.session_state.titles:
           st.session_state.titles.append(t_name)
 
-    # Max 레벨이 아닐 때만 수량 증가
+    # MAX 레벨이 아닐 때만 수량 증가 (MAX 달성 후 추가 안 됨)
     curr_lvl = st.session_state.levels.get(result, 1)
-    if curr_lvl < 7:  # 6레벨이 Max
+    if curr_lvl < 7:
       st.session_state.counts[result] += 1
-    else:
-      # Max 달성 후에는 더 쌓이지 않음
-      pass
 
     st.session_state.history.insert(0, result)
     st.session_state.coins += coin_gain_per_roll
@@ -776,23 +784,6 @@ def perform_rolls(roll_count=1):
 
   save_user_data_to_db()
   return results
-
-
-# 분모에 따른 레벨업 요구치 계산 함수
-def get_level_requirements(denom):
-  if denom > 100000000:  # 1억 초과 (예: Dreamcatcher)
-    return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
-  elif denom >= 1000000:  # 100만 이상 ~ 1억 이하
-    return {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 10, 7: 100}
-  elif denom > 100000:  # 10만 초과 ~ 100만 미만
-    return {1: 1, 2: 30, 3: 50, 4: 100, 5: 500, 6: 1000, 7: 1500}
-  else:  # 10만 이하
-    return {1: 1, 2: 10, 3: 20, 4: 30, 5: 50, 6: 100, 7: 300}
-
-
-def get_max_requirement(denom):
-  reqs = get_level_requirements(denom)
-  return reqs[7]
 
 
 # ==========================================
@@ -1110,7 +1101,6 @@ with tab_inventory:
                 st.session_state.levels[item] += 1
                 new_lvl = st.session_state.levels[item]
 
-                # 만렙(7 = Max Lv.6 도달 시) 달성 시 칭호 자동 지급
                 if new_lvl == 7:
                   if item == "스펙트라플로우":
                     t_name = "꧁༺ 스펙트럼의 초월자 ༻꧂"
