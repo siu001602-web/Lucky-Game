@@ -462,13 +462,26 @@ if not st.session_state.logged_in:
 
 
 # ==========================================
-# ❄️ [계절 및 날씨 시스템: 1분(60초) 주기, 30% 눈 확률 (맘모스 장착 시 +10%)]
+# ☀️🌙 [낮/밤 시스템: 3분(180초) 주기]
+# ==========================================
+def get_world_time_status():
+  current_time = int(time.time())
+  cycle_time = current_time % 360
+  is_day = cycle_time < 180
+  rem_sec = 180 - (cycle_time % 180)
+  return is_day, rem_sec
+
+
+# ==========================================
+# ❄️ [계절 및 날씨 시스템: 1분(60초) 독립 주기, 30% 눈 확률 (맘모스 장착 시 +10%)]
 # ==========================================
 def get_world_weather_status():
-  cycle_time = int(time.time()) % 60
-  rem_sec = 60 - (cycle_time % 60)
+  current_time = int(time.time())
+  cycle_time = current_time % 60
+  rem_sec = 60 - cycle_time
 
-  minute_seed = int(time.time()) // 60
+  # 1분 단위 고유 시드값으로 해당 1분 동안 날씨 고정
+  minute_seed = current_time // 60
   random.seed(minute_seed)
 
   snow_chance = 0.30
@@ -476,7 +489,7 @@ def get_world_weather_status():
     snow_chance = 0.40
 
   is_snow = random.random() < snow_chance
-  random.seed()
+  random.seed()  # 난수 발생기 복구
 
   return is_snow, rem_sec, int(snow_chance * 100)
 
@@ -604,9 +617,7 @@ def get_current_luck_multiplier(next_pull_number):
   if is_snow and st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮":
     mult *= 10
 
-  # 드림캐쳐 장착 시 밤 시간대 행운 10배
-  cycle_time = int(time.time()) % 360
-  is_day = cycle_time < 180
+  is_day, _ = get_world_time_status()
   if not is_day and st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻":
     mult *= 10
 
@@ -736,6 +747,7 @@ def perform_rolls(roll_count=1):
       10 if st.session_state.get("equipped") == "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐" else 5
   )
   is_snow, _, _ = get_world_weather_status()
+  is_day, _ = get_world_time_status()
 
   prior_counts = {item: st.session_state.counts.get(item, 0) for item in items}
 
@@ -749,7 +761,16 @@ def perform_rolls(roll_count=1):
 
     current_weights = list(base_weights)
 
-    # 눈이 올 때 확률 배율 적용
+    # 낮/밤 버프 적용
+    if is_day:
+      current_weights[items.index("태양")] *= 10
+    else:
+      current_weights[items.index("달")] *= 10
+      current_weights[items.index("황혼")] *= 10
+      current_weights[items.index("자장가")] *= 10
+      current_weights[items.index("𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻")] *= 2
+
+    # 눈 날씨 버프 적용 (빙하·만년서리·블리자드 3배 / 맘모스·아이스에이지 2배)
     if is_snow:
       current_weights[items.index("빙하")] *= 3
       current_weights[items.index("만년서리")] *= 3
@@ -848,31 +869,56 @@ with c_u2:
     st.session_state.username = ""
     st.rerun()
 
-is_snow_now, rem_seconds_now, current_snow_pct = get_world_weather_status()
-s_rem = rem_seconds_now
+# 낮/밤 및 날씨 상태바 표시
+is_day_now, time_rem_sec = get_world_time_status()
+t_min = time_rem_sec // 60
+t_sec = time_rem_sec % 60
+
+is_snow_now, weather_rem_sec, current_snow_pct = get_world_weather_status()
+w_sec = weather_rem_sec
+
 is_mammoth_equipped = st.session_state.get("equipped") == "𝓜𝓪𝓶𝓶𝓸𝓽𝓱"
 is_ia_equipped = st.session_state.get("equipped") == "𝓘𝓬𝓮𝓐𝓰𝓮"
+is_dc_equipped = st.session_state.get("equipped") == "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻"
 
-if is_snow_now:
-  ia_bonus_text = (
-      " | ❄️ 𝓘𝓬𝓮𝓐𝓰𝓮 장착 중: 행운 10배 발동 중!" if is_ia_equipped else ""
-  )
+# 1. 낮/밤 상태 표시 배너
+if is_day_now:
   st.markdown(
       f"""
-        <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0,191,255,0.5);">
-            🌨️ [현재 날씨: 눈 내리는 중] 확률 {current_snow_pct}% 적용 중! (빙하·만년서리·블리자드 3배 / 𝓜𝓪𝓶𝓶𝓸𝓽𝓱·𝓘𝓬𝓮𝓐𝓰𝓮 2배 폭증!) (남은 시간: {s_rem}초){ia_bonus_text}
+        <div style="background: linear-gradient(90deg, #ff9900, #ffcc00); padding: 10px; border-radius: 8px; text-align: center; color: black; font-weight: bold; font-size: 16px; margin-bottom: 8px; box-shadow: 0 0 10px rgba(255,204,0,0.4);">
+            🌞 [현재 낮 시간대] 태양(☀️) 확률 10배 폭증 중! (남은 시간: {t_min}분 {t_sec}초 후 밤으로 전환)
         </div>
         """,
       unsafe_allow_html=True,
   )
 else:
-  mammoth_bonus_text = (
-      " | 🦣 𝓜𝓪𝓶𝓶𝓸𝓽𝓱 장착 중: 눈 확률 +10%!" if is_mammoth_equipped else ""
-  )
+  dc_text = " | 🕸️ 𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻 장착 중: 밤 행운 10배!" if is_dc_equipped else ""
   st.markdown(
       f"""
-        <div style="background: linear-gradient(90deg, #333333, #666666); padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(100,100,100,0.5);">
-            ⛅ [현재 날씨: 정상 (맑음)] 눈 내릴 확률 {current_snow_pct}% (남은 시간: {s_rem}초 후 날씨 전환){mammoth_bonus_text}
+        <div style="background: linear-gradient(90deg, #003366, #2b1a66); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 8px; box-shadow: 0 0 10px rgba(153,102,255,0.4);">
+            🌙 [현재 밤 시간대] 달·황혼·자장가 10배 / 𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻 2배! (남은 시간: {t_min}분 {t_sec}초 후 낮으로 전환){dc_text}
+        </div>
+        """,
+      unsafe_allow_html=True,
+  )
+
+# 2. 날씨(눈/정상) 상태 표시 배너
+if is_snow_now:
+  ia_text = " | ❄️ 𝓘𝓬𝓮𝓐𝓰𝓮 장착 중: 행운 10배!" if is_ia_equipped else ""
+  st.markdown(
+      f"""
+        <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,191,255,0.4);">
+            🌨️ [현재 날씨: 눈 내리는 중] 눈 확률 {current_snow_pct}% (빙하·만년서리·블리자드 3배 / 맘모스·아이스에이지 2배) (남은 시간: {w_sec}초){ia_text}
+        </div>
+        """,
+      unsafe_allow_html=True,
+  )
+else:
+  m_text = " | 🦣 𝓜𝓪𝓶𝓶𝓸𝓽𝓱 장착 중: 눈 확률 +10%!" if is_mammoth_equipped else ""
+  st.markdown(
+      f"""
+        <div style="background: linear-gradient(90deg, #333333, #555555); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(100,100,100,0.4);">
+            ⛅ [현재 날씨: 정상 (맑음)] 눈 내릴 확률 {current_snow_pct}% (남은 시간: {w_sec}초){m_text}
         </div>
         """,
       unsafe_allow_html=True,
