@@ -43,7 +43,6 @@ denominators = {
     "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": 1730400000, "감시자": 45000000,
     "아쿠아리움": 80000000, "선원": 12000000, "샤킨": 10000000, "포세이돈": 4000000, "에바네샌트": 3360000,
     "기원": 6500000, "망령": 4100000,
-    "사도:베일": 800000000, "수확가": 666000000, "악몽의 하늘": 190000000,
     "듀라한": 72000000, "영혼 사냥꾼": 40000000, "묘화": 21000000, "밤나팔꽃": 10000000, "바이탈": 6000000, "룬(나이트)": 1000000, "펌프": 200000,
     "블리자드": 27315000, "이상": 24691356, "크로마틱": 20000000, "자장가": 17000000,
     "그래피티": 12000000, "헬리오스": 9000000, "속력": 7630000, "황혼": 6000000,
@@ -183,7 +182,7 @@ icons = {
     "블리자드": "❄️🌨️🌀", "이상": "🌀❓🌌", "크로마틱": "🌈💫", "자장가": "🌌🎵💤",
     "그래피티": "🎨✨", "헬리오스": "☀️🔥", "속력": "⚡💨", "황혼": "🌆✨💜",
     "아파타이트": "💠💎", "대마법사": "🧙‍♂️✨", "아케인": "🔮👑", "워록": "💀🔥",
-    "테러": "💣💥", "바운디드": "🌌👑", "재즈": "🎶🎷", "스펙터": "👻🔮",
+    "테러": "💣💥", "바운디드": "🌌👑", "재즈": "🎶🎷", "ส펙터": "👻🔮",
     "이색": "🌈✨", "노틸러스": "🐚🌊", "아쿠아틱": "💧✨",
     "만년서리": "❄️💎", "태양": "☀️✨", "달": "🌙✨", "와트": "⚡👑⚡",
     "힘": "⚡🔥", "카와이": "🎀💖✨", "석영": "💎✨", "출혈": "🩸⚔️",
@@ -712,8 +711,8 @@ def get_styled_title_html(title_name):
 
   halloween_titles = [
       "𓆩 𝓟𝓾𝓶𝓹 𓆪", "𓆩 𝕽𝖚𝓷𝖊 𝕶𝓷𝓲𝓰𝓱𝓽 𓆪", "𓆩 𝓥𝓲𝓽𝓪𝓵 𓆪",
-      "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪", "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝓷𝖙𝖊𝓻 𓆪", "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
-      "𓆩 𝕯𝖗𝖊𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝓮𝖗 𓆪", "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝖍𝖊 𝕍𝖊𝖎𝖑 𓆪",
+      "𓆩 𝓜𝓸𝓸𝓷𝓯𝓵𝓸𝔀𝓮𝓻 𓆪", "𓆩 𝓜𝔂𝓸𝓱𝔀𝓪 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝓷𝖙𝖊𝖗 𓆪", "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
+      "𓆩 𝕯𝖗𝖊𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪", "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝖊𝖗 𓆪", "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝖍𝖊 𝕍𝖊𝖎𝖑 𓆪",
       "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝖌𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
       "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
       "꧁༺ 🎃𝕯𝖎𝖛𝖎𝖓𝖊 𝕬𝖗𝖇𝖎𝖙𝖊𝖗 𝕺𝓋 𝕿𝖍𝖊 𝕁𝖔𝖎𝓭🎃 ༻꧂"
@@ -731,7 +730,7 @@ def get_styled_title_html(title_name):
       "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
       "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
       "🌊✨ 𝐏𝐑𝐈𝐌𝐎𝐑𝐃𝐈𝐀𝐋 𝐀𝐁𝐘𝐒𝐒 ✨🌊",
-      "𓆩 𝕺𝖗𝓲𝖌𝖎𝓷 𝕾𝓹𝖆𝓻𝚔 𓆪",
+      "𓆩 𝕺𝖗𝓲g𝓲𝓷 𝕾𝓹𝖆𝓻𝚔 𓆪",
       "𓆩 𝕬𝓹𝓱𝓪𝓷𝓽 𓆪",
   ]
   if title_name in rainbow_max_titles:
@@ -1499,7 +1498,7 @@ with tab_inventory:
                       "𝓓𝓻𝓮𝓪𝓶𝓬𝓪𝓽𝓬𝓱𝓮𝓻": "꧁༺ 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐃𝐑𝐄𝐀𝐌𝐒 ༻꧂",
                       "사도:베일": "꧁༺ 🎃𝕯𝖎𝖛𝖎𝖓𝖊 𝕬𝖗𝖇𝖎𝖙𝖊𝖗 𝕺𝓋 𝕿𝖍𝖊 𝕁𝖔𝖎𝓭🎃 ༻꧂",
                       "수확가": "꧁༺ 🎃𝕿𝖍𝖊 𝕱𝖎𝖓𝖆𝖑 𝕽𝖊𝖆𝓟𝖊𝖗🎃 ༻꧂",
-                      "악몽의 하늘": "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝖊𝖎𝓌𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝖆𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
+                      "악몽의 하늘": "꧁༺ 🎃𝕾𝖔𝓿𝖊𝓻𝓮𝖎𝓰𝓷 𝕺𝓋 𝕰𝖙𝖊𝓻𝓷𝓪𝖑 𝕯𝖆𝖗𝖐𝓷𝖊𝖘𝖘🎃 ༻꧂",
                       "༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒": "🌊🔱 𝐋𝐎𝐑𝐃 𝐎𝐅 𝐓𝐇𝐄 𝐀𝐁𝐘𝐒𝐒 🔱🌊",
                       "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓞𝓶𝓷𝓲𝓬𝓱𝓻𝓸𝓶𝓪 𓆪",
                       "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "𓆩 𝓔𝓽𝓮𝓻𝓷𝓪𝓵 𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂 𓆪",
@@ -1510,7 +1509,7 @@ with tab_inventory:
                       "샤킨": "𓆩 𝕾𝖍𝖆𝖗𝖐𝖎𝓷 𓆩",
                       "포세이돈": "𓆩 𝕻𝖔𝖘𝖊𝖎𝖉𝖔𝓷 𓆩",
                       "에바네샌트": "𓆩 𝓔𝓿𝓪𝓷𝓮𝓼𝓬𝓮𝓷𝓽 𓆩",
-                      "기원": "𓆩 𝕺𝖗𝓲g𝓲𝓷 𝕾𝓹𝖆𝓻𝚔 𓆩",
+                      "기원": "𓆩 𝕺𝓻𝓲g𝓲𝓷 𝕾𝓹𝖆𝓻𝚔 𓆩",
                       "망령": "𓆩 𝕬𝓹𝓱𝓪𝓷𝓽 𓆩",
                       "듀라한": "𓆩 𝓓𝓾𝓵𝓵𝓪𝓱𝓪𝓷 𓆪",
                       "영혼 사냥꾼": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖚𝓷ⵜ𝖊𝓻 𓆪",
@@ -1519,7 +1518,7 @@ with tab_inventory:
                       "바이탈": "𓆩 𝓥𝓲𝓽𝓪𝓵 𓆪",
                       "룬(나이트)": "𓆩 𝕽𝖚𝓷𝖊 𝕶𝓷𝓲𝓰𝓱𝓽 𓆪",
                       "펌프": "𓆩 𝓟𝓾𝓶𝓹 𓆪",
-                      "크로마틱": "𓆩 𝓒𝓱𝓻𝓸𝓶𝓪𝓽𝓲𝓬 𓆪",
+                      "크로마틱": "𓆩 𝓒𝓱𝓻𝓸𝓶𝓪𝓽𝓲𝓬 𓆩",
                       "자장가": "𓆩 𝓛𝓾𝓵𝓵𝓪𝓫𝔂 𓆩",
                       "그래피티": "𓆩 𝓖𝓻𝓪𝓯𝓯𝓲𝓽𝓲 𓆩",
                       "블리자드": "𓆩 𝓑𝓵𝓲𝔃𝔃𝓪𝓻𝓭 𓆩",
@@ -1554,7 +1553,6 @@ with tab_inventory:
 with tab_potions:
   st.subheader("🧪 포션 인벤토리")
   
-  # 날씨 변경권 사용 패널 추가
   weather_ticket_count = st.session_state.get("weather_tickets", 0)
   if weather_ticket_count > 0:
     with st.container(border=True):
@@ -1570,7 +1568,6 @@ with tab_potions:
         st.write("")
         if st.button(f"날씨 변경권 사용 ({use_wt_qty}개)", key="btn_use_weather_ticket", type="primary", use_container_width=True):
           st.session_state.weather_tickets -= use_wt_qty
-          # 현재 날씨 확률에 따라 무작위로 새로운 시간 오프셋을 부여하여 날씨를 즉시 변경
           st.session_state.weather_offset = st.session_state.get("weather_offset", 0) + random.randint(10000, 999999)
           save_user_data_to_db()
           st.success(f"🎉 날씨 변경권 {use_wt_qty}장을 사용하여 날씨를 즉시 변경했습니다!")
@@ -1650,6 +1647,35 @@ with tab_codex:
         st.write(f"**희귀도 확률:** {fractions.get(sel, 'N/A')}")
         st.write(f"**보유 수량:** {st.session_state.counts.get(sel, 0)}개")
         st.write(f"**현재 레벨:** Lv. {st.session_state.levels.get(sel, 1)} / 6")
+        
+        # [핵심 수정] 해당 아우라에 전용 스킨이 존재하는 경우 도감 상세 화면에 스킨 장착/해제 메뉴 추가
+        matching_skins = aura_to_skins.get(sel, [])
+        if matching_skins:
+          st.markdown("---")
+          st.markdown("##### 🎨 전용 스킨 관리")
+          if "skins" not in st.session_state:
+            st.session_state.skins = {s: 0 for s in skin_items}
+
+          for skin_name in matching_skins:
+            is_skin_owned = st.session_state.skins.get(skin_name, 0) >= 1
+            is_skin_equipped = st.session_state.get("equipped_skin") == skin_name
+
+            if is_skin_owned:
+              st.success(f"🎨 보유 중인 스킨: **{skin_name}**")
+              if is_skin_equipped:
+                if st.button("❌ 스킨 장착 해제", key=f"codex_unequip_{skin_name}", use_container_width=True):
+                  st.session_state.equipped_skin = None
+                  save_user_data_to_db()
+                  st.rerun()
+              else:
+                if st.button("🎨 이 스킨 장착하기", key=f"codex_equip_{skin_name}", type="primary", use_container_width=True):
+                  st.session_state.equipped_skin = skin_name
+                  save_user_data_to_db()
+                  st.success(f"[{skin_name}] 스킨을 장착했습니다!")
+                  st.rerun()
+            else:
+              st.caption(f"🔒 미보유 스킨: {skin_name} (케이스 오픈으로 획득 가능)")
+
         st.markdown("---")
         if sel in cutscene_auras:
           if st.button("🎬 컷씬 다시 보기", use_container_width=True):
@@ -1688,7 +1714,6 @@ with tab_titles:
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 백업/복구")
   
-  # 날씨 변경권 구매 패널 추가
   with st.container(border=True):
     st.markdown("### 🌦️ 날씨 변경권 구매 (1개당 400 G)")
     st.write("구매 후 [포션 인벤토리] 탭에서 사용할 수 있으며, 사용 즉시 현재 날씨 확률 그대로 새로운 날씨로 바뀝니다!")
