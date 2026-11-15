@@ -98,13 +98,13 @@ fractions = {
     "에바네샌트": "1 in 3,360,000 (비올 때 확률 4배)",
     "기원": "1 in 6,500,000",
     "망령": "1 in 4,100,000",
-    "듀라한": "1 in 72,000,000 (할로윈 2024 바이옴 전용)",
-    "영혼 사냥꾼": "1 in 40,000,000 (할로윈 2024 바이옴 전용)",
-    "묘화": "1 in 21,000,000 (할로윈 2024 바이옴 전용)",
-    "밤나팔꽃": "1 in 10,000,000 (할로윈 2024 바이옴 전용)",
-    "바이탈": "1 in 6,000,000 (할로윈 2024 바이옴 전용)",
-    "룬(나이트)": "1 in 1,000,000 (할로윈 2024 바이옴 전용)",
-    "펌프": "1 in 200,000 (할로윈 2024 바이옴 전용)",
+    "듀라한": "1 in 72,000,000 (할로윈 바이옴 전용)",
+    "영혼 사냥꾼": "1 in 40,000,000 (할로윈 바이옴 전용)",
+    "묘화": "1 in 21,000,000 (할로윈 바이옴 전용)",
+    "밤나팔꽃": "1 in 10,000,000 (할로윈 바이옴 전용)",
+    "바이탈": "1 in 6,000,000 (할로윈 바이옴 전용)",
+    "룬(나이트)": "1 in 1,000,000 (할로윈 바이옴 전용)",
+    "펌프": "1 in 200,000 (할로윈 바이옴 전용)",
     "블리자드": "1 in 27,315,000 (눈올 때 확률 3배)",
     "이상": "1 in 24,691,356",
     "크로마틱": "1 in 20,000,000",
@@ -386,7 +386,8 @@ def get_current_save_dict():
       "cases": st.session_state.get("cases", 0),
       "skins": normalized_skins,
       "weather_tickets": st.session_state.get("weather_tickets", 0),
-      "weather_offset": st.session_state.get("weather_offset", 0),
+      "forced_weather": st.session_state.get("forced_weather", None),
+      "forced_weather_end": st.session_state.get("forced_weather_end", 0.0),
   }
 
 
@@ -436,7 +437,8 @@ def apply_loaded_data_to_session(saved_data):
       s: min(1, int(saved_data.get("skins", {}).get(s, 0))) for s in skin_items
   }
   st.session_state.weather_tickets = saved_data.get("weather_tickets", 0)
-  st.session_state.weather_offset = saved_data.get("weather_offset", 0)
+  st.session_state.forced_weather = saved_data.get("forced_weather", None)
+  st.session_state.forced_weather_end = saved_data.get("forced_weather_end", 0.0)
 
   st.session_state.active_potion_mult = 1
   st.session_state.active_potion_end = 0.0
@@ -459,8 +461,10 @@ if "symphony_last_minute" not in st.session_state:
   st.session_state.symphony_last_minute = None
 if "weather_tickets" not in st.session_state:
   st.session_state.weather_tickets = 0
-if "weather_offset" not in st.session_state:
-  st.session_state.weather_offset = 0
+if "forced_weather" not in st.session_state:
+  st.session_state.forced_weather = None
+if "forced_weather_end" not in st.session_state:
+  st.session_state.forced_weather_end = 0.0
 if "auto_roll_active" not in st.session_state:
   st.session_state.auto_roll_active = False
 
@@ -530,7 +534,8 @@ if not st.session_state.logged_in:
               "cases": 0,
               "skins": {s: 0 for s in skin_items},
               "weather_tickets": 0,
-              "weather_offset": 0,
+              "forced_weather": None,
+              "forced_weather_end": 0.0,
           }
           cursor.execute(
               "INSERT INTO users (username, password, data) VALUES (?, ?, ?)",
@@ -595,8 +600,17 @@ def get_world_time_status():
 
 
 def get_world_weather_status():
-  current_time = int(time.time()) + st.session_state.get("weather_offset", 0)
-  
+  now = time.time()
+  forced_w = st.session_state.get("forced_weather")
+  forced_end = st.session_state.get("forced_weather_end", 0.0)
+
+  if forced_w and now < forced_end:
+    return forced_w, max(1, int(forced_end - now))
+  elif forced_w and now >= forced_end:
+    st.session_state.forced_weather = None
+    st.session_state.forced_weather_end = 0.0
+
+  current_time = int(now)
   big_cycle_idx = current_time // 300
   big_rem_sec = 300 - (current_time % 300)
   
@@ -610,7 +624,7 @@ def get_world_weather_status():
   random.seed()
 
   if is_halloween_macro:
-    return "halloween_2024", big_rem_sec
+    return "halloween", big_rem_sec
   else:
     small_cycle_idx = current_time // 60
     small_rem_sec = 60 - (current_time % 60)
@@ -867,7 +881,7 @@ def play_fullscreen_star_cutscene(aura_name):
     star_color = "#ff6600"
     bg_style = "radial-gradient(circle, #331100 0%, #080200 90%)"
     star_symbol = "🎃"
-    ment = f"🎃 [{aura_name}] 할로윈 2024의 어둠과 마법이 깨어납니다!"
+    ment = f"🎃 [{aura_name}] 할로윈의 어둠과 마법이 깨어납니다!"
     duration = 3.5
 
   fullscreen_html = f"""
@@ -975,7 +989,7 @@ def perform_rolls(roll_count=1):
       current_weights[items.index("아쿠아리움")] *= 4
       current_weights[items.index("༒ 𝕷𝕰𝕁𝕴𝕬𝕿𝕳𝕬𝕹 ༒")] *= 2
     
-    if biome_type != "halloween_2024":
+    if biome_type != "halloween":
       for h_aura in halloween_auras:
         current_weights[items.index(h_aura)] = 0
 
@@ -1014,7 +1028,7 @@ def perform_rolls(roll_count=1):
       first_get_titles = {
           "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝕍𝖊𝖎𝖑 𓆪",
           "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝖊𝖗 𓆪",
-          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
+          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
           "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
           "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
@@ -1108,12 +1122,12 @@ else:
       unsafe_allow_html=True,
   )
 
-if biome_type == "halloween_2024":
+if biome_type == "halloween":
   h_boost = " | 🎃 할로윈 아우라 장착 중: 바이옴 확률 +0.3% 적용!" if is_hween_equipped else ""
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #ff6600, #331100); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 14px rgba(255,102,0,0.7);">
-            🎃 [현재 바이옴: 할로윈 2024] (5분 유지 / 할로윈 전용 아우라 10종 출현 가능!) (남은 시간: {b_min}분 {b_sec}초){h_boost}
+            🎃 [현재 바이옴: 할로윈] (5분 유지 / 할로윈 전용 아우라 10종 출현 가능!) (남은 시간: {b_min}분 {b_sec}초){h_boost}
         </div>
         """,
       unsafe_allow_html=True,
@@ -1123,7 +1137,7 @@ elif biome_type == "snow":
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #004080, #0080ff); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,191,255,0.4);">
-            🌨️ [현재 날씨: 눈] (1분마다 랜덤 전환 / 할로윈 아우라 출현 불가) (남은 시간: {b_sec}초){ia_text}
+            🌨️ [현재 날씨: 눈] (남은 시간: {b_sec}초){ia_text}
         </div>
         """,
       unsafe_allow_html=True,
@@ -1132,7 +1146,7 @@ elif biome_type == "rain":
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #00334d, #006699); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(0,153,255,0.4);">
-            🌧️ [현재 날씨: 비] (1분마다 랜덤 전환 / 할로윈 아우라 출현 불가) (남은 시간: {b_sec}초)
+            🌧️ [현재 날씨: 비] (남은 시간: {b_sec}초)
         </div>
         """,
       unsafe_allow_html=True,
@@ -1143,7 +1157,7 @@ else:
   st.markdown(
       f"""
         <div style="background: linear-gradient(90deg, #333333, #555555); padding: 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(100,100,100,0.4);">
-            ⛅ [현재 날씨: 일반] (1분마다 랜덤 전환 / 할로윈 아우라 출현 불가) (남은 시간: {b_sec}초){m_text}{h_boost}
+            ⛅ [현재 날씨: 일반] (남은 시간: {b_sec}초){m_text}{h_boost}
         </div>
         """,
       unsafe_allow_html=True,
@@ -1255,7 +1269,6 @@ with tab_gacha:
 
   st.write("")
 
-  # [오토 뽑기 위젯 프래그먼트 정의]
   @st.fragment(run_every=1.5 if st.session_state.get("auto_roll_active", False) else None)
   def auto_gacha_widget():
     is_unlocked = st.session_state.get("auto_roll_unlocked", False)
@@ -1266,7 +1279,6 @@ with tab_gacha:
       st.markdown("---")
       st.markdown("### ⚡ 오토 뽑기 시스템")
       
-      # 토글 스위치 변경 시 콜백으로 상태 반영
       def toggle_auto_callback():
         st.session_state.auto_roll_active = st.session_state.auto_toggle_input
 
@@ -1585,28 +1597,56 @@ with tab_potions:
       with col_wt1:
         st.markdown("<div style='font-size: 38px; text-align: center;'>🌦️</div>", unsafe_allow_html=True)
       with col_wt2:
-        st.markdown("#### 🌦️ 날씨 변경권")
+        st.markdown("#### 🌦️ 날씨 변환기")
         st.write(f"보유 수량: **{weather_ticket_count}개**")
+        st.caption("확률: 꽝 49.8% / 비 25% / 눈 25% / 할로윈 0.2%")
         use_wt_qty = 1 if weather_ticket_count == 1 else st.slider("사용할 수량", min_value=1, max_value=weather_ticket_count, value=1, key="slider_qty_weather_ticket")
       with col_wt3:
         st.write("")
         st.write("")
-        if st.button(f"날씨 변경권 사용 ({use_wt_qty}개)", key="btn_use_weather_ticket", type="primary", use_container_width=True):
+        if st.button(f"날씨 변환기 사용 ({use_wt_qty}개)", key="btn_use_weather_ticket", type="primary", use_container_width=True):
           st.session_state.weather_tickets -= use_wt_qty
           
-          current_real_time = int(time.time())
-          test_offset_seed = current_real_time + random.randint(10000, 999999)
-          test_big_cycle = test_offset_seed // 300
-          random.seed(test_big_cycle * 999)
-          is_hween = random.random() < 0.002
-          random.seed()
+          outcomes = ["none", "rain", "snow", "halloween"]
+          weights = [49.8, 25.0, 25.0, 0.2]
           
-          target_duration = 300 if is_hween else 60
-          new_offset = target_duration - (current_real_time % target_duration) + (random.randint(1, 100) * target_duration)
-          st.session_state.weather_offset = new_offset
+          summary_counts = {"none": 0, "rain": 0, "snow": 0, "halloween": 0}
+          last_applied = "none"
+          for _ in range(use_wt_qty):
+            res = random.choices(outcomes, weights=weights, k=1)[0]
+            summary_counts[res] += 1
+            if res != "none":
+              last_applied = res
+
+          now = time.time()
+          if last_applied == "halloween":
+            st.session_state.forced_weather = "halloween"
+            st.session_state.forced_weather_end = now + 300
+          elif last_applied == "rain":
+            st.session_state.forced_weather = "rain"
+            st.session_state.forced_weather_end = now + 60
+          elif last_applied == "snow":
+            st.session_state.forced_weather = "snow"
+            st.session_state.forced_weather_end = now + 60
 
           save_user_data_to_db()
-          st.success(f"🎉 날씨 변경권 {use_wt_qty}장을 사용하여 날씨와 타이머를 즉시 초기화했습니다!")
+          
+          if use_wt_qty == 1:
+            if last_applied == "none":
+              st.warning("💨 꽝! 날씨가 변하지 않고 그대로 유지됩니다.")
+            elif last_applied == "rain":
+              st.success("🌧️ 날씨 변환 성공! 1분간 [비] 날씨가 적용됩니다!")
+            elif last_applied == "snow":
+              st.success("🌨️ 날씨 변환 성공! 1분간 [눈] 날씨가 적용됩니다!")
+            elif last_applied == "halloween":
+              st.balloons()
+              st.success("🎃 대박! 0.2% 확률을 뚫고 5분간 [할로윈] 바이옴이 강림했습니다!")
+          else:
+            st.info(
+                f"🌦️ 날씨 변환기 {use_wt_qty}개 사용 결과 — "
+                f"꽝: {summary_counts['none']}회 | 비: {summary_counts['rain']}회 | "
+                f"눈: {summary_counts['snow']}회 | 할로윈: {summary_counts['halloween']}회"
+            )
           st.rerun()
 
   all_potions_count = sum(st.session_state.potions.values())
@@ -1682,7 +1722,7 @@ with tab_codex:
         st.session_state.selected_codex = item
 
     st.divider()
-    st.markdown("#### 🎃 할로윈 2024 전용 도감")
+    st.markdown("#### 🎃 할로윈 전용 도감")
     for idx_h, h_item in enumerate(halloween_auras):
       is_owned = st.session_state.counts.get(h_item, 0) > 0 or st.session_state.levels.get(h_item, 1) > 1
       display_name = f"{icons.get(h_item, '🎃')} {h_item}" if is_owned else "🔒 [LOCKED] ???"
@@ -1745,7 +1785,7 @@ with tab_codex:
           st.markdown(
               "<div style='text-align: center; padding: 40px; color: #ff8c00;'>"
               "<h2>🔒 [LOCKED]</h2>"
-              "<h3>할로윈 2024 바이옴 전용 미획득 아우라입니다.</h3>"
+              "<h3>할로윈 바이옴 전용 미획득 아우라입니다.</h3>"
               "</div>",
               unsafe_allow_html=True,
           )
@@ -1783,7 +1823,6 @@ with tab_titles:
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 백업/복구")
 
-  # [오토 뽑기 해금 상점 카드]
   with st.container(border=True):
     st.markdown("### 🤖 오토 뽑기 해금 (200 G)")
     st.write("해금하면 [아우라 뽑기] 탭에서 1.5초마다 자동으로 뽑기를 반복하는 오토 기능을 켤 수 있습니다!")
@@ -1802,18 +1841,18 @@ with tab_shop:
           st.error("❌ 코인이 부족합니다! (필요 코인: 200 G)")
   
   with st.container(border=True):
-    st.markdown("### 🌦️ 날씨 변경권 구매 (1개당 400 G)")
-    st.write("구매 후 [포션 인벤토리] 탭에서 사용할 수 있으며, 사용 즉시 현재 날씨 확률 그대로 새로운 날씨로 바뀝니다!")
+    st.markdown("### 🌦️ 날씨 변환기 구매 (1개당 400 G)")
+    st.write("구매 후 [포션 인벤토리] 탭에서 물약처럼 사용할 수 있으며, **49.8% 꽝 / 25% 비 / 25% 눈 / 0.2% 할로윈** 확률로 날씨가 변환됩니다!")
     max_weather_buy = st.session_state.coins // 400
-    buy_weather_qty = 1 if max_weather_buy <= 1 else st.slider("구매할 날씨 변경권 수량", min_value=1, max_value=max_weather_buy, value=1, key="slider_buy_weather_tickets")
+    buy_weather_qty = 1 if max_weather_buy <= 1 else st.slider("구매할 날씨 변환기 수량", min_value=1, max_value=max_weather_buy, value=1, key="slider_buy_weather_tickets")
     total_weather_price = buy_weather_qty * 400
     st.write(f"총 필요 코인: **{total_weather_price:,} G**")
-    if st.button(f"날씨 변경권 {buy_weather_qty}개 구매", type="primary", use_container_width=True, disabled=max_weather_buy < 1):
+    if st.button(f"날씨 변환기 {buy_weather_qty}개 구매", type="primary", use_container_width=True, disabled=max_weather_buy < 1):
       if st.session_state.coins >= total_weather_price:
         st.session_state.coins -= total_weather_price
         st.session_state.weather_tickets = st.session_state.get("weather_tickets", 0) + buy_weather_qty
         save_user_data_to_db()
-        st.success(f"🎉 날씨 변경권 {buy_weather_qty}개를 성공적으로 구매했습니다!")
+        st.success(f"🎉 날씨 변환기 {buy_weather_qty}개를 성공적으로 구매했습니다!")
         st.rerun()
 
   with st.container(border=True):
