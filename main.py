@@ -381,6 +381,7 @@ def get_current_save_dict():
           "triple_roll_unlocked", False
       ),
       "five_roll_unlocked": st.session_state.get("five_roll_unlocked", False),
+      "auto_roll_unlocked": st.session_state.get("auto_roll_unlocked", False),
       "potions": st.session_state.get("potions", {}),
       "cases": st.session_state.get("cases", 0),
       "skins": normalized_skins,
@@ -426,6 +427,7 @@ def apply_loaded_data_to_session(saved_data):
   st.session_state.five_roll_unlocked = saved_data.get(
       "five_roll_unlocked", False
   )
+  st.session_state.auto_roll_unlocked = saved_data.get("auto_roll_unlocked", False)
   st.session_state.potions = {
       p: saved_data.get("potions", {}).get(p, 0) for p in potion_items
   }
@@ -459,6 +461,8 @@ if "weather_tickets" not in st.session_state:
   st.session_state.weather_tickets = 0
 if "weather_offset" not in st.session_state:
   st.session_state.weather_offset = 0
+if "auto_roll_active" not in st.session_state:
+  st.session_state.auto_roll_active = False
 
 
 if not st.session_state.logged_in:
@@ -521,6 +525,7 @@ if not st.session_state.logged_in:
               "luck_buff_unlocked": False,
               "triple_roll_unlocked": False,
               "five_roll_unlocked": False,
+              "auto_roll_unlocked": False,
               "potions": {p: 0 for p in potion_items},
               "cases": 0,
               "skins": {s: 0 for s in skin_items},
@@ -1009,7 +1014,7 @@ def perform_rolls(roll_count=1):
       first_get_titles = {
           "사도:베일": "𓆩 𝕳𝖊𝖗𝖆𝖑𝕯 𝕺𝓯 𝕿𝕍𝖊𝖎𝖑 𓆪",
           "수확가": "𓆩 𝕾𝖔𝖚𝖑 𝕳𝖆𝖗𝖛𝖊𝖘𝓽𝖊𝖗 𓆪",
-          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝓪𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
+          "악몽의 하늘": "𓆩 𝕯𝖗𝓮𝖆𝓶 𝕺𝓕 𝕹𝖎𝖌𝖍𝖙𝖒𝖆𝓻𝓮 𓆪",
           "𝓢𝓹𝓮𝓬𝓽𝓻𝓪𝓕𝓵𝓸𝔀 𖤐": "영광의 잔광",
           "𝓢𝔂𝓶𝓹𝓱𝓸𝓷𝔂♤": "◇𝓞𝓻𝓬𝓱𝓮𝓼𝓽𝓻𝓪𝓵 𝓜𝓪𝓮𝓼𝓽𝓻𝓸 ◇",
           "✧ 𝓗𝔂𝓹𝓮𝓻 𝓟𝓻𝓲𝓼𝓶 ✧": "𓆩 𝓟𝓻𝓲𝓼𝓶𝓪𝓽𝓲𝓬 𝓓𝓮𝓲𝓽𝔂 𓆪",
@@ -1249,6 +1254,29 @@ with tab_gacha:
       )
 
   st.write("")
+
+  # [오토 뽑기 위젯 프래그먼트 정의]
+  @st.fragment(run_every=1.5 if st.session_state.get("auto_roll_active", False) else None)
+  def auto_gacha_widget():
+    is_unlocked = st.session_state.get("auto_roll_unlocked", False)
+    
+    if not is_unlocked:
+      st.info("🔒 **[오토 뽑기 미해금]** 상점에서 200 코인으로 오토 뽑기를 해금하면 자동으로 연속 뽑기를 즐길 수 있습니다!")
+    else:
+      st.markdown("---")
+      st.markdown("### ⚡ 오토 뽑기 시스템")
+      
+      # 토글 스위치 변경 시 콜백으로 상태 반영
+      def toggle_auto_callback():
+        st.session_state.auto_roll_active = st.session_state.auto_toggle_input
+
+      st.toggle("🤖 자동 뽑기 켜기 (1.5초마다 1회)", value=st.session_state.auto_roll_active, key="auto_toggle_input", on_change=toggle_auto_callback)
+      
+      if st.session_state.auto_roll_active:
+        perform_rolls(1)
+        st.success("⚡ 오토 뽑기 작동 중... (자동으로 갱신됩니다)")
+
+  auto_gacha_widget()
 
   has_origin_hand = st.session_state.get("equipped") == "𝓣𝓱𝓮 𝓞𝓻𝓲𝓰𝓲𝓷 𝓗𝓪𝓷𝓭"
   has_triple = st.session_state.get("triple_roll_unlocked", False)
@@ -1626,7 +1654,6 @@ with tab_potions:
 with tab_codex:
   st.subheader("📖 아우라 도감 (Aura Codex)")
   
-  # 할로윈 2024 미보유(LOCKED) 버튼의 글자와 테두리를 주황색으로 표시하는 CSS 주입
   halloween_locked_css_rules = []
   for idx_h, h_item in enumerate(halloween_auras):
     is_h_owned = st.session_state.counts.get(h_item, 0) > 0 or st.session_state.levels.get(h_item, 1) > 1
@@ -1755,6 +1782,24 @@ with tab_titles:
 
 with tab_shop:
   st.subheader("🛒 상점 & 데이터 백업/복구")
+
+  # [오토 뽑기 해금 상점 카드]
+  with st.container(border=True):
+    st.markdown("### 🤖 오토 뽑기 해금 (200 G)")
+    st.write("해금하면 [아우라 뽑기] 탭에서 1.5초마다 자동으로 뽑기를 반복하는 오토 기능을 켤 수 있습니다!")
+    is_auto_unlocked = st.session_state.get("auto_roll_unlocked", False)
+    if is_auto_unlocked:
+      st.success("✅ **[해금 완료]** 이미 오토 뽑기를 사용하실 수 있습니다!")
+    else:
+      if st.button("🤖 오토 뽑기 해금하기 (200 G)", type="primary", use_container_width=True):
+        if st.session_state.coins >= 200:
+          st.session_state.coins -= 200
+          st.session_state.auto_roll_unlocked = True
+          save_user_data_to_db()
+          st.success("🎉 오토 뽑기가 성공적으로 해금되었습니다! 뽑기 탭을 확인해보세요.")
+          st.rerun()
+        else:
+          st.error("❌ 코인이 부족합니다! (필요 코인: 200 G)")
   
   with st.container(border=True):
     st.markdown("### 🌦️ 날씨 변경권 구매 (1개당 400 G)")
